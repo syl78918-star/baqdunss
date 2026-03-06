@@ -2578,8 +2578,8 @@ function createRejectedOrder(screenshotData, reason, ref, targetLink) {
         const all = JSON.parse(localStorage.getItem('baqdouns_orders') || '[]');
         all.unshift(order);
 
-        // Strict Cap (Images are heavy)
-        if (all.length > 20) all.splice(20);
+        // No longer limiting to 20; we want users to see their full history.
+        // Images are compressed for Firebase, but we keep full ones in LS until space is needed.
 
         try {
             localStorage.setItem('baqdouns_orders', JSON.stringify(all));
@@ -2870,13 +2870,14 @@ async function renderOrdersList() {
 
     let all = [];
     try {
-        // ✅ اقرأ من Firebase أولاً حتى تظهر الطلبات من كل الأجهزة
+        // ✅ Optimized: Fetch ONLY this user's orders from Firebase
         if (window.BaqdDB && typeof BaqdDB.getOrders === 'function') {
-            all = await BaqdDB.getOrders();
+            all = await BaqdDB.getOrders(currentUser.email);
         } else {
             all = JSON.parse(localStorage.getItem('baqdouns_orders') || '[]');
         }
     } catch (e) {
+        console.error("Failed to load orders:", e);
         all = JSON.parse(localStorage.getItem('baqdouns_orders') || '[]');
     }
 
@@ -4127,13 +4128,19 @@ if (window.BaqdDB) {
     const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
     const isDesktop = !/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
 
+    // 🍎 Show Install Button for iOS (since beforeinstallprompt never fires on iOS)
+    if (isIOS && !isStandalone && installBtn) {
+        installBtn.style.display = 'flex';
+        installBtn.onclick = showPWAModal;
+    }
+
     window.addEventListener('beforeinstallprompt', (e) => {
         // Prevent Chrome 67 and earlier from automatically showing the prompt
         e.preventDefault();
         // Stash the event so it can be triggered later.
         deferredPrompt = e;
 
-        // Show install buttons if available
+        // Show install buttons if available (Android/Chrome)
         if (installBtn && !isStandalone) {
             installBtn.style.display = 'flex';
             installBtn.style.animation = 'pwaGlow 2s infinite';

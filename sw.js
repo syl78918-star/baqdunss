@@ -7,7 +7,7 @@
 // ✅ دمج أداة OneSignal في السيرفر ووركر الخاص بـ PWA لضمان وصول الإشعارات في الخلفية
 importScripts("https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.sw.js");
 
-const CACHE_NAME = 'baqduns-store-v6';
+const CACHE_NAME = 'baqduns-store-v7';
 const urlsToCache = [
     '/',
     '/index.html',

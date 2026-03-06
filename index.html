@@ -86,6 +86,10 @@
     <!-- PWA Support -->
     <link rel="manifest" href="visitor-manifest.json">
     <meta name="theme-color" content="#27ae60">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="بقدونس">
+    <link rel="apple-touch-icon" href="visitor-logo.png">
     <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
@@ -292,13 +296,8 @@
                 <button id="pwa-install-btn" class="btn-secondary"
                     style="background: rgba(255,255,255,0.15); backdrop-filter: blur(5px); border: 1px solid rgba(255,255,255,0.4); display: none;">
                     <ion-icon name="add-circle-outline" style="font-size: 1.2rem;"></ion-icon>
-                    تثبيت التطبيق (PWA)
+                    تثبيت التطبيق 📱
                 </button>
-                <a href="baqduns.apk" download class="btn-secondary"
-                    style="background: #27ae60; color: white; border: none; display: flex; align-items: center; gap: 10px;">
-                    <ion-icon name="logo-android" style="font-size: 1.2rem;"></ion-icon>
-                    تنزيل APK للأندرويد
-                </a>
             </div>
         </div>
     </section>

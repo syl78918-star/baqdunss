@@ -3278,8 +3278,8 @@ TIMESTAMP: ${new Date().toISOString()}
                 orders = safeJSONParse('baqdouns_orders', '[]');
             }
 
-            // 🧹 Clean and Filter: Only show active orders (Rejected belong in Audit tab)
-            orders = orders.filter(o => o && o.id && o.status !== 'Rejected');
+            // ✅ Show ALL orders (Completed, Pending, Cancelled, etc.)
+            orders = orders.filter(o => o && o.id);
             document.getElementById('total-orders').textContent = orders.length;
 
             let totalRevenue = 0;
@@ -3672,7 +3672,7 @@ TIMESTAMP: ${new Date().toISOString()}
                     } else if (window.BaqdDB && BaqdDB.isConnected()) {
                         try { await BaqdDB.updateOrder(order.id, { status: 'Deleted' }); } catch (e) { }
                     }
-                    loadData();
+                    loadOrders();
                 }
             }
         }

@@ -629,15 +629,32 @@
         // Returns compressed base64 or throws
 
         /** Get all orders */
-        async getOrders() {
+        async getOrders(filterEmail = null) {
             if (!_db) return _ls('baqdouns_orders');
             try {
-                const snap = await _db.ref('orders').get();
-                if (!snap.exists()) return _ls('baqdouns_orders');
+                let snap;
+                if (filterEmail) {
+                    // Optimized: Only fetch orders for this specific user
+                    snap = await _db.ref('orders').orderByChild('email').equalTo(filterEmail).get();
+                    if (!snap.exists()) {
+                        // Fallback: check userEmail field too (for consistency)
+                        snap = await _db.ref('orders').orderByChild('userEmail').equalTo(filterEmail).get();
+                    }
+                } else {
+                    // Admin mode: fetch all
+                    snap = await _db.ref('orders').get();
+                }
+
+                if (!snap.exists()) return filterEmail ? [] : _ls('baqdouns_orders');
+
                 const orders = Object.values(snap.val() || {});
-                _lsSet('baqdouns_orders', orders);
+
+                // If fetching all, update local cache
+                if (!filterEmail) _lsSet('baqdouns_orders', orders);
+
                 return orders;
             } catch (e) {
+                console.error("BaqdDB.getOrders failed:", e);
                 return _ls('baqdouns_orders');
             }
         },
