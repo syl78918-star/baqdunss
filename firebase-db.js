@@ -261,16 +261,37 @@
                 ]);
                 if (!usersSnap.exists()) return _ls('baqdouns_users');
 
-                let fbUsers = Object.values(usersSnap.val() || {});
+                const rawData = usersSnap.val() || {};
+                let fbUsers = Object.entries(rawData);
+
+                // 🧹 Auto-clean invalid entries (old uid-keyed records without email/name)
+                const toDelete = [];
+                fbUsers = fbUsers.filter(([key, u]) => {
+                    if (!u || typeof u !== 'object' || !u.email || !u.name) {
+                        toDelete.push(key);
+                        return false;
+                    }
+                    return true;
+                });
+
+                // Delete invalid entries from Firebase silently
+                if (toDelete.length > 0) {
+                    toDelete.forEach(key => {
+                        _db.ref(`users/${key}`).remove().catch(() => { });
+                    });
+                    console.log(`🧹 BaqdDB: Cleaned ${toDelete.length} invalid user entries from Firebase`);
+                }
+
+                let users = fbUsers.map(([, u]) => u);
 
                 // Filter out explicitly deleted users
                 if (deletedSnap.exists()) {
                     const deletedMap = deletedSnap.val() || {};
-                    fbUsers = fbUsers.filter(u => !u.email || !deletedMap[_enc(u.email)]);
+                    users = users.filter(u => !deletedMap[_enc(u.email)]);
                 }
 
-                _lsSet('baqdouns_users', fbUsers); // Sync to LS
-                return fbUsers;
+                _lsSet('baqdouns_users', users); // Sync to LS
+                return users;
             } catch (e) {
                 console.warn('BaqdDB.getUsers error:', e.message);
                 return _ls('baqdouns_users');

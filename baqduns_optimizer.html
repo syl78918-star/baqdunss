@@ -2923,6 +2923,22 @@ TIMESTAMP: ${new Date().toISOString()}
                 users = safeJSONParse('baqdouns_users', '[]');
             }
 
+            // 🔍 فلترة السجلات الفارغة أو التالفة (بيانات قديمة من مسار uid)
+            users = users.filter(u =>
+                u && typeof u === 'object' &&
+                (u.email || u.name) &&
+                u.email !== undefined && u.name !== undefined
+            );
+
+            // تحديث localStorage بالبيانات المنظفة
+            if (window.BaqdDB) {
+                try {
+                    const lsUsers = safeJSONParse('baqdouns_users', '[]');
+                    const cleanLS = lsUsers.filter(u => u && u.email && u.name);
+                    localStorage.setItem('baqdouns_users', JSON.stringify(cleanLS));
+                } catch (e) { }
+            }
+
             document.getElementById('total-users').textContent = users.length;
             tableBody.innerHTML = '';
 
@@ -2935,13 +2951,17 @@ TIMESTAMP: ${new Date().toISOString()}
                 const row = document.createElement('tr');
                 const isBanned = user.isBanned || false;
                 const isVerified = user.isVerified || false;
+                const displayName = user.name || user.displayName || '—';
+                const displayEmail = user.email || '—';
+                const displayPoints = user.points !== undefined && user.points !== null ? user.points : 0;
+                const displayJoined = user.joined || user.createdAt || '-';
 
                 row.innerHTML = `
-                    <td>${user.joined || '-'}</td>
-                    <td><strong>${user.name}</strong> ${isVerified ? '<ion-icon name="checkmark-circle" style="color:#0984e3;"></ion-icon>' : ''}</td>
-                    <td>${user.email}</td>
+                    <td>${displayJoined}</td>
+                    <td><strong>${displayName}</strong> ${isVerified ? '<ion-icon name="checkmark-circle" style="color:#0984e3;"></ion-icon>' : ''}</td>
+                    <td>${displayEmail}</td>
                     <td style="color: var(--color-green); font-weight: bold;">
-                        ${user.points !== undefined && user.points !== null ? user.points : 0} 🌿 
+                        ${displayPoints} 🌿 
                     </td>
                     <td>
                         <button class="btn-action" style="background:${isVerified ? '#2d3436' : '#0984e3'};" onclick="toggleVerify(${index})">
