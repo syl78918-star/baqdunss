@@ -423,7 +423,52 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // 10. Initial Language Setup
     applyLanguage(currentLang);
+
+    // 11. 🛡️ Real-time Session Sync — Fix mismatches across browsers
+    startRealtimeSessionSync();
 });
+
+/** 🔄 Keeps current user data (Seeds, Status) perfectly synced across all open browsers/devices */
+function startRealtimeSessionSync() {
+    if (!currentUser || !currentUser.email) return;
+
+    if (window.BaqdDB && typeof BaqdDB.ready === 'function') {
+        BaqdDB.ready(() => {
+            console.log("🛡️ Session Sync: Active for", currentUser.email);
+
+            // 1. Immediate Cloud Verification (One-time check on load)
+            BaqdDB.getUser(currentUser.email).then(dbUser => {
+                if (dbUser) {
+                    const localSeeds = currentUser.points || 0;
+                    const cloudSeeds = dbUser.points || 0;
+
+                    if (localSeeds !== cloudSeeds) {
+                        console.log(`⚖️ Sync: Adjusting local seeds (${localSeeds} -> ${cloudSeeds})`);
+                    }
+
+                    currentUser = { ...currentUser, ...dbUser };
+                    localStorage.setItem('baqdouns_current_user', JSON.stringify(currentUser));
+                    updateHeader();
+                }
+            });
+
+            // 2. Real-time Cloud Listener (Push updates from any device)
+            if (typeof BaqdDB.listenToUser === 'function') {
+                BaqdDB.listenToUser(currentUser.email, (updatedUser) => {
+                    if (updatedUser) {
+                        // Merge updates carefully
+                        currentUser = { ...currentUser, ...updatedUser };
+                        localStorage.setItem('baqdouns_current_user', JSON.stringify(currentUser));
+
+                        // Reflect changes in UI immediately
+                        updateHeader();
+                        console.log("🌟 Profile Dynamic Sync: Updated seeds/status from cloud.");
+                    }
+                });
+            }
+        });
+    }
+}
 
 function startHeartbeat() {
     if (!currentUser) return;

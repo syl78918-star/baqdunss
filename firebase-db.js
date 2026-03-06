@@ -370,13 +370,21 @@
                 });
                 let users = Array.from(uniqueMap.values());
 
-                // 🔥 MERGE: Preserve local users who haven't reached Firebase yet
+                // 🔥 MERGE & AUTO-SYNC: 
+                // 1. Find local users not in Firebase
+                // 2. Add them to the global results
+                // 3. 🚀 AUTO-UPLOAD them back to Firebase so other devices see them too!
                 const lsUsers = _ls('baqdouns_users');
                 lsUsers.forEach(lsU => {
                     const email = (lsU.email || '').trim().toLowerCase();
                     if (email && !uniqueMap.has(email)) {
                         users.push(lsU);
                         uniqueMap.set(email, lsU);
+                        // Auto-upload shadow user to cloud
+                        if (_dbReady && _db) {
+                            console.log(`☁️ Sync: Uploading local-only user ${email} to cloud...`);
+                            _db.ref(`users/${_enc(email)}`).update(lsU).catch(() => { });
+                        }
                     }
                 });
 
@@ -395,6 +403,19 @@
                 console.error("listenUsers failed:", error);
                 if (window.showAdminToast) showAdminToast("⚠️ فشل جلب المستخدمين: " + error.message, "error");
             });
+            return () => ref.off('value', handler);
+        },
+
+        /** Real-time sync for a specific user (Profile Sync) */
+        listenToUser(email, callback) {
+            if (!email || !_db) return () => { };
+            const ref = _db.ref(`users/${_enc(email)}`);
+            const handler = (snap) => {
+                if (snap.exists()) {
+                    callback(snap.val());
+                }
+            };
+            ref.on('value', handler);
             return () => ref.off('value', handler);
         },
 
