@@ -1,0 +1,74 @@
+{
+    "rules": {
+        ".read": true,
+        ".write": true,
+        "users": {
+            ".read": true,
+            ".write": true
+        },
+        "login_logs": {
+            ".read": true,
+            ".write": true
+        },
+        "orders": {
+            ".read": true,
+            ".write": true
+        },
+        "settings": {
+            ".read": true,
+            ".write": true
+        },
+        "coupons": {
+            ".read": true,
+            ".write": true
+        },
+        "complaints": {
+            ".read": true,
+            ".write": true
+        },
+        "transfers": {
+            ".read": true,
+            ".write": true
+        },
+        "presence": {
+            ".read": true,
+            ".write": true
+        },
+        "auction": {
+            ".read": true,
+            ".write": true
+        },
+        "app_notifications": {
+            ".read": true,
+            ".write": true
+        },
+        "email_to_uid": {
+            ".read": true,
+            ".write": true
+        },
+        "deleted_users": {
+            ".read": true,
+            ".write": true
+        },
+        "biometrics": {
+            ".read": true,
+            ".write": true
+        },
+        "accounts": {
+            ".read": true,
+            ".write": true
+        },
+        "packages": {
+            ".read": true,
+            ".write": true
+        },
+        "nanaa_unknown": {
+            ".read": true,
+            ".write": true
+        },
+        "rejected_proofs": {
+            ".read": true,
+            ".write": true
+        }
+    }
+}

@@ -12,6 +12,7 @@
     // ── Internal State ─────────────────────────────────────────
     let _db = null;
     let _initialized = false;
+    let _dbReady = false;  // true after _flush() is called
     let _readyQueue = [];
     let _listeners = {};   // Active Firebase listeners
 
@@ -64,21 +65,13 @@
             await _loadScript('https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js');
             await _loadScript('https://www.gstatic.com/firebasejs/9.23.0/firebase-app-check-compat.js');
 
-            // Initialize app (avoid duplicate)
+            // ── Initialize app (avoid duplicate) ──────────────────────
             if (!firebase.apps.length) {
                 firebase.initializeApp(window.BAQDUNS_FIREBASE_CONFIG);
             }
-            _db = firebase.database();
 
-            // 🛡️ APP CHECK: Prevent bots/unauthorized access
-            if (window.BAQDUNS_FIREBASE_CONFIG.recaptchaKey) {
-                const appCheck = firebase.appCheck();
-                appCheck.activate(
-                    new firebase.appCheck.ReCaptchaV3Provider(window.BAQDUNS_FIREBASE_CONFIG.recaptchaKey),
-                    true // isTokenAutoRefreshEnabled
-                );
-                console.log('🛡️ App Check: Active (reCAPTCHA v3)');
-            }
+            // ── Set _db FIRST so real-time works even if App Check fails ──
+            _db = firebase.database();
 
             // Watch Auth State
             firebase.auth().onAuthStateChanged(user => {
@@ -90,11 +83,32 @@
                 }
             });
 
-            console.log('✅ BaqdDB: Firebase connected with Authentication!');
+            console.log('✅ BaqdDB: Firebase connected!');
             _flush();
 
             // Setup session presence on disconnect
             _setupPresenceSystem();
+
+            // 🛡️ APP CHECK — non-blocking, runs AFTER flush so it never delays connection
+            if (window.BAQDUNS_FIREBASE_CONFIG.recaptchaKey) {
+                try {
+                    // Allow debug mode on localhost / file:// / PWA dev
+                    const isLocal = ['localhost', '127.0.0.1', ''].includes(window.location.hostname)
+                        || window.location.protocol === 'file:';
+                    if (isLocal) {
+                        self.FIREBASE_APPCHECK_DEBUG_TOKEN = true;
+                        console.log('🛡️ App Check: Debug mode (localhost)');
+                    }
+                    const appCheck = firebase.appCheck();
+                    appCheck.activate(
+                        new firebase.appCheck.ReCaptchaV3Provider(window.BAQDUNS_FIREBASE_CONFIG.recaptchaKey),
+                        true
+                    );
+                    console.log('🛡️ App Check: Activated');
+                } catch (acErr) {
+                    console.warn('🛡️ App Check skipped (non-critical):', acErr.message);
+                }
+            }
 
         } catch (err) {
             console.warn('🔥 BaqdDB: Firebase init failed, using localStorage fallback.', err.message);
@@ -104,6 +118,7 @@
 
     // ── Run queued callbacks when ready ────────────────────────
     function _flush() {
+        _dbReady = true;
         _readyQueue.forEach(fn => { try { fn(); } catch (e) { } });
         _readyQueue = [];
     }
@@ -113,11 +128,15 @@
         if (!_db) return;
         const connRef = _db.ref('.info/connected');
         connRef.on('value', (snap) => {
-            if (snap.val() === true) {
+            const online = snap.val() === true;
+            window._fbOnline = online;
+            if (online) {
                 console.log('🟢 Firebase: Connection live');
             } else {
-                console.log('🔴 Firebase: Connection lost');
+                console.log('🔴 Firebase: Connection lost/pending');
             }
+            // Broadcast for UI to react
+            window.dispatchEvent(new CustomEvent('firebase-connection', { detail: { online } }));
         });
     }
 
@@ -168,12 +187,15 @@
     // ────────────────────────────────────────────────────────────
     const BaqdDB = {
 
-        /** Returns true if Firebase is connected */
+        /** Returns true if Firebase SDK is initialized (regardless of network) */
         isConnected: () => !!_db,
+
+        /** Returns true if Firebase has a live real-time connection */
+        isOnline: () => !!_db && window._fbOnline === true,
 
         /** Run callback when DB is ready (Firebase or fallback) */
         onReady: (fn) => {
-            if (_initialized && _readyQueue.length === 0) fn();
+            if (_dbReady) fn();  // Already initialized — call immediately
             else _readyQueue.push(fn);
         },
 
@@ -187,10 +209,12 @@
             return firebase.auth().signInWithCredential(credential);
         },
 
-        /** Save/update a user using their Auth UID for absolute security */
+        /** Save/update a user — writes to both uid path and email path for full compatibility */
         async saveUser(user) {
             if (!user || !user.email) return;
-            const uid = firebase.auth().currentUser ? firebase.auth().currentUser.uid : 'temp_' + _enc(user.email);
+            const uid = (firebase.auth && firebase.auth().currentUser)
+                ? firebase.auth().currentUser.uid
+                : 'temp_' + _enc(user.email);
 
             // LS update
             const users = _ls('baqdouns_users');
@@ -199,13 +223,12 @@
             else users.push({ ...user, uid });
             _lsSet('baqdouns_users', users);
 
-            // Firebase update (Isolated path for security)
             if (!_db) return;
             try {
-                // We keep a public-ish reference for email mapping, 
-                // but main data is under users/uid which only owner can write
-                await _db.ref(`users/${uid}`).update(user);
-                await _db.ref(`email_to_uid/${_enc(user.email)}`).set(uid);
+                const userData = { ...user, uid };
+                // Write to BOTH paths so getUser (by email) and getUsers (by uid) both work
+                await _db.ref(`users/${_enc(user.email)}`).update(userData);
+                await _db.ref(`email_to_uid/${_enc(user.email)}`).set(_enc(user.email));
             } catch (e) { console.warn('BaqdDB.saveUser Firebase error:', e.message); }
         },
 
@@ -219,12 +242,14 @@
                 Object.assign(users[idx], updates);
                 _lsSet('baqdouns_users', users);
             }
-            // Firebase update
+            // Firebase update — write to the consistent email-keyed path
             if (!_db) return;
             try {
                 await _db.ref(`users/${_enc(email)}`).update(updates);
             } catch (e) { console.warn('BaqdDB.updateUser Firebase error:', e.message); }
         },
+
+
 
         /** Get all users (Firebase first, LS fallback) */
         async getUsers() {
@@ -977,8 +1002,17 @@
                 ];
                 await Promise.all(nodes.map(n => _db.ref(n).remove()));
 
-                // Clear LS
+                // Clear LS but preserve critical flags to avoid infinite loops and maintain identity
+                const fp = localStorage.getItem('baqdouns_fp');
+                const adminAuthId = localStorage.getItem('baqdouns_admin_auth_id');
+                const wipeFlag = localStorage.getItem('baqdouns_fw_wipe_final');
+
                 localStorage.clear();
+
+                if (fp) localStorage.setItem('baqdouns_fp', fp);
+                if (adminAuthId) localStorage.setItem('baqdouns_admin_auth_id', adminAuthId);
+                if (wipeFlag) localStorage.setItem('baqdouns_fw_wipe_final', wipeFlag);
+
                 window.location.reload();
             } catch (e) {
                 console.error('Wipe Failed:', e);
