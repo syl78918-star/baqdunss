@@ -4,6 +4,9 @@
 // الإشعارات الحقيقية (FCM) تعالج في firebase-messaging-sw.js
 // ================================================================
 
+// ✅ دمج أداة OneSignal في السيرفر ووركر الخاص بـ PWA لضمان وصول الإشعارات في الخلفية
+importScripts("https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.sw.js");
+
 const CACHE_NAME = 'baqduns-store-v5';
 const urlsToCache = [
     '/',

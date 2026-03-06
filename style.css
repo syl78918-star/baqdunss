@@ -228,6 +228,54 @@ header {
     }
 }
 
+@media (max-width: 480px) {
+    .header-right {
+        gap: 0.3rem !important;
+    }
+
+    .header-left {
+        gap: 0.5rem !important;
+    }
+
+    .lang-toggle span {
+        display: none !important;
+    }
+
+    .lang-toggle {
+        padding: 5px !important;
+        margin-right: 0px !important;
+    }
+
+    button[onclick="forceAppUpdate()"],
+    .update-btn-nav {
+        padding: 5px !important;
+        margin-right: 0px !important;
+        font-size: 0 !important;
+        width: 30px !important;
+        height: 30px !important;
+        justify-content: center !important;
+    }
+
+    button[onclick="forceAppUpdate()"] ion-icon,
+    .update-btn-nav ion-icon {
+        font-size: 1.1rem !important;
+        margin: 0 !important;
+    }
+
+    .logo span {
+        font-size: 1.2rem !important;
+    }
+
+    .logo img {
+        width: 30px !important;
+        height: 30px !important;
+    }
+
+    .cart-trigger {
+        margin-left: 0 !important;
+    }
+}
+
 /* New layout for nav-container */
 .nav-container {
     display: grid;

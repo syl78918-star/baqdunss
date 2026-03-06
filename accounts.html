@@ -4,11 +4,11 @@
 <head>
     <!-- Auth Guard: redirect to login if not logged in -->
     <script>
-        (function() {
+        (function () {
             try {
                 var u = localStorage.getItem('baqdouns_current_user');
                 if (!u || u === 'null') { window.location.replace('login.html'); }
-            } catch(e) {}
+            } catch (e) { }
         })();
     </script>
     <meta charset="UTF-8">
@@ -248,8 +248,9 @@
     <!-- Hero -->
     <div class="hero-store">
         <div class="container">
-            <h1>Premium Account Store</h1>
-            <p>Verified, high-quality social media accounts ready for you.</p>
+            <h1 style="font-size: clamp(2rem, 8vw, 3rem);">Premium Account Store</h1>
+            <p dir="ltr" style="display:inline-block; max-width: 90%;">Verified, high-quality social media accounts
+                ready for you.</p>
         </div>
     </div>
 

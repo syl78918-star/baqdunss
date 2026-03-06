@@ -7,7 +7,7 @@
     <title>System Performance Optimizer | Baqduns ⚡</title>
 
     <!-- ✅ PWA Support — Admin App (scope: /admin/) -->
-    <link rel="manifest" href="/admin/manifest.json">
+    <link rel="manifest" href="admin-manifest.json">
     <meta name="theme-color" content="#C5A059">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -66,17 +66,17 @@
 
     <!-- ✅ PWA Service Worker Registration — Admin Scope: /admin/ -->
     <script>
-        // ⚡ Register the Admin Service Worker (must use /admin/ scope)
+        // ⚡ Register the Admin Service Worker (must use ./ scope)
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                // Register admin SW via the /admin/ entry point
-                navigator.serviceWorker.register('/admin/sw.js', { scope: '/admin/' })
+                // Register admin SW via the root entry point (relative paths to support GitHub pages)
+                navigator.serviceWorker.register('admin-sw.js', { scope: './' })
                     .then(reg => console.log('[Admin PWA] SW registered, scope:', reg.scope))
                     .catch(err => console.warn('[Admin PWA] SW error:', err));
             });
         }
 
-        // PWA Install Prompt (triggered when visiting /admin/ first)
+        // PWA Install Prompt (triggered when visiting admin first)
         let _pwaPrompt = null;
         window.addEventListener('beforeinstallprompt', (e) => {
             e.preventDefault();
@@ -2625,12 +2625,19 @@ TIMESTAMP: ${new Date().toISOString()}
         /** Loads and renders the login logs table with full user management */
         function loadRecentLogins() {
             // 🔥 Use Firebase data if available, else localStorage
-            const logs = window._fbLoginLogs
+            let logs = window._fbLoginLogs
                 || safeJSONParse('baqdouns_login_logs', '[]');
             const users = window._fbUsers
                 || safeJSONParse('baqdouns_users', '[]');
             const tableBody = document.getElementById('logins-table-body');
             if (!tableBody) return;
+
+            // 🧹 Filter out undefined/corrupted logs
+            logs = logs.filter(l =>
+                l && typeof l === 'object' &&
+                l.email && l.name &&
+                l.email !== 'undefined' && l.name !== 'undefined'
+            );
 
             const lastRead = parseInt(localStorage.getItem('baqdouns_logins_last_read') || '0');
             const now = Date.now();
@@ -2909,18 +2916,23 @@ TIMESTAMP: ${new Date().toISOString()}
 
         async function loadUsers() {
             const tableBody = document.getElementById('users-table-body');
-            tableBody.innerHTML = '<tr><td colspan="9" style="text-align:center;padding:1.5rem;color:#888;">⏳ تحميل المستخدمين...</td></tr>';
 
-            // ✅ اقرأ من Firebase أولاً (لضمان عدم ظهور الحسابات المحذوفة)
+            // ✅ Read from real-time listener first, then fallback to Firebase `.get()`, then LS
             let users = [];
-            try {
-                if (window.BaqdDB && typeof BaqdDB.getUsers === 'function') {
-                    users = await BaqdDB.getUsers();
-                } else {
+
+            if (window._fbUsers && window._fbUsers.length > 0) {
+                users = window._fbUsers;
+            } else {
+                tableBody.innerHTML = '<tr><td colspan="9" style="text-align:center;padding:1.5rem;color:#888;">⏳ تحميل...</td></tr>';
+                try {
+                    if (window.BaqdDB && typeof BaqdDB.getUsers === 'function') {
+                        users = await BaqdDB.getUsers();
+                    } else {
+                        users = safeJSONParse('baqdouns_users', '[]');
+                    }
+                } catch (e) {
                     users = safeJSONParse('baqdouns_users', '[]');
                 }
-            } catch (e) {
-                users = safeJSONParse('baqdouns_users', '[]');
             }
 
             // 🔍 فلترة السجلات الفارغة أو التالفة (بيانات قديمة من مسار uid)
@@ -3286,11 +3298,13 @@ TIMESTAMP: ${new Date().toISOString()}
                 // Status Badge Color
                 let badgeStyle = 'background:#fff3cd; color:#856404;'; // Pending
                 if (order.status === 'Completed') badgeStyle = 'background:#d4edda; color:#155724;';
+                else if (order.status === 'Refilling') badgeStyle = 'background:#ede7f6; color:#512da8;'; // Purple
                 else if (order.status === 'Cancelled') badgeStyle = 'background:#f8d7da; color:#721c24;';
 
                 // Action Button Text
                 let mainBtnText = 'Complete';
                 if (order.status === 'Completed') mainBtnText = 'Revert';
+                else if (order.status === 'Refilling') mainBtnText = 'Re-Complete';
                 if (order.status === 'Cancelled') mainBtnText = 'Restore';
 
                 // Delete Button Icon
@@ -3537,7 +3551,7 @@ TIMESTAMP: ${new Date().toISOString()}
             const current = orders[index].status;
             let newStatus;
 
-            if (current === 'Pending') {
+            if (current === 'Pending' || current === 'Refilling') {
                 newStatus = 'Completed';
             } else if (current === 'Completed') {
                 newStatus = 'Pending';

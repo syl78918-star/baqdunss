@@ -1,9 +1,12 @@
+// ✅ دمج أداة OneSignal في لوحة التحكم (Admin PWA) لضمان وصول الاشعارات في الخلفية
+importScripts("https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.sw.js");
+
 const ADMIN_CACHE = 'baqduns-admin-v1';
 const adminUrls = [
-    '/baqduns_optimizer.html',
-    '/admin_portal.html',
-    '/firebase-db.js',
-    '/admin-manifest.json'
+    'baqduns_optimizer.html',
+    'admin_portal.html',
+    'firebase-db.js',
+    'admin-manifest.json'
 ];
 
 self.addEventListener('install', event => {
@@ -26,13 +29,13 @@ self.addEventListener('message', event => {
         const { title, body, url, tag, vibrate } = event.data.payload;
         self.registration.showNotification(title || 'تنبيه نظام بقدونس ⚡', {
             body: body || '',
-            icon: '/admin-icon.svg',
-            badge: '/admin-icon.svg',
+            icon: 'admin-icon.svg',
+            badge: 'admin-icon.svg',
             vibrate: vibrate || [400, 100, 400, 100, 400, 100, 600],
             tag: tag || 'baqduns-admin-alert',
             renotify: true,
             requireInteraction: true,
-            data: { url: url || '/baqduns_optimizer.html' }
+            data: { url: url || 'baqduns_optimizer.html' }
         });
     }
 });

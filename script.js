@@ -588,12 +588,14 @@ function ensureMobileNav() {
     const navHTML = `
     <div class="mobile-nav-overlay" onclick="toggleMobileNav()"></div>
     <aside class="mobile-nav-sidebar">
-        <div class="mobile-nav-header">
-            <h3>Menu</h3>
-            <button class="close-mobile-nav" onclick="toggleMobileNav()"><ion-icon name="close-outline"></ion-icon></button>
+        <div class="mobile-nav-header" style="flex-direction: column; align-items: stretch; display: flex;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                <h3 style="margin:0; font-family: var(--font-heading);"><ion-icon name="leaf" style="color:var(--color-gold); vertical-align:-2px; margin-right:5px;"></ion-icon>Menu</h3>
+                <button class="close-mobile-nav" onclick="toggleMobileNav()" style="background:transparent; border:none; color:white; font-size:1.8rem; cursor:pointer;"><ion-icon name="close-outline"></ion-icon></button>
+            </div>
+            <div class="mobile-auth-buttons"></div>
         </div>
         <div class="mobile-nav-links">
-            <div class="mobile-auth-buttons"></div>
             <a href="#" onclick="openSeedModal(); toggleMobileNav();" style="color: var(--color-green); font-weight: bold;"><ion-icon name="leaf"></ion-icon> Buy Seeds (شراء بذور بقدونس) 🌿</a>
             <a href="#" onclick="openTransferModal(); toggleMobileNav();" style="color: #8e44ad; font-weight: bold;"><ion-icon name="paper-plane-outline"></ion-icon> Transfer Seeds (تحويل بذور لصديق) 💸</a>
             <a href="seeds.html#seeds-program" onclick="toggleMobileNav()" style="color: #27ae60; font-weight: bold;"><ion-icon name="gift-outline"></ion-icon> Free Seeds (بذور مجانية) 🎁</a>
@@ -1207,24 +1209,24 @@ function updateMobileAuthUI() {
 
     if (currentUser) {
         container.innerHTML = `
-            <div style="display:flex; flex-direction:column; gap:10px; margin-bottom:15px; padding:15px; background:#f0f2f5; border-radius:12px; border:1px solid #e1e4e8;">
+            <div style="display:flex; flex-direction:column; gap:10px; padding:15px; background:rgba(255,255,255,0.08); border-radius:12px; border:1px solid rgba(255,255,255,0.15);">
                 <div style="display:flex; align-items:center; gap:10px;">
                     <img src="${currentUser.profilePic || 'https://via.placeholder.com/40'}" style="width:50px; height:50px; border-radius:50%; object-fit:cover; border:2px solid var(--color-gold);">
                     <div>
-                         <div style="font-weight:bold; font-size:1.1rem; color:var(--color-navy);">${currentUser.name}</div>
-                         <div style="font-size:0.9rem; color:var(--color-green); font-weight:bold;">🌱 ${currentUser.points || 0} Seeds</div>
+                         <div style="font-weight:bold; font-size:1.1rem; color:white;">${currentUser.name}</div>
+                         <div style="font-size:0.9rem; color:var(--color-gold); font-weight:bold;">🌱 ${currentUser.points || 0} Seeds</div>
                     </div>
                 </div>
                 <div style="display:flex; gap:10px; margin-top:5px;">
-                    <a href="profile.html" onclick="toggleMobileNav()" style="flex:1; text-align:center; padding:8px; background:white; border:1px solid #ddd; border-radius:6px; font-size:0.9rem; font-weight:bold; color:var(--color-navy); text-decoration:none;">Profile (تعديل)</a>
-                    <button onclick="logoutUser()" style="flex:1; padding:8px; background:#ffeaea; border:1px solid #ffcccc; border-radius:6px; color:#d63031; font-weight:bold; font-size:0.9rem; cursor:pointer;">Logout (خروج)</button>
+                    <a href="profile.html" onclick="toggleMobileNav()" style="flex:1; text-align:center; padding:8px; background:rgba(255,255,255,0.15); border:1px solid rgba(255,255,255,0.3); border-radius:6px; font-size:0.9rem; font-weight:bold; color:white; text-decoration:none;">Profile / تعديل</a>
+                    <button onclick="logoutUser()" style="flex:1; padding:8px; background:rgba(231, 76, 60, 0.2); border:1px solid rgba(231, 76, 60, 0.5); border-radius:6px; color:#ff7675; font-weight:bold; font-size:0.9rem; cursor:pointer;">Logout / خروج</button>
                 </div>
             </div>
         `;
     } else {
         container.innerHTML = `
-            <div style="display:grid; grid-template-columns:1fr; gap:10px; margin-bottom:20px;">
-                <button class="btn-login-nav" onclick="window.location.href='login.html'; toggleMobileNav();" style="width:100%; justify-content:center;">تسجيل الدخول / إنشاء حساب</button>
+            <div style="display:flex; justify-content:center;">
+                <button onclick="window.location.href='login.html'; toggleMobileNav();" style="width:100%; border:2px solid var(--color-gold); color:var(--color-navy); background:var(--color-gold); border-radius:8px; padding:10px; font-weight:bold; font-size:1rem; cursor:pointer;">تسجيل الدخول / إنشاء حساب</button>
             </div>
         `;
     }
@@ -2840,19 +2842,61 @@ async function renderOrdersList() {
 
     myOrders.forEach(o => {
         let statusColor = '#6c757d';
-        if (o.status === 'Completed') statusColor = '#28a745';
+        let statusText = o.status;
+        let refillBtn = '';
+
+        if (o.status === 'Completed') {
+            statusColor = '#28a745';
+            refillBtn = `
+                <button onclick="requestRefill('${o.id}')" 
+                        style="margin-top:5px; display:block; padding:2px 8px; font-size:0.7rem; border-radius:5px; background:#8e44ad; color:white; border:none; cursor:pointer;">
+                    🔄 إعادة تعبئة
+                </button>`;
+        }
+        else if (o.status === 'Refilling') {
+            statusColor = '#8e44ad';
+            statusText = 'Refilling';
+        }
         else if (o.status === 'Pending') statusColor = '#ffc107';
         else if (o.status === 'Cancelled' || o.status === 'Rejected') statusColor = '#dc3545';
 
         tbody.innerHTML += `
         <tr>
-                <td style="padding:10px;">${o.id}</td>
-                <td style="padding:10px;">${(o.items || []).map(i => i.name).join(', ')}</td>
-                <td style="padding:10px;"><span style="background:${statusColor};color:white;padding:3px 8px;border-radius:10px;font-size:0.8rem;">${o.status}</span></td>
-                <td style="padding:10px;">${o.total}</td>
-            </tr>
+            <td style="padding:10px;">${o.id}</td>
+            <td style="padding:10px;">${(o.items || []).map(i => i.name).join(', ')}</td>
+            <td style="padding:10px;">
+                <span style="background:${statusColor};color:white;padding:3px 8px;border-radius:10px;font-size:0.8rem;">${statusText}</span>
+                ${refillBtn}
+            </td>
+            <td style="padding:10px;">${o.total}</td>
+        </tr>
         `;
     });
+}
+
+/** 🔄 Request Refill for a completed order */
+async function requestRefill(orderId) {
+    if (!confirm('هل تريد طلب إعادة تعبئة لهذا الطلب؟')) return;
+
+    try {
+        if (window.BaqdDB && typeof BaqdDB.updateOrder === 'function') {
+            await BaqdDB.updateOrder(orderId, { status: 'Refilling' });
+
+            // Send notification to admin
+            if (window.BaqdNotify) {
+                BaqdNotify.push('🔄 طلب إعادة تعبئة', `الطلب ${orderId} يحتاج إعادة تعبئة`, {
+                    type: 'urgent',
+                    url: '/baqduns_optimizer.html'
+                });
+            }
+
+            alert('✅ تم إرسال طلب إعادة التعبئة بنجاح.');
+            renderOrdersList(); // Refresh UI
+        }
+    } catch (e) {
+        console.error('Refill error:', e);
+        alert('❌ حدث خطأ أثناء إرسال الطلب.');
+    }
 }
 
 

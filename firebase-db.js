@@ -282,7 +282,23 @@
                     console.log(`🧹 BaqdDB: Cleaned ${toDelete.length} invalid user entries from Firebase`);
                 }
 
-                let users = fbUsers.map(([, u]) => u);
+                let rawUsersList = fbUsers.map(([, u]) => u);
+
+                // 🛑 Deduplicate based on email (keep the record with more points)
+                const uniqueMap = new Map();
+                rawUsersList.forEach(u => {
+                    const e = (u.email || '').trim().toLowerCase();
+                    if (!uniqueMap.has(e)) {
+                        uniqueMap.set(e, u);
+                    } else {
+                        // Keep the one with higher points if duplicates exist
+                        const existing = uniqueMap.get(e);
+                        if ((u.points || 0) > (existing.points || 0)) {
+                            uniqueMap.set(e, u);
+                        }
+                    }
+                });
+                let users = Array.from(uniqueMap.values());
 
                 // Filter out explicitly deleted users
                 if (deletedSnap.exists()) {
@@ -339,7 +355,20 @@
                 }
 
                 // Filter out explicitly deleted users
-                let users = validUsers;
+                // 🛑 Deduplicate based on email (keep the record with more points)
+                const uniqueMap = new Map();
+                validUsers.forEach(u => {
+                    const e = (u.email || '').trim().toLowerCase();
+                    if (!uniqueMap.has(e)) {
+                        uniqueMap.set(e, u);
+                    } else {
+                        const existing = uniqueMap.get(e);
+                        if ((u.points || 0) > (existing.points || 0)) {
+                            uniqueMap.set(e, u);
+                        }
+                    }
+                });
+                let users = Array.from(uniqueMap.values());
                 try {
                     const delSnap = await _db.ref('deleted_users').get();
                     if (delSnap.exists()) {
@@ -351,7 +380,10 @@
                 _lsSet('baqdouns_users', users);
                 callback(users);
             };
-            ref.on('value', handler);
+            ref.on('value', handler, (error) => {
+                console.error("listenUsers failed:", error);
+                if (window.showAdminToast) showAdminToast("⚠️ فشل جلب المستخدمين: " + error.message, "error");
+            });
             return () => ref.off('value', handler);
         },
 
@@ -459,7 +491,7 @@
                 _lsSet('baqdouns_login_logs', logs);
                 callback(logs);
             };
-            ref.on('value', handler);
+            ref.on('value', handler, (err) => console.error("listenLoginLogs failed:", err));
             return () => ref.off('value', handler);
         },
 

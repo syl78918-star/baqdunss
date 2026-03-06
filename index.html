@@ -722,12 +722,12 @@
     </div>
 
     <!-- PWA Installation Modal (iOS/Instructions) -->
-    <div id="pwa-modal"
+    <div id="pwa-modal" onclick="if(event.target === this) closePWAModal()"
         style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 10000; display: none; align-items: center; justify-content: center; backdrop-filter: blur(8px); padding: 20px;">
         <div
             style="background: white; border-radius: 30px; width: 100%; max-width: 400px; padding: 30px; text-align: center; position: relative; animation: pwaSlideUp 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);">
             <button onclick="closePWAModal()"
-                style="position: absolute; top: 20px; right: 20px; background: #eee; border: none; border-radius: 50%; width: 35px; height: 35px; cursor: pointer; font-size: 1.2rem;">&times;</button>
+                style="position: absolute; top: 15px; right: 15px; background: #f0f0f0; border: none; border-radius: 50%; width: 40px; height: 40px; cursor: pointer; font-size: 1.5rem; z-index: 99999; display: flex; align-items: center; justify-content: center; touch-action: manipulation;">&times;</button>
 
             <div style="margin-bottom: 20px; scale: 1.2;">
                 <img src="visitor-logo.png" width="80" height="80" alt="Baqduns Logo">

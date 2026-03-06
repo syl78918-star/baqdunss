@@ -10,7 +10,8 @@
 const ONESIGNAL_APP_ID = '207bac0d-5e2f-4d2b-8388-9f84610284d7'; // ✅ حقيقي
 const ONESIGNAL_SAFARI = 'web.onesignal.auto.4d177f4c-af32-40a6-bcd9-e75371e6c146';
 const ONESIGNAL_REST_KEY = 'os_v2_app_eb52ydk6f5gsxa4it6cgcaue24iebmyz5qrem4vtbddmrlyebfhglmlljydn3a23rpazto6gpdcyrjgz7ueorrhule7wlbhzw4bkcra'; // ✅ حقيقي
-const SITE_URL = 'https://baqduns.netlify.app';
+// ✅ رابط موقعك الرسمي والموثق لحمايته من أي أخطاء في التوجيه
+const SITE_URL = 'https://syl78918-star.github.io/baqdunss';
 const TG_TOKEN = '8314414879:AAE7KPKqIKSrTyjEri9lxo1o-fl5dGXqGrE';
 const TG_CHAT_ID = '6222386355';
 
@@ -33,10 +34,14 @@ window.BaqdNotify = {
     // 🚀 MAIN PUSH — يرسل لكل القنوات دفعة واحدة
     // ══════════════════════════════════════════════════════════
     async push(title, body, options) {
-        options = options || {};
+        // ضمان أن الرابط كامل ليقبله OneSignal
+        let finalUrl = options.url || (SITE_URL + '/baqduns_optimizer.html');
+        if (finalUrl.startsWith('/')) finalUrl = SITE_URL + finalUrl;
+        else if (!finalUrl.startsWith('http')) finalUrl = SITE_URL + '/' + finalUrl;
+
         const opts = {
             type: options.type || 'info',
-            url: options.url || (SITE_URL + '/baqduns_optimizer.html'),
+            url: finalUrl,
             urgency: options.urgency || 'normal',
             timestamp: Date.now()
         };
