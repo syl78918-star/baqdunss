@@ -5,7 +5,20 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <!-- 🔐 Auth Guard: Redirect to login if not logged in (runs instantly, no page flash) -->
+    <!-- 🚀 DOMAIN MIGRATION GUARD: Redirect from old domains (Netlify, etc.) to GitHub Pages -->
+    <script>
+        (function () {
+            var OFFICIAL_URL = "syl78918-star.github.io/baqdunss";
+            var current = window.location.href;
+            var isDev = current.includes('localhost') || current.includes('127.0.0.1') || current.includes('file://');
+            if (!current.includes(OFFICIAL_URL) && !isDev) {
+                var newBase = "https://" + OFFICIAL_URL + "/";
+                window.location.replace(newBase + (window.location.pathname.split('/').pop() || 'index.html'));
+            }
+        })();
+    </script>
+
+    <!-- 🔐 Auth Guard: Redirect to login if not logged in (OFF - Browsing allowed)
     <script>
         (function () {
             try {
@@ -19,6 +32,7 @@
             }
         })();
     </script>
+    -->
     <title>baqduns 🌿 | Premium Social Media Promotion</title>
     <meta name="description"
         content="احصل على متابعين حقيقيين، لايكات، ومشاهدات لحساباتك على السوشيال ميديا بأفضل الأسعار في الأردن. Elevate your social media presence with baqduns. Premium follower, like, and view packages.">
@@ -31,6 +45,7 @@
         content="baqduns 🌿 | Premium Social Media Promotion - خدمات التواصل الاجتماعي الاحترافية">
     <meta property="og:description"
         content="نمّي حساباتك بمتابعين حقيقيين وتفاعل عالي. Elevate your social media presence with premium packages.">
+    <meta property="og:url" content="https://syl78918-star.github.io/baqdunss/">
     <meta property="og:image" content="og-image.png">
 
     <!-- Twitter -->
@@ -68,7 +83,7 @@
       "@type": "LocalBusiness",
       "name": "Baqduns - خدمات التواصل الاجتماعي",
       "description": "أفضل موقع لشراء متابعين ولايكات ومشاهدات حقيقية لحساباتك على انستقرام وفيسبوك وتيك توك",
-      "url": "https://yourwebsite.com",
+      "url": "https://syl78918-star.github.io/baqdunss/",
       "priceRange": "$$",
       "aggregateRating": {
         "@type": "AggregateRating",
@@ -111,7 +126,7 @@
                 welcomeNotification: {
                     title: 'بقدونس 🌿',
                     message: 'ستصلك إشعارات الطلبات والعروض الحصرية!',
-                    url: '/index.html'
+                    url: 'index.html'
                 },
                 promptOptions: {
                     slidedown: {

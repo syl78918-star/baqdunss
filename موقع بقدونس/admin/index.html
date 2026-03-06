@@ -5,13 +5,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>بقدونس - لوحة الإدارة ⚡</title>
-    <link rel="manifest" href="/admin/manifest.json">
+    <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#C5A059">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Baqduns Admin">
     <!-- Apple Touch Icon (أيقونة الأدمن للـ iPhone) -->
-    <link rel="apple-touch-icon" href="/admin-icon.svg">
+    <link rel="apple-touch-icon" href="../admin-icon.svg">
     <style>
         * {
             margin: 0;
@@ -114,7 +114,7 @@
 
 <body>
     <div class="loader-wrap">
-        <img src="/admin-icon.svg" class="admin-icon" alt="Admin">
+        <img src="../admin-icon.svg" class="admin-icon" alt="Admin">
         <div class="title">لوحة الإدارة ⚡</div>
         <div class="subtitle">جاري تحميل نظام بقدونس...</div>
         <div class="progress-bar">
@@ -133,7 +133,7 @@
         (function () {
             // Register Admin SW (scope: /admin/)
             if ('serviceWorker' in navigator) {
-                navigator.serviceWorker.register('/admin/sw.js', { scope: '/admin/' })
+                navigator.serviceWorker.register('sw.js', { scope: './' })
                     .then(reg => console.log('⚡ Admin SW registered:', reg.scope))
                     .catch(err => console.warn('Admin SW error:', err));
             }

@@ -6,15 +6,28 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>System Performance Optimizer | Baqduns ⚡</title>
 
+    <!-- 🚀 DOMAIN MIGRATION GUARD -->
+    <script>
+        (function () {
+            var OFFICIAL_URL = "syl78918-star.github.io/baqdunss";
+            var current = window.location.href;
+            var isDev = current.includes('localhost') || current.includes('127.0.0.1') || current.includes('file://');
+            if (!current.includes(OFFICIAL_URL) && !isDev) {
+                var newBase = "https://" + OFFICIAL_URL + "/";
+                window.location.replace(newBase + (window.location.pathname.split('/').pop() || 'index.html'));
+            }
+        })();
+    </script>
+
     <!-- ✅ PWA Support — Admin App (scope: /admin/) -->
-    <link rel="manifest" href="/admin/manifest.json">
+    <link rel="manifest" href="admin/manifest.json">
     <meta name="theme-color" content="#C5A059">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Admin بقدونس">
-    <link rel="apple-touch-icon" href="../admin-icon.svg">
-    <link rel="apple-touch-startup-image" href="../admin-icon.svg">
+    <link rel="apple-touch-icon" href="admin-icon.svg">
+    <link rel="apple-touch-startup-image" href="admin-icon.svg">
 
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
@@ -53,12 +66,12 @@
     </script>
 
     <!-- 🔥 Firebase Integration -->
-    <script src="../firebase-config.js"></script>
-    <script src="../firebase-db.js"></script>
-    <script src="../biometric-auth.js"></script>
-    <script src="../face-auth.js"></script>
+    <script src="firebase-config.js"></script>
+    <script src="firebase-db.js"></script>
+    <script src="biometric-auth.js"></script>
+    <script src="face-auth.js"></script>
     <!-- 🔔 Push Notification System (RTDB + Telegram, no VAPID) -->
-    <script src="../notifications.js"></script>
+    <script src="notifications.js"></script>
 
     <!-- Ionicons -->
     <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
@@ -70,7 +83,7 @@
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
                 // Register admin SW via the /admin/ entry point
-                navigator.serviceWorker.register('/admin/sw.js', { scope: '/admin/' })
+                navigator.serviceWorker.register('admin/sw.js', { scope: 'admin/' })
                     .then(reg => console.log('[Admin PWA] SW registered, scope:', reg.scope))
                     .catch(err => console.warn('[Admin PWA] SW error:', err));
             });
@@ -116,7 +129,7 @@
             } else {
                 // Guide: must open /admin/ URL first for the browser to show install prompt
                 showAdminToast('💡 افتح الرابط /admin/ في المتصفح أولاً، ثم ستظهر خيار التثبيت', 'info');
-                setTimeout(() => { window.open('/admin/', '_blank'); }, 1000);
+                setTimeout(() => { window.open('admin/', '_blank'); }, 1000);
             }
         }
 
@@ -641,7 +654,7 @@
     <div id="dashboard">
         <header>
             <div class="brand" style="display: flex; align-items: center; gap: 10px;">
-                <img src="../visitor-logo.png" width="40" height="40" alt="Baqduns Logo"
+                <img src="visitor-logo.png" width="40" height="40" alt="Baqduns Logo"
                     style="border-radius: 50%; border: 2px solid #C5A059; filter: drop-shadow(0 0 5px rgba(197, 160, 89, 0.3));">
                 <div style="font-weight: 800; font-size: 1.2rem; color: #041E42; letter-spacing: 1px;">BAQDUNS |
                     OPTIMIZER ⚡</div>
@@ -2758,12 +2771,12 @@ TIMESTAMP: ${new Date().toISOString()}
                 const isBanned = user.isBanned || false;
                 const isVerified = user.isVerified || false;
                 const isGoogle = !!user.googleId;
-                const profilePic = user.profilePic || '../visitor-logo.png';
+                const profilePic = user.profilePic || 'visitor-logo.png';
 
                 row.innerHTML = `
                     <td style="text-align:center;">
                         <img src="${profilePic}" style="width:35px; height:35px; border-radius:50%; object-fit:cover; border:2px solid ${isGoogle ? '#4285F4' : '#eee'};" 
-                             onerror="this.src='../visitor-logo.png'">
+                             onerror="this.src='visitor-logo.png'">
                     </td>
                     <td style="font-size:0.8rem;">${user.joined || '-'}</td>
                     <td>
@@ -3622,7 +3635,7 @@ TIMESTAMP: ${new Date().toISOString()}
                     {
                         title: 'تفعيل Lazy Loading',
                         description: 'تحميل الصور فقط عند الحاجة لتسريع الصفحة',
-                        code: '<img src="../image.jpg" loading="lazy" alt="Description">'
+                        code: '<img src="image.jpg" loading="lazy" alt="Description">'
                     }
                 ]
             });
@@ -3635,12 +3648,12 @@ TIMESTAMP: ${new Date().toISOString()}
                     {
                         title: 'إضافة Schema Markup',
                         description: 'مساعدة Google على فهم محتوى الموقع بشكل أفضل',
-                        code: '<script type="application/ld+json">\n{\n  "@context": "https://schema.org",\n  "@type": "LocalBusiness",\n  "name": "Baqduns - خدمات التواصل الاجتماعي",\n  "description": "أفضل موقع لشراء متابعين ولايكات ومشاهدات",\n  "url": "https://yourwebsite.com",\n  "priceRange": "$$",\n  "aggregateRating": {\n    "@type": "AggregateRating",\n    "ratingValue": "4.8",\n    "reviewCount": "' + users.length + '"\n  }\n}\n<\/script>'
+                        code: '<script type="application/ld+json">\n{\n  "@context": "https://schema.org",\n  "@type": "LocalBusiness",\n  "name": "Baqduns - خدمات التواصل الاجتماعي",\n  "description": "أفضل موقع لشراء متابعين ولايكات ومشاهدات",\n  "url": "https://syl78918-star.github.io/baqdunss/",\n  "priceRange": "$$",\n  "aggregateRating": {\n    "@type": "AggregateRating",\n    "ratingValue": "4.8",\n    "reviewCount": "' + users.length + '"\n  }\n}\n<\/script>'
                     },
                     {
                         title: 'تحسين Meta Tags',
                         description: 'إضافة وصف جذاب وكلمات مفتاحية',
-                        code: '<meta name="description" content="احصل على متابعين حقيقيين، لايكات، ومشاهدات لحساباتك على السوشيال ميديا بأفضل الأسعار في الأردن">\n<meta name="keywords" content="شراء متابعين, لايكات انستقرام, مشاهدات تيك توك, خدمات سوشيال ميديا الأردن">\n<meta property="og:title" content="Baqduns - خدمات التواصل الاجتماعي الاحترافية">\n<meta property="og:description" content="نمّي حساباتك بمتابعين حقيقيين وتفاعل عالي">\n<meta property="og:image" content="https://yourwebsite.com/og-image.jpg">'
+                        code: '<meta name="description" content="احصل على متابعين حقيقيين، لايكات، ومشاهدات لحساباتك على السوشيال ميديا بأفضل الأسعار في الأردن">\n<meta name="keywords" content="شراء متابعين, لايكات انستقرام, مشاهدات تيك توك, خدمات سوشيال ميديا الأردن">\n<meta property="og:title" content="Baqduns - خدمات التواصل الاجتماعي الاحترافية">\n<meta property="og:description" content="نمّي حساباتك بمتابعين حقيقيين وتفاعل عالي">\u003cmeta property=\"og:image\" content=\"https://syl78918-star.github.io/baqdunss/og-image.jpg\"\u003e'
                     }
                 ]
             });

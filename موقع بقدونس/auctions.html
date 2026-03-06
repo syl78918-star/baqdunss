@@ -4,11 +4,11 @@
 <head>
     <!-- Auth Guard: redirect to login if not logged in -->
     <script>
-        (function() {
+        (function () {
             try {
                 var u = localStorage.getItem('baqdouns_current_user');
                 if (!u || u === 'null') { window.location.replace('login.html'); }
-            } catch(e) {}
+            } catch (e) { }
         })();
     </script>
     <meta charset="UTF-8">
@@ -211,7 +211,21 @@
 
 <body>
 
-    <!-- Header -->
+    <!-- 🚀 DOMAIN MIGRATION GUARD -->
+    <script>
+        (function () {
+            var OFFICIAL_URL = "syl78918-star.github.io/baqdunss";
+            var current = window.location.href;
+            var isDev = current.includes('localhost') || current.includes('127.0.0.1') || current.includes('file://');
+            if (!current.includes(OFFICIAL_URL) && !isDev) {
+                var newBase = "https://" + OFFICIAL_URL + "/";
+                window.location.replace(newBase + (window.location.pathname.split('/').pop() || 'index.html'));
+            }
+        })();
+    </script>
+
+    <!-- Preload -->
+
     <header>
         <div class="container nav-container" style="position: relative;">
             <div class="header-left">

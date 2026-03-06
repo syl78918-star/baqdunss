@@ -1,7 +1,26 @@
 ﻿// ==========================================
-// baqduns 🌿 | Main Application Script (v2.3.0)
+// baqduns 🌿 | Main Application Script (v2.4.0)
 // ==========================================
-const BAQDUNS_VERSION = '2.3.0';
+const BAQDUNS_VERSION = '2.4.0';
+
+/**
+ * 🚀 DOMAIN MIGRATION GUARD: Ensures users on the old domain are redirected.
+ */
+(function checkDomainMigration() {
+    const CURRENT_DOMAIN = "syl78918-star.github.io/baqdunss";
+    const loc = window.location.href;
+
+    // Check if we are running on local dev vs old hosting (e.g., netlify.app)
+    const isDev = loc.includes('localhost') || loc.includes('127.0.0.1') || loc.includes('file://');
+    const isOldDomain = !loc.includes(CURRENT_DOMAIN) && !isDev;
+
+    if (isOldDomain) {
+        console.warn('⚠️ Old domain detected. Redirecting to new official site...');
+        const newBase = "https://" + CURRENT_DOMAIN + "/";
+        const page = window.location.pathname.split('/').pop() || 'index.html';
+        window.location.replace(newBase + page + window.location.search);
+    }
+})();
 
 /**
  * Checks for mandatory app updates via Firebase settings.

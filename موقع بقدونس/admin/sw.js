@@ -4,13 +4,13 @@
 const ADMIN_CACHE = 'baqduns-admin-v3';
 
 const adminUrls = [
-    '/admin/',
-    '/admin/index.html',
-    '/baqduns_optimizer.html',
-    '/admin_portal.html',
-    '/firebase-db.js',
-    '/firebase-config.js',
-    '/admin-icon.svg'
+    './',
+    'index.html',
+    '../baqduns_optimizer.html',
+    '../admin_portal.html',
+    '../firebase-db.js',
+    '../firebase-config.js',
+    '../admin-icon.svg'
 ];
 
 self.addEventListener('install', event => {
@@ -76,7 +76,7 @@ self.addEventListener('message', event => {
 
 self.addEventListener('notificationclick', event => {
     event.notification.close();
-    const url = event.notification.data?.url || '/admin/';
+    const url = event.notification.data?.url || './';
     event.waitUntil(
         clients.matchAll({ type: 'window', includeUncontrolled: true }).then(list => {
             for (const client of list) {

@@ -6,18 +6,18 @@
 
 const CACHE_NAME = 'baqduns-store-v5';
 const urlsToCache = [
-    '/',
-    '/index.html',
-    '/portal.html',
-    '/accounts.html',
-    '/script.js',
-    '/style.css',
-    '/visitor-logo.png',
-    '/instagram_3d.png',
-    '/facebook_3d.png',
-    '/tiktok_3d.png',
-    '/visitor-manifest.json',
-    '/firebase-config.js'
+    './',
+    'index.html',
+    'portal.html',
+    'accounts.html',
+    'script.js',
+    'style.css',
+    'visitor-logo.png',
+    'instagram_3d.png',
+    'facebook_3d.png',
+    'tiktok_3d.png',
+    'visitor-manifest.json',
+    'firebase-config.js'
 ];
 
 // ── Install: Cache essential files ──────────────────────────────
@@ -102,7 +102,7 @@ self.addEventListener('message', (event) => {
                 renotify: true,
                 requireInteraction: urgency === 'high',
                 silent: false,
-                data: { url: url || '/' },
+                data: { url: url || './' },
                 actions: [
                     { action: 'open', title: '📱 فتح التطبيق' },
                     { action: 'dismiss', title: '✕ إغلاق' }
