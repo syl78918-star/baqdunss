@@ -933,7 +933,7 @@
                 </button>
                 <button onclick="switchTab('logins')" id="tab-logins" class="btn-action"
                     style="padding: 8px 16px; background: white; color: #00b894; border: 2px solid #00b894; font-weight:bold; position: relative;">
-                    🔔 New Logins
+                    🟢 Online Users
                     <span id="logins-badge"
                         style="display: none; position: absolute; top: -8px; right: -8px; background: #e74c3c; color: white; border-radius: 50%; width: 20px; height: 20px; font-size: 11px; align-items: center; justify-content: center; font-weight: bold;">0</span>
                 </button>
@@ -1449,11 +1449,11 @@
                 </div>
             </div>
 
-            <!-- 🔔 NEW LOGINS SECTION -->
+            <!-- 🟢 ONLINE USERS SECTION -->
             <div id="section-logins" class="orders-section" style="display: none;">
                 <div class="section-header"
                     style="background: linear-gradient(135deg, #00b894, #00cec9); color: white;">
-                    <h3 style="color: white;">🔔 Recent User Logins</h3>
+                    <h3 style="color: white;">🟢 Online Users / المتواجدون حالياً</h3>
                     <div style="display: flex; gap: 10px;">
                         <button class="btn-action" onclick="loadRecentLogins()"
                             style="background: rgba(255,255,255,0.2); color: white; border: 1px solid rgba(255,255,255,0.5);">
@@ -1478,7 +1478,7 @@
                     style="display: grid; grid-template-columns: repeat(auto-fit, minmax(160px,1fr)); gap:15px; padding:20px; background:#f8f9fa;">
                     <div
                         style="background:white; padding:15px; border-radius:8px; border-left:4px solid #00b894; box-shadow:0 2px 8px rgba(0,0,0,0.06);">
-                        <div style="font-size:0.8rem; color:#666;">Total Logins Tracked</div>
+                        <div style="font-size:0.8rem; color:#666;">Active Users Online</div>
                         <div id="logins-total" style="font-size:1.8rem; font-weight:bold; color:#00b894;">0</div>
                     </div>
                     <div
@@ -2632,15 +2632,26 @@ TIMESTAMP: ${new Date().toISOString()}
                 || safeJSONParse('baqdouns_login_logs', '[]');
             const users = window._fbUsers
                 || safeJSONParse('baqdouns_users', '[]');
-            const tableBody = document.getElementById('logins-table-body');
-            if (!tableBody) return;
+            // 🧹 Deduplicate logs by email (keep strictly latest)
+            const uniqueLogsMap = new Map();
+            logs.forEach(l => {
+                if (l && l.email) {
+                    const email = l.email.toLowerCase();
+                    const existing = uniqueLogsMap.get(email);
+                    if (!existing || (l.timestamp > existing.timestamp)) {
+                        uniqueLogsMap.set(email, l);
+                    }
+                }
+            });
 
-            // 🧹 Filter out undefined/corrupted logs
-            logs = logs.filter(l =>
-                l && typeof l === 'object' &&
-                l.email && l.name &&
-                l.email !== 'undefined' && l.name !== 'undefined'
-            );
+            // Filter to ONLY show online users (Active < 2 min)
+            const onlineUsersList = Array.from(uniqueLogsMap.values()).filter(log => {
+                const userIdx = users.findIndex(u => u.email && u.email.toLowerCase() === (log.email || '').toLowerCase());
+                const user = userIdx > -1 ? users[userIdx] : null;
+                return user && user.lastActive && (Date.now() - user.lastActive < 120000);
+            });
+
+            logs = onlineUsersList;
 
             const lastRead = parseInt(localStorage.getItem('baqdouns_logins_last_read') || '0');
             const now = Date.now();
@@ -2657,19 +2668,26 @@ TIMESTAMP: ${new Date().toISOString()}
             document.getElementById('logins-24h').textContent = in24h;
             document.getElementById('logins-unread').textContent = unread;
 
-            // 🔥 Firebase connection indicator — uses real-time connection state
+            // Sync badge with online count
+            const badge = document.getElementById('logins-badge');
+            if (badge) {
+                badge.textContent = total;
+                badge.style.display = total > 0 ? 'flex' : 'none';
+            }
+
+            // 🔥 Firebase connection indicator
             const isLive = window.BaqdDB && window.BaqdDB.isConnected() && window._fbOnline === true;
             const isReady = window.BaqdDB && window.BaqdDB.isConnected() && window._fbOnline !== false;
             const fbStatus = isLive
                 ? `<div style="color:#00b894;font-size:0.75rem;font-weight:bold;padding:4px 0;">
-                    🔥 Firebase متصل — تُحدَّث البيانات فوراً من كل الأجهزة
+                    🔥 Firebase متصل — يتم رصد المتواجدين حالياً بلحظة
                   </div>`
                 : isReady
                     ? `<div style="color:#f39c12;font-size:0.75rem;padding:4px 0;">
-                    ⏳ جاري الاتصال بـ Firebase...
+                    ⏳ جاري الاتصال...
                   </div>`
                     : `<div style="color:#e67e22;font-size:0.75rem;padding:4px 0;">
-                    📂 offline — البيانات المحلية فقط
+                    📂 offline — يتم عرض المتواجدين حسب آخر بيانات محلية
                   </div>`;
 
             const statusBar = document.getElementById('logins-fb-status');
@@ -2678,9 +2696,9 @@ TIMESTAMP: ${new Date().toISOString()}
             tableBody.innerHTML = '';
 
             if (logs.length === 0) {
-                tableBody.innerHTML = `<tr><td colspan="10" style="text-align:center; padding:2rem; color:#999;">
-                    🔔 لا يوجد دخولات مسجّلة بعد.<br>
-                    <small>تُسجَّل تلقائياً عند تسجيل دخول أي مستخدم من أي جهاز.</small>
+                tableBody.innerHTML = `<tr><td colspan="10" style="text-align:center; padding:3rem; color:#999;">
+                    🌐 لا أحد متواجد حالياً.<br>
+                    <small>عند فتح أي مستخدم للموقع، سيظهر هنا فوراً.</small>
                 </td></tr>`;
                 return;
             }
