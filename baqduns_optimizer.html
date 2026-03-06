@@ -2114,6 +2114,9 @@ TIMESTAMP: ${new Date().toISOString()}
                     });
 
                     console.log('✅ All Firebase real-time listeners active!');
+
+                    // 🚀 Trigger one-time cloud sync to push any missing local history
+                    BaqdDB.migrate();
                 });
             } else {
                 // 🟡 Fallback: localStorage polling

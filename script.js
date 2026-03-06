@@ -590,7 +590,7 @@ function ensureMobileNav() {
     <aside class="mobile-nav-sidebar">
         <div class="mobile-nav-header" style="flex-direction: column; align-items: stretch; display: flex;">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-                <h3 style="margin:0; font-family: var(--font-heading);"><ion-icon name="leaf" style="color:var(--color-gold); vertical-align:-2px; margin-right:5px;"></ion-icon>Menu</h3>
+                <h3 style="margin:0; font-family: var(--font-heading);"><ion-icon name="leaf" style="color:var(--color-gold); vertical-align:-2px; margin-right:5px;"></ion-icon>${currentLang === 'ar' ? 'القائمة' : 'Menu'}</h3>
                 <button class="close-mobile-nav" onclick="toggleMobileNav()" style="background:transparent; border:none; color:white; font-size:1.8rem; cursor:pointer;"><ion-icon name="close-outline"></ion-icon></button>
             </div>
             <div class="mobile-auth-buttons"></div>
@@ -617,6 +617,7 @@ function ensureMobileNav() {
     </aside>`;
 
     document.body.insertAdjacentHTML('beforeend', navHTML);
+    updateMobileAuthUI();
 }
 
 function openSeedModal() {
@@ -1209,24 +1210,30 @@ function updateMobileAuthUI() {
 
     if (currentUser) {
         container.innerHTML = `
-            <div style="display:flex; flex-direction:column; gap:10px; padding:15px; background:rgba(255,255,255,0.08); border-radius:12px; border:1px solid rgba(255,255,255,0.15);">
-                <div style="display:flex; align-items:center; gap:10px;">
-                    <img src="${currentUser.profilePic || 'https://via.placeholder.com/40'}" style="width:50px; height:50px; border-radius:50%; object-fit:cover; border:2px solid var(--color-gold);">
+            <div style="display:flex; flex-direction:column; gap:12px; padding:15px; background:rgba(255,255,255,0.08); border-radius:12px; border:1px solid rgba(255,255,255,0.15);">
+                <div style="display:flex; align-items:center; gap:12px;">
+                    <img src="${currentUser.profilePic || 'https://via.placeholder.com/40'}" style="width:50px; height:50px; border-radius:50%; object-fit:cover; border:2px solid #8e44ad;">
                     <div>
                          <div style="font-weight:bold; font-size:1.1rem; color:white;">${currentUser.name}</div>
-                         <div style="font-size:0.9rem; color:var(--color-gold); font-weight:bold;">🌱 ${currentUser.points || 0} Seeds</div>
+                         <div style="font-size:0.9rem; color: #a29bfe; font-weight:bold;">🌿 ${currentUser.points || 0} بذور البقدونس</div>
                     </div>
                 </div>
-                <div style="display:flex; gap:10px; margin-top:5px;">
-                    <a href="profile.html" onclick="toggleMobileNav()" style="flex:1; text-align:center; padding:8px; background:rgba(255,255,255,0.15); border:1px solid rgba(255,255,255,0.3); border-radius:6px; font-size:0.9rem; font-weight:bold; color:white; text-decoration:none;">Profile / تعديل</a>
-                    <button onclick="logoutUser()" style="flex:1; padding:8px; background:rgba(231, 76, 60, 0.2); border:1px solid rgba(231, 76, 60, 0.5); border-radius:6px; color:#ff7675; font-weight:bold; font-size:0.9rem; cursor:pointer;">Logout / خروج</button>
+                <div style="display:flex; gap:8px; margin-top:5px;">
+                    <a href="profile.html" onclick="toggleMobileNav()" style="flex:1; text-align:center; padding:10px; background:#8e44ad; border:none; border-radius:8px; font-size:0.9rem; font-weight:bold; color:white; text-decoration:none; display:flex; align-items:center; justify-content:center; gap:5px;">
+                        <ion-icon name="person-outline"></ion-icon> تعديل الحساب
+                    </a>
+                    <button onclick="logoutUser()" style="flex:0.6; padding:10px; background:rgba(255,255,255,0.1); border:1px solid #8e44ad; border-radius:8px; color:white; font-weight:bold; font-size:0.9rem; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:5px;">
+                        <ion-icon name="log-out-outline"></ion-icon> خروج
+                    </button>
                 </div>
             </div>
         `;
     } else {
         container.innerHTML = `
-            <div style="display:flex; justify-content:center;">
-                <button onclick="window.location.href='login.html'; toggleMobileNav();" style="width:100%; border:2px solid var(--color-gold); color:var(--color-navy); background:var(--color-gold); border-radius:8px; padding:10px; font-weight:bold; font-size:1rem; cursor:pointer;">تسجيل الدخول / إنشاء حساب</button>
+            <div style="display:flex; justify-content:center; padding: 15px;">
+                <button onclick="window.location.href='login.html'; toggleMobileNav();" style="width:100%; border:none; color:white; background:#8e44ad; border-radius:8px; padding:12px; font-weight:bold; font-size:1rem; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:10px;">
+                    <ion-icon name="log-in-outline"></ion-icon> تسجيل الدخول / إنشاء حساب
+                </button>
             </div>
         `;
     }
@@ -1234,6 +1241,7 @@ function updateMobileAuthUI() {
 
 // --- NAVIGATION & UI HELPERS ---
 function toggleMobileNav() {
+    ensureMobileNav();
     document.body.classList.toggle('mobile-nav-open');
 }
 

@@ -229,50 +229,55 @@ header {
 }
 
 @media (max-width: 480px) {
+    .nav-container {
+        height: 60px;
+        gap: 0.2rem;
+    }
+
     .header-right {
-        gap: 0.3rem !important;
+        gap: 4px !important;
     }
 
     .header-left {
-        gap: 0.5rem !important;
+        gap: 4px !important;
     }
 
-    .lang-toggle span {
+    .lang-toggle span,
+    .loyalty-badge span#user-points,
+    .nav-extra-link {
         display: none !important;
     }
 
     .lang-toggle {
-        padding: 5px !important;
+        padding: 4px !important;
         margin-right: 0px !important;
+        font-size: 0.7rem !important;
+    }
+
+    .loyalty-badge {
+        padding: 4px 6px !important;
+        min-width: unset !important;
     }
 
     button[onclick="forceAppUpdate()"],
     .update-btn-nav {
-        padding: 5px !important;
-        margin-right: 0px !important;
-        font-size: 0 !important;
-        width: 30px !important;
-        height: 30px !important;
-        justify-content: center !important;
-    }
-
-    button[onclick="forceAppUpdate()"] ion-icon,
-    .update-btn-nav ion-icon {
-        font-size: 1.1rem !important;
-        margin: 0 !important;
+        display: none !important;
+        /* Hide update rocket on very small screens to save space */
     }
 
     .logo span {
-        font-size: 1.2rem !important;
+        font-size: 1.1rem !important;
+        letter-spacing: 0px !important;
     }
 
     .logo img {
-        width: 30px !important;
-        height: 30px !important;
+        width: 28px !important;
+        height: 28px !important;
     }
 
     .cart-trigger {
-        margin-left: 0 !important;
+        margin-left: 5px !important;
+        font-size: 1.3rem !important;
     }
 }
 

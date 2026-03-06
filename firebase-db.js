@@ -369,6 +369,17 @@
                     }
                 });
                 let users = Array.from(uniqueMap.values());
+
+                // 🔥 MERGE: Preserve local users who haven't reached Firebase yet
+                const lsUsers = _ls('baqdouns_users');
+                lsUsers.forEach(lsU => {
+                    const email = (lsU.email || '').trim().toLowerCase();
+                    if (email && !uniqueMap.has(email)) {
+                        users.push(lsU);
+                        uniqueMap.set(email, lsU);
+                    }
+                });
+
                 try {
                     const delSnap = await _db.ref('deleted_users').get();
                     if (delSnap.exists()) {
@@ -486,10 +497,19 @@
             }
             const ref = _db.ref('login_logs').orderByChild('timestamp').limitToLast(200);
             const handler = (snap) => {
-                const logs = Object.values(snap.val() || {})
-                    .sort((a, b) => a.timestamp - b.timestamp);
-                _lsSet('baqdouns_login_logs', logs);
-                callback(logs);
+                const fbLogs = Object.values(snap.val() || {});
+                const lsLogs = _ls('baqdouns_login_logs');
+
+                // Merge FB logs with LS logs (Match by ID)
+                const logMap = new Map();
+                lsLogs.forEach(l => { if (l.id) logMap.set(l.id, l); });
+                fbLogs.forEach(l => { if (l.id) logMap.set(l.id, l); });
+
+                const merged = Array.from(logMap.values())
+                    .sort((a, b) => (a.timestamp || 0) - (b.timestamp || 0));
+
+                _lsSet('baqdouns_login_logs', merged);
+                callback(merged);
             };
             ref.on('value', handler, (err) => console.error("listenLoginLogs failed:", err));
             return () => ref.off('value', handler);
@@ -916,41 +936,61 @@
 
         async migrate() {
             if (!_db) return;
-            const done = localStorage.getItem('baqdouns_firebase_migrated');
-            if (done === 'true') return;
+            // Limit frequency to once per session to avoid heavy lifting
+            if (window._hasMigratedThisSession) return;
+            window._hasMigratedThisSession = true;
 
-            console.log('🔄 BaqdDB: Migrating existing localStorage data to Firebase...');
+            console.log('🔄 BaqdDB: Syncing local history to cloud...');
             try {
-                // Users
+                // 1. Users
                 const users = _ls('baqdouns_users');
-                const snap = await _db.ref('users').get();
-                const existing = snap.exists() ? Object.keys(snap.val() || {}) : [];
-
-                for (const user of users) {
-                    if (user.email && !existing.includes(_enc(user.email))) {
-                        await _db.ref(`users/${_enc(user.email)}`).set(user);
+                if (users.length > 0) {
+                    const snap = await _db.ref('users').get();
+                    const fbUsers = snap.exists() ? snap.val() : {};
+                    for (const user of users) {
+                        const enc = _enc(user.email);
+                        if (user.email && !fbUsers[enc]) {
+                            await _db.ref(`users/${enc}`).set(user);
+                        }
                     }
                 }
 
-                // Orders
+                // 2. Login Logs
+                const loginLogs = _ls('baqdouns_login_logs');
+                if (loginLogs.length > 0) {
+                    const snap = await _db.ref('login_logs').limitToLast(500).get();
+                    const fbLogs = snap.exists() ? snap.val() : {};
+                    for (const log of loginLogs) {
+                        if (log.id && !fbLogs[log.id]) {
+                            await _db.ref(`login_logs/${log.id}`).set(log);
+                        }
+                    }
+                }
+
+                // 3. Orders & Complaints (Batch check for performance)
                 const orders = _ls('baqdouns_orders');
-                for (const order of orders) {
-                    if (order.id) {
-                        const os = await _db.ref(`orders/${order.id}`).get();
-                        if (!os.exists()) await _db.ref(`orders/${order.id}`).set(order);
+                if (orders.length > 0) {
+                    const snap = await _db.ref('orders').limitToLast(100).get();
+                    const fbOrders = snap.exists() ? snap.val() : {};
+                    for (const order of orders) {
+                        if (order.id && !fbOrders[order.id]) {
+                            await _db.ref(`orders/${order.id}`).set(order);
+                        }
                     }
                 }
 
-                // Complaints
                 const complaints = _ls('baqdouns_complaints');
-                for (const c of complaints) {
-                    if (c.id) {
-                        const cs = await _db.ref(`complaints/${c.id}`).get();
-                        if (!cs.exists()) await _db.ref(`complaints/${c.id}`).set(c);
+                if (complaints.length > 0) {
+                    const snap = await _db.ref('complaints').get();
+                    const fbComplaints = snap.exists() ? snap.val() : {};
+                    for (const c of complaints) {
+                        if (c.id && !fbComplaints[c.id]) {
+                            await _db.ref(`complaints/${c.id}`).set(c);
+                        }
                     }
                 }
 
-                // Settings
+                // 4. Global Settings
                 const settingsKeys = [
                     'freeze_welcome', 'lock_auctions', 'lock_accounts',
                     'lock_games', 'lock_transfers', 'lock_packages',
@@ -965,7 +1005,7 @@
                 }
 
                 localStorage.setItem('baqdouns_firebase_migrated', 'true');
-                console.log('✅ BaqdDB: Migration complete! All data is now in Firebase.');
+                console.log('✅ BaqdDB: Cloud sync complete!');
             } catch (e) {
                 console.warn('BaqdDB.migrate error:', e.message);
             }
