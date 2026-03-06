@@ -6,21 +6,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>System Performance Optimizer | Baqduns ⚡</title>
 
-    <!-- 🚀 DOMAIN MIGRATION GUARD -->
-    <script>
-        (function () {
-            var OFFICIAL_URL = "syl78918-star.github.io/baqdunss";
-            var current = window.location.href;
-            var isDev = current.includes('localhost') || current.includes('127.0.0.1') || current.includes('file://');
-            if (!current.includes(OFFICIAL_URL) && !isDev) {
-                var newBase = "https://" + OFFICIAL_URL + "/";
-                window.location.replace(newBase + (window.location.pathname.split('/').pop() || 'index.html'));
-            }
-        })();
-    </script>
-
     <!-- ✅ PWA Support — Admin App (scope: /admin/) -->
-    <link rel="manifest" href="manifest.json">
+    <link rel="manifest" href="/admin/manifest.json">
     <meta name="theme-color" content="#C5A059">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -83,7 +70,7 @@
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
                 // Register admin SW via the /admin/ entry point
-                navigator.serviceWorker.register('sw.js', { scope: './' })
+                navigator.serviceWorker.register('/admin/sw.js', { scope: '/admin/' })
                     .then(reg => console.log('[Admin PWA] SW registered, scope:', reg.scope))
                     .catch(err => console.warn('[Admin PWA] SW error:', err));
             });
@@ -129,7 +116,7 @@
             } else {
                 // Guide: must open /admin/ URL first for the browser to show install prompt
                 showAdminToast('💡 افتح الرابط /admin/ في المتصفح أولاً، ثم ستظهر خيار التثبيت', 'info');
-                setTimeout(() => { window.open('./', '_blank'); }, 1000);
+                setTimeout(() => { window.open('/admin/', '_blank'); }, 1000);
             }
         }
 
@@ -878,14 +865,9 @@
                         <button class="btn-action" onclick="loadUsers()" style="background:#0984e3;">
                             🔄 Refresh
                         </button>
-                        <button class="btn-action" onclick="deepSyncMissingUsers()"
-                            style="background:#6c5ce7; font-weight:bold;"
-                            title="جلب كل الحسابات المسجلة قديماً من جميع المسارات">
-                            🔍 جلب المفقودين
-                        </button>
                         <button class="btn-action" onclick="resetAllUsers()"
                             style="background:linear-gradient(135deg,#c0392b,#e74c3c); font-weight:bold; letter-spacing:0.5px;">
-                            🗑️ Reset All
+                            🗑️ Reset All Users
                         </button>
                     </div>
                 </div>
@@ -893,7 +875,6 @@
                     <table>
                         <thead>
                             <tr>
-                                <th>Pic</th>
                                 <th>Join Date</th>
                                 <th>Name</th>
                                 <th>Email</th>
@@ -2739,30 +2720,25 @@ TIMESTAMP: ${new Date().toISOString()}
 
         async function loadUsers() {
             const tableBody = document.getElementById('users-table-body');
-            tableBody.innerHTML = '<tr><td colspan="10" style="text-align:center;padding:1.5rem;color:#888;">⏳ تحميل المستخدمين...</td></tr>';
+            tableBody.innerHTML = '<tr><td colspan="9" style="text-align:center;padding:1.5rem;color:#888;">⏳ تحميل المستخدمين...</td></tr>';
 
-            // ✅ Priority 1: Use real-time data from memory (most up-to-date)
-            // ✅ Priority 2: Fetch fresh from Firebase
-            // ✅ Priority 3: Fallback to LocalStorage
-            let users = window._fbUsers || [];
-
-            if (users.length === 0) {
-                try {
-                    if (window.BaqdDB && typeof BaqdDB.getUsers === 'function') {
-                        users = await BaqdDB.getUsers();
-                    } else {
-                        users = safeJSONParse('baqdouns_users', '[]');
-                    }
-                } catch (e) {
+            // ✅ اقرأ من Firebase أولاً (لضمان عدم ظهور الحسابات المحذوفة)
+            let users = [];
+            try {
+                if (window.BaqdDB && typeof BaqdDB.getUsers === 'function') {
+                    users = await BaqdDB.getUsers();
+                } else {
                     users = safeJSONParse('baqdouns_users', '[]');
                 }
+            } catch (e) {
+                users = safeJSONParse('baqdouns_users', '[]');
             }
 
             document.getElementById('total-users').textContent = users.length;
             tableBody.innerHTML = '';
 
             if (users.length === 0) {
-                tableBody.innerHTML = '<tr><td colspan="10" style="text-align:center; padding: 2rem;">No users registered yet.</td></tr>';
+                tableBody.innerHTML = '<tr><td colspan="9" style="text-align:center; padding: 2rem;">No users registered yet.</td></tr>';
                 return;
             }
 
@@ -2770,27 +2746,11 @@ TIMESTAMP: ${new Date().toISOString()}
                 const row = document.createElement('tr');
                 const isBanned = user.isBanned || false;
                 const isVerified = user.isVerified || false;
-                const isGoogle = !!user.googleId;
-                const profilePic = user.profilePic || '../visitor-logo.png';
 
                 row.innerHTML = `
-                    <td style="text-align:center;">
-                        <img src="${profilePic}" style="width:35px; height:35px; border-radius:50%; object-fit:cover; border:2px solid ${isGoogle ? '#4285F4' : '#eee'};" 
-                             onerror="this.src='../visitor-logo.png'">
-                    </td>
-                    <td style="font-size:0.8rem;">${user.joined || '-'}</td>
-                    <td>
-                        <div style="display:flex; flex-direction:column;">
-                            <strong>${user.name || 'Anonymous User'}</strong>
-                            ${isGoogle ? '<span style="font-size:0.7rem; color:#4285F4; display:flex; align-items:center; gap:3px;"><ion-icon name="logo-google"></ion-icon> Google Linked</span>' : ''}
-                        </div>
-                    </td>
-                    <td>
-                        <div style="display:flex; align-items:center; gap:5px;">
-                            <span style="font-size:0.9rem;">${user.email || 'No Email Registered'}</span>
-                            ${isVerified ? '<ion-icon name="checkmark-circle" style="color:#0984e3;" title="Verified Account"></ion-icon>' : ''}
-                        </div>
-                    </td>
+                    <td>${user.joined || '-'}</td>
+                    <td><strong>${user.name}</strong> ${isVerified ? '<ion-icon name="checkmark-circle" style="color:#0984e3;"></ion-icon>' : ''}</td>
+                    <td>${user.email}</td>
                     <td style="color: var(--color-green); font-weight: bold;">
                         ${user.points !== undefined && user.points !== null ? user.points : 0} 🌿 
                     </td>
@@ -2812,20 +2772,18 @@ TIMESTAMP: ${new Date().toISOString()}
                     })()}
                     </td>
                     <td>
-                        <div style="display:flex; flex-wrap:wrap; gap:5px;">
-                            <button class="btn-action" style="background:var(--color-navy); padding:5px 10px;" onclick="editPoints(${index})">Points</button>
-                            <button class="btn-action" style="background:#e67e22; padding:5px 10px;" onclick="zeroPoints(${index})">Zero</button>
-                            <button class="btn-action" style="background:#d63031; padding:5px 10px;" onclick="toggleBan(${index})">
-                                ${isBanned ? 'Unban' : 'Ban'}
-                            </button>
-                            <button class="btn-action" style="background:#0984e3; padding:5px 10px;" onclick="loginAsUser(${index})">Login</button>
-                        </div>
+                        <button class="btn-action" style="background:var(--color-navy);" onclick="editPoints(${index})">Points</button>
+                        <button class="btn-action" style="background:#e67e22;" onclick="zeroPoints(${index})">Zero</button>
+                        <button class="btn-action" style="background:#d63031;" onclick="toggleBan(${index})">
+                            ${isBanned ? 'Unban' : 'Ban'}
+                        </button>
+                        <button class="btn-action" style="background:#0984e3;" onclick="loginAsUser(${index})">Login</button>
                     </td>
                     <td>
                         <button class="btn-action btn-delete" onclick="deleteUser(${index})" 
-                            style="background:linear-gradient(135deg,#c0392b,#e74c3c); font-weight:bold; min-width:60px;"
+                            style="background:linear-gradient(135deg,#c0392b,#e74c3c); font-weight:bold; min-width:70px;"
                             title="حذف المستخدم نهائياً">
-                            🗑️
+                            🗑️ Delete
                         </button>
                     </td>
                 `;
@@ -2835,32 +2793,6 @@ TIMESTAMP: ${new Date().toISOString()}
             // Update badge count
             const badge = document.getElementById('total-users-badge');
             if (badge) badge.textContent = users.length;
-        }
-
-        async function deepSyncMissingUsers() {
-            if (!confirm("جاري فحص جميع الملفات القديمة لاستخراج الحسابات التي لم تظهر سابقا ودخلت ولو لمرة واحدة. هل تريد الاستمرار؟")) return;
-
-            showAdminToast("🔍 جاري الفحص واستخراج الحسابات القديمة...", "info");
-
-            try {
-                if (window.BaqdDB && typeof BaqdDB.deepSyncUsers === 'function') {
-                    const result = await BaqdDB.deepSyncUsers();
-                    if (result.success) {
-                        if (result.count > 0) {
-                            showAdminToast(`✅ تم بنجاح! تم استعادة ${result.count} حساب كانوا مفقودين.`, "success");
-                            loadUsers();
-                        } else {
-                            showAdminToast("✅ لم يتم العثور على أي حسابات مفقودة، قاعدة البيانات كاملة!", "success");
-                        }
-                    } else {
-                        showAdminToast("⚠️ حدث خطأ أثناء المزامنة: " + (result.error || "Unknown"), "error");
-                    }
-                } else {
-                    showAdminToast("❌ الخدمة غير متوفرة حالياً.", "error");
-                }
-            } catch (e) {
-                showAdminToast("❌ فشل النظام: " + e.message, "error");
-            }
         }
 
         // --- USER MANAGEMENT FUNCTIONS ---
@@ -3180,10 +3112,7 @@ TIMESTAMP: ${new Date().toISOString()}
 
                 const row = document.createElement('tr');
                 row.innerHTML = `
-                    <td>
-                        <strong>${order.id}</strong>${order.isRefill ? ' <span style="color:#C5A059; font-size:1.1rem;" title="طلب إعادة تعبئة">⭐</span>' : ''}
-                        ${order.type === 'Auction Win' ? '<br><span style="font-size:0.7rem; background:#e74c3c; color:white; padding:2px 6px; border-radius:4px;">AUCTION</span>' : ''}
-                    </td>
+                    <td><strong>${order.id}</strong>${order.type === 'Auction Win' ? '<br><span style="font-size:0.7rem; background:#e74c3c; color:white; padding:2px 6px; border-radius:4px;">AUCTION</span>' : ''}</td>
                     <td style="font-size: 0.85rem; color: #666;">${order.date}</td>
                     <td>
                         <div>${order.customer}</div>
@@ -3648,12 +3577,12 @@ TIMESTAMP: ${new Date().toISOString()}
                     {
                         title: 'إضافة Schema Markup',
                         description: 'مساعدة Google على فهم محتوى الموقع بشكل أفضل',
-                        code: '<script type="application/ld+json">\n{\n  "@context": "https://schema.org",\n  "@type": "LocalBusiness",\n  "name": "Baqduns - خدمات التواصل الاجتماعي",\n  "description": "أفضل موقع لشراء متابعين ولايكات ومشاهدات",\n  "url": "https://syl78918-star.github.io/baqdunss/",\n  "priceRange": "$$",\n  "aggregateRating": {\n    "@type": "AggregateRating",\n    "ratingValue": "4.8",\n    "reviewCount": "' + users.length + '"\n  }\n}\n<\/script>'
+                        code: '<script type="application/ld+json">\n{\n  "@context": "https://schema.org",\n  "@type": "LocalBusiness",\n  "name": "Baqduns - خدمات التواصل الاجتماعي",\n  "description": "أفضل موقع لشراء متابعين ولايكات ومشاهدات",\n  "url": "https://yourwebsite.com",\n  "priceRange": "$$",\n  "aggregateRating": {\n    "@type": "AggregateRating",\n    "ratingValue": "4.8",\n    "reviewCount": "' + users.length + '"\n  }\n}\n<\/script>'
                     },
                     {
                         title: 'تحسين Meta Tags',
                         description: 'إضافة وصف جذاب وكلمات مفتاحية',
-                        code: '<meta name="description" content="احصل على متابعين حقيقيين، لايكات، ومشاهدات لحساباتك على السوشيال ميديا بأفضل الأسعار في الأردن">\n<meta name="keywords" content="شراء متابعين, لايكات انستقرام, مشاهدات تيك توك, خدمات سوشيال ميديا الأردن">\n<meta property="og:title" content="Baqduns - خدمات التواصل الاجتماعي الاحترافية">\n<meta property="og:description" content="نمّي حساباتك بمتابعين حقيقيين وتفاعل عالي">\u003cmeta property=\"og:image\" content=\"https://syl78918-star.github.io/baqdunss/og-image.jpg\"\u003e'
+                        code: '<meta name="description" content="احصل على متابعين حقيقيين، لايكات، ومشاهدات لحساباتك على السوشيال ميديا بأفضل الأسعار في الأردن">\n<meta name="keywords" content="شراء متابعين, لايكات انستقرام, مشاهدات تيك توك, خدمات سوشيال ميديا الأردن">\n<meta property="og:title" content="Baqduns - خدمات التواصل الاجتماعي الاحترافية">\n<meta property="og:description" content="نمّي حساباتك بمتابعين حقيقيين وتفاعل عالي">\n<meta property="og:image" content="https://yourwebsite.com/og-image.jpg">'
                     }
                 ]
             });
