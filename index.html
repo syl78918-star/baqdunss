@@ -595,6 +595,45 @@
         </div>
     </section>
 
+    <!-- My Orders Section (Moved here for better accessibility) -->
+    <section id="my-orders" class="section-padding"
+        style="background-color: var(--color-navy); color: white; display: block; border-top: 2px solid var(--color-gold);">
+        <div class="container">
+            <div class="section-title">
+                <h2 style="color: white; font-family: 'Cairo', sans-serif;">طلباتي (My Orders) 📦</h2>
+                <div class="divider"
+                    style="background-color: var(--color-gold); height: 3px; width: 60px; margin: 0 auto 2rem;"></div>
+            </div>
+
+            <div class="orders-container"
+                style="max-width: 900px; margin: 0 auto; background: white; border-radius: 12px; overflow: hidden; color: #333; box-shadow: 0 10px 30px rgba(0,0,0,0.3);">
+                <table style="width: 100%; border-collapse: collapse;">
+                    <thead style="background: #f8f9fa; border-bottom: 2px solid #eee;">
+                        <tr>
+                            <th style="padding: 1.2rem; text-align: left; font-weight: bold; color: var(--color-navy);">
+                                ID</th>
+                            <th style="padding: 1.2rem; text-align: left; font-weight: bold; color: var(--color-navy);">
+                                الخدمة</th>
+                            <th style="padding: 1.2rem; text-align: left; font-weight: bold; color: var(--color-navy);">
+                                الحالة</th>
+                            <th
+                                style="padding: 1.2rem; text-align: right; font-weight: bold; color: var(--color-navy);">
+                                المجموع</th>
+                        </tr>
+                    </thead>
+                    <tbody id="my-orders-list">
+                        <tr>
+                            <td colspan="4" style="text-align:center;padding:3rem;color:#888;">سجل الدخول لرؤية طلباتك
+                                🌿</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <p style="text-align: center; margin-top: 1.5rem; font-size: 0.85rem; opacity: 0.7;">يتم تحديث حالة الطلبات
+                تلقائياً بلحظة</p>
+        </div>
+    </section>
+
     <!-- Refer & Earn Section -->
     <section id="rewards" class="section-padding"
         style="background: linear-gradient(135deg, var(--color-navy) 0%, var(--color-green) 100%); color: white; text-align: center;">
@@ -658,32 +697,7 @@
         <ion-icon name="logo-instagram"></ion-icon>
     </a>
 
-    <section id="my-orders" class="section-padding"
-        style="background-color: var(--color-navy); color: white; display: none;">
-        <div class="container">
-            <div class="section-title">
-                <h2 style="color: white;">طلباتي (My Orders)</h2>
-                <div class="divider" style="background-color: var(--color-gold);"></div>
-            </div>
 
-            <div class="orders-container"
-                style="max-width: 800px; margin: 0 auto; background: white; border-radius: 8px; overflow: hidden; color: #333;">
-                <table style="width: 100%; border-collapse: collapse;">
-                    <thead style="background: #f4f4f4;">
-                        <tr>
-                            <th style="padding: 1rem; text-align: left;">ID الطلب</th>
-                            <th style="padding: 1rem; text-align: left;">الخدمة</th>
-                            <th style="padding: 1rem; text-align: left;">الحالة</th>
-                            <th style="padding: 1rem; text-align: right;">المجموع</th>
-                        </tr>
-                    </thead>
-                    <tbody id="my-orders-list">
-                        <!-- Orders will be injected here -->
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </section>
 
     <!-- Footer -->
     <footer>

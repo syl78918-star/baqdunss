@@ -363,9 +363,11 @@ document.addEventListener('DOMContentLoaded', () => {
     // Check for admin locks
     checkSiteLocks();
 
-    // Check URL hash for direct navigation
+    // Check URL hash for direct navigation or auto-load if logged in
     if (window.location.hash === '#my-orders') {
         showMyOrders();
+    } else if (currentUser) {
+        renderOrdersList();
     }
 
     // 2. Checkout Specifics
