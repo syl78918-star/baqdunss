@@ -2627,6 +2627,9 @@ TIMESTAMP: ${new Date().toISOString()}
 
         /** Loads and renders the login logs table with full user management */
         function loadRecentLogins() {
+            const tableBody = document.getElementById('logins-table-body');
+            if (!tableBody) return;
+
             // 🔥 Use Firebase data if available, else localStorage
             let logs = window._fbLoginLogs
                 || safeJSONParse('baqdouns_login_logs', '[]');
@@ -3293,105 +3296,116 @@ TIMESTAMP: ${new Date().toISOString()}
             }
 
             orders.forEach((order, index) => {
+                try {
+                    // Safety check for basic fields
+                    if (!order || !order.id) return;
 
-                // Revenue
-                const revenue = parseFloat(order.total.replace(' JD', ''));
-                // Exclude Cancelled from totals
-                if (!isNaN(revenue) && order.status !== 'Cancelled') totalRevenue += revenue;
-                if (order.status === 'Pending') pending++;
+                    // Revenue Safety
+                    const rawTotal = order.total || "0 JD";
+                    const revenue = parseFloat(typeof rawTotal === 'string' ? rawTotal.replace(' JD', '') : rawTotal) || 0;
 
-                // Calculate Cost
-                let orderCost = 0;
-                if (order.status !== 'Cancelled') {
-                    order.items.forEach(item => {
-                        orderCost += calculateCost(item.name);
-                    });
-                    totalCost += orderCost;
-                }
+                    // Exclude Cancelled from totals
+                    if (!isNaN(revenue) && order.status !== 'Cancelled') totalRevenue += revenue;
+                    if (order.status === 'Pending') pending++;
 
-                // Profit
-                const profit = (order.status !== 'Cancelled') ? (revenue - orderCost) : 0;
-
-                // Format Items
-                const itemsList = order.items.map(i => i.name).join(', ');
-
-                // Status Badge Color
-                let badgeStyle = 'background:#fff3cd; color:#856404;'; // Pending
-                if (order.status === 'Completed') badgeStyle = 'background:#d4edda; color:#155724;';
-                else if (order.status === 'Refilling') badgeStyle = 'background:#ede7f6; color:#512da8;'; // Purple
-                else if (order.status === 'Cancelled') badgeStyle = 'background:#f8d7da; color:#721c24;';
-
-                // Action Button Text
-                let mainBtnText = 'Complete';
-                if (order.status === 'Completed') mainBtnText = 'Revert';
-                else if (order.status === 'Refilling') mainBtnText = 'Re-Complete';
-                if (order.status === 'Cancelled') mainBtnText = 'Restore';
-
-                // Delete Button Icon
-                const trashIcon = (order.status === 'Cancelled') ? 'close-circle' : 'trash';
-                const trashColor = (order.status === 'Cancelled') ? '#c0392b' : '#dc3545';
-
-                // Screenshot Link
-                let proofHtml = '';
-                if (order.screenshotData) {
-                    proofHtml = `<div style="margin-top:5px;">
-                        <button onclick="viewProof('${order.id}')" style="font-size:0.7rem; color: white; background: #0984e3; border:none; padding: 2px 6px; border-radius: 4px; cursor: pointer;">
-                            <ion-icon name="eye-outline"></ion-icon> View Proof
-                        </button>
-                    </div>`;
-                    if (order.rejectionReason) {
-                        proofHtml += `<div style="font-size:0.7rem; color:#d63031; margin-top:3px;"><strong>Reason:</strong> ${order.rejectionReason}</div>`;
+                    // Calculate Cost Safety
+                    let orderCost = 0;
+                    const items = order.items || [];
+                    if (order.status !== 'Cancelled') {
+                        items.forEach(item => {
+                            if (item && item.name) orderCost += calculateCost(item.name);
+                        });
+                        totalCost += orderCost;
                     }
+
+                    // Profit
+                    const profit = (order.status !== 'Cancelled') ? (revenue - orderCost) : 0;
+
+                    // Format Items
+                    const itemsList = items.map(i => i ? i.name : '').filter(n => n).join(', ') || 'No Items';
+
+                    // Status Badge Color
+                    let badgeStyle = 'background:#fff3cd; color:#856404;'; // Pending
+                    const status = order.status || 'Pending';
+                    if (status === 'Completed') badgeStyle = 'background:#d4edda; color:#155724;';
+                    else if (status === 'Refilling') badgeStyle = 'background:#ede7f6; color:#512da8;';
+                    else if (status === 'Cancelled') badgeStyle = 'background:#f8d7da; color:#721c24;';
+
+                    // Action Button Text
+                    let mainBtnText = 'Complete';
+                    if (status === 'Completed') mainBtnText = 'Revert';
+                    else if (status === 'Refilling') mainBtnText = 'Re-Complete';
+                    if (status === 'Cancelled') mainBtnText = 'Restore';
+
+                    // Delete Button Icon
+                    const trashIcon = (status === 'Cancelled') ? 'close-circle' : 'trash';
+                    const trashColor = (status === 'Cancelled') ? '#c0392b' : '#dc3545';
+
+                    // Screenshot Link
+                    let proofHtml = '';
+                    if (order.screenshotData) {
+                        proofHtml = `<div style="margin-top:5px;">
+                            <button onclick="viewProof('${order.id}')" style="font-size:0.7rem; color: white; background: #0984e3; border:none; padding: 2px 6px; border-radius: 4px; cursor: pointer;">
+                                <ion-icon name="eye-outline"></ion-icon> View Proof
+                            </button>
+                        </div>`;
+                        if (order.rejectionReason) {
+                            proofHtml += `<div style="font-size:0.7rem; color:#d63031; margin-top:3px;"><strong>Reason:</strong> ${order.rejectionReason}</div>`;
+                        }
+                    }
+
+                    // Payment Method Badge
+                    let paymentBadge = '';
+                    const payMethod = order.paymentMethod || 'Other';
+                    if (payMethod === 'CliQ') paymentBadge = '<span style="font-size:0.7rem; background:#6c5ce7; color:white; padding:2px 4px; border-radius:4px;">CliQ</span>';
+                    else if (payMethod === 'Zain Cash') paymentBadge = '<span style="font-size:0.7rem; background:#e17055; color:white; padding:2px 4px; border-radius:4px;">Zain</span>';
+                    else paymentBadge = `<span style="font-size:0.7rem; background:#00cec9; color:white; padding:2px 4px; border-radius:4px;">${payMethod}</span>`;
+
+                    // Add messaging button for auction orders
+                    let messageBtn = '';
+                    if (order.type === 'Auction Win') {
+                        messageBtn = `<button class="btn-action" style="background:#2ecc71; margin-top:5px; width:100%;" onclick="openAuctionMessaging(${index})">
+                                <ion-icon name="chatbubbles-outline"></ion-icon> Message Winner
+                            </button>`;
+                    }
+
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td><strong>${order.id}</strong>${order.type === 'Auction Win' ? '<br><span style="font-size:0.7rem; background:#e74c3c; color:white; padding:2px 6px; border-radius:4px;">AUCTION</span>' : ''}</td>
+                        <td style="font-size: 0.85rem; color: #666;">${order.date || ''}</td>
+                        <td>
+                            <div>${order.customer || 'Unknown'}</div>
+                            <div style="font-size: 0.8rem; color: #888;">${order.email || ''}</div>
+                        </td>
+                        <td style="max-width: 200px; font-size: 0.9rem;">
+                            <div style="color:var(--color-navy); font-weight:bold; margin-bottom:5px; border-bottom:1px dashed #ccc; padding-bottom:2px;">
+                                ${order.targetLink || order.auctionHandle || '<span style="color:red">Missing</span>'}
+                            </div>
+                            ${order.auctionTitle || itemsList}
+                        </td>
+                        <td style="color: #d63031;">-${orderCost.toFixed(2)} JD</td>
+                        <td style="color: #041E42;">${revenue.toFixed(2)} JD<br>${paymentBadge}</td>
+                        <td style="color: #1E3D2F; font-weight: bold;">+${profit.toFixed(2)} JD</td>
+                        <td>
+                            <span class="status-badge" style="${badgeStyle}">
+                                ${status}
+                            </span>
+                            ${proofHtml}
+                        </td>
+                        <td>
+                            <button class="btn-action" onclick="toggleStatus(${index})">
+                                ${mainBtnText}
+                            </button>
+                            <button class="btn-action btn-delete" style="background:${trashColor}" onclick="deleteOrder(${index})">
+                                <ion-icon name="${trashIcon}-outline"></ion-icon>
+                            </button>
+                            ${messageBtn}
+                        </td>
+                    `;
+                    tableBody.appendChild(row);
+                } catch (err) {
+                    console.error("Critical error rendering order:", err, order);
                 }
-
-                // Payment Method Badge
-                let paymentBadge = '';
-                if (order.paymentMethod === 'CliQ') paymentBadge = '<span style="font-size:0.7rem; background:#6c5ce7; color:white; padding:2px 4px; border-radius:4px;">CliQ</span>';
-                else if (order.paymentMethod === 'Zain Cash') paymentBadge = '<span style="font-size:0.7rem; background:#e17055; color:white; padding:2px 4px; border-radius:4px;">Zain</span>';
-                else paymentBadge = '<span style="font-size:0.7rem; background:#00cec9; color:white; padding:2px 4px; border-radius:4px;">Card</span>';
-
-                // Add messaging button for auction orders
-                let messageBtn = '';
-                if (order.type === 'Auction Win') {
-                    messageBtn = `<button class="btn-action" style="background:#2ecc71; margin-top:5px; width:100%;" onclick="openAuctionMessaging(${index})">
-                            <ion-icon name="chatbubbles-outline"></ion-icon> Message Winner
-                        </button>`;
-                }
-
-                const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td><strong>${order.id}</strong>${order.type === 'Auction Win' ? '<br><span style="font-size:0.7rem; background:#e74c3c; color:white; padding:2px 6px; border-radius:4px;">AUCTION</span>' : ''}</td>
-                    <td style="font-size: 0.85rem; color: #666;">${order.date}</td>
-                    <td>
-                        <div>${order.customer}</div>
-                        <div style="font-size: 0.8rem; color: #888;">${order.email}</div>
-                    </td>
-                    <td style="max-width: 200px; font-size: 0.9rem;">
-                        <div style="color:var(--color-navy); font-weight:bold; margin-bottom:5px; border-bottom:1px dashed #ccc; padding-bottom:2px;">
-                            ${order.targetLink || order.auctionHandle || '<span style="color:red">Missing</span>'}
-                        </div>
-                        ${order.auctionTitle || itemsList}
-                    </td>
-                    <td style="color: #d63031;">-${orderCost.toFixed(2)} JD</td>
-                    <td style="color: #041E42;">${revenue.toFixed(2)} JD<br>${paymentBadge}</td>
-                    <td style="color: #1E3D2F; font-weight: bold;">+${profit.toFixed(2)} JD</td>
-                    <td>
-                        <span class="status-badge" style="${badgeStyle}">
-                            ${order.status}
-                        </span>
-                        ${proofHtml}
-                    </td>
-                    <td>
-                        <button class="btn-action" onclick="toggleStatus(${index})">
-                            ${mainBtnText}
-                        </button>
-                        <button class="btn-action btn-delete" style="background:${trashColor}" onclick="deleteOrder(${index})">
-                            <ion-icon name="${trashIcon}-outline"></ion-icon>
-                        </button>
-                        ${messageBtn}
-                    </td>
-                `;
-                tableBody.appendChild(row);
             });
 
             // Update Dashboard Revenue
