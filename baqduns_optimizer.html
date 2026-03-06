@@ -2924,17 +2924,22 @@ TIMESTAMP: ${new Date().toISOString()}
             }
 
             // 🔍 فلترة السجلات الفارغة أو التالفة (بيانات قديمة من مسار uid)
-            users = users.filter(u =>
-                u && typeof u === 'object' &&
-                (u.email || u.name) &&
-                u.email !== undefined && u.name !== undefined
-            );
+            users = users.filter(u => {
+                if (!u || typeof u !== 'object') return false;
+                if (!u.email && !u.name) return false;
+                if (u.email === 'undefined' || u.name === 'undefined') return false;
+                if (u.email === undefined || u.name === undefined) return false;
+                return true;
+            });
 
             // تحديث localStorage بالبيانات المنظفة
             if (window.BaqdDB) {
                 try {
                     const lsUsers = safeJSONParse('baqdouns_users', '[]');
-                    const cleanLS = lsUsers.filter(u => u && u.email && u.name);
+                    const cleanLS = lsUsers.filter(u =>
+                        u && u.email && u.name &&
+                        u.email !== 'undefined' && u.name !== 'undefined'
+                    );
                     localStorage.setItem('baqdouns_users', JSON.stringify(cleanLS));
                 } catch (e) { }
             }

@@ -267,7 +267,7 @@
                 // 🧹 Auto-clean invalid entries (old uid-keyed records without email/name)
                 const toDelete = [];
                 fbUsers = fbUsers.filter(([key, u]) => {
-                    if (!u || typeof u !== 'object' || !u.email || !u.name) {
+                    if (!u || typeof u !== 'object' || !u.email || !u.name || u.email === 'undefined' || u.name === 'undefined') {
                         toDelete.push(key);
                         return false;
                     }
@@ -319,14 +319,32 @@
             }
             const ref = _db.ref('users');
             const handler = async (snap) => {
-                let users = Object.values(snap.val() || {});
+                const rawData = snap.val() || {};
+                const entries = Object.entries(rawData);
 
-                // Filter out any users that were explicitly deleted
+                // 🧹 Auto-clean corrupted/invalid entries (no email or name = old uid records)
+                const validUsers = [];
+                const toDelete = [];
+                entries.forEach(([key, u]) => {
+                    if (!u || typeof u !== 'object' || !u.email || !u.name || u.email === 'undefined' || u.name === 'undefined') {
+                        toDelete.push(key);
+                    } else {
+                        validUsers.push(u);
+                    }
+                });
+
+                // Silently delete invalid entries
+                if (toDelete.length > 0) {
+                    toDelete.forEach(key => _db.ref(`users/${key}`).remove().catch(() => { }));
+                }
+
+                // Filter out explicitly deleted users
+                let users = validUsers;
                 try {
                     const delSnap = await _db.ref('deleted_users').get();
                     if (delSnap.exists()) {
                         const deletedMap = delSnap.val() || {};
-                        users = users.filter(u => !u.email || !deletedMap[_enc(u.email)]);
+                        users = users.filter(u => !deletedMap[_enc(u.email)]);
                     }
                 } catch (e) { /* silent */ }
 
