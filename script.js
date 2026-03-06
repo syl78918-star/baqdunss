@@ -1135,8 +1135,8 @@ function checkLoginState() {
             window.currentUser = null;
             // Redirect to login if not already there
             if (!window.location.href.includes('login.html')) {
-                alert('تم حذف حسابك. يرجى التواصل مع الإدارة.\n\nYour account has been removed. Please contact support.');
-                window.location.href = 'login.html';
+                console.warn('Invalid session or deleted account — guest mode allowed.');
+                // window.location.href = 'login.html';
                 return;
             }
         }
