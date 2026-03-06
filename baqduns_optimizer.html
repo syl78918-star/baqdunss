@@ -3264,7 +3264,6 @@ TIMESTAMP: ${new Date().toISOString()}
             const tableBody = document.getElementById('orders-table-body');
             tableBody.innerHTML = '<tr><td colspan="9" style="text-align:center;padding:1.5rem;color:#888;">⏳ تحميل الطلبات...</td></tr>';
 
-            // ✅ اقرأ من Firebase أولاً لاستقبال الطلبات من كل الأجهزة
             let orders = [];
             try {
                 if (window.BaqdDB && typeof BaqdDB.getOrders === 'function') {
@@ -3276,6 +3275,8 @@ TIMESTAMP: ${new Date().toISOString()}
                 orders = safeJSONParse('baqdouns_orders', '[]');
             }
 
+            // 🧹 Clean and Filter: Only show active orders (Rejected belong in Audit tab)
+            orders = orders.filter(o => o && o.id && o.status !== 'Rejected');
             document.getElementById('total-orders').textContent = orders.length;
 
             let totalRevenue = 0;
@@ -3292,8 +3293,6 @@ TIMESTAMP: ${new Date().toISOString()}
             }
 
             orders.forEach((order, index) => {
-                // STRICT SEPARATION: Rejected orders belong ONLY in AI Audit tab
-                if (order.status === 'Rejected') return;
 
                 // Revenue
                 const revenue = parseFloat(order.total.replace(' JD', ''));
