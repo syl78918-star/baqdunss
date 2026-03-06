@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <!-- Background -->
+  <rect width="512" height="512" rx="100" fill="#041E42"/>
+  
+  <!-- Shield -->
+  <path d="M256 80 L380 130 L380 260 Q380 360 256 430 Q132 360 132 260 L132 130 Z" 
+        fill="none" stroke="#C5A059" stroke-width="18" stroke-linejoin="round"/>
+  <path d="M256 105 L360 148 L360 258 Q360 342 256 405 Q152 342 152 258 L152 148 Z" 
+        fill="rgba(197,160,89,0.12)"/>
+
+  <!-- Parsley Leaf inside shield -->
+  <ellipse cx="256" cy="230" rx="30" ry="70" fill="#C5A059" transform="rotate(-20 256 230)"/>
+  <ellipse cx="256" cy="230" rx="30" ry="70" fill="#3a7d44" transform="rotate(20 256 230)"/>
+  <ellipse cx="256" cy="200" rx="22" ry="55" fill="#4a9d56" transform="rotate(-10 256 200)"/>
+  <ellipse cx="256" cy="200" rx="22" ry="55" fill="#4a9d56" transform="rotate(10 256 200)"/>
+
+  <!-- Stem -->
+  <line x1="256" y1="330" x2="256" y2="380" stroke="#C5A059" stroke-width="10" stroke-linecap="round"/>
+
+  <!-- Gold ring at bottom -->
+  <circle cx="256" cy="388" r="12" fill="#C5A059"/>
+  
+  <!-- Stars top corners -->
+  <circle cx="170" cy="110" r="6" fill="#C5A059" opacity="0.6"/>
+  <circle cx="342" cy="110" r="6" fill="#C5A059" opacity="0.6"/>
+</svg>

@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>تنزيل تطبيق Baqduns Admin</title>
+
+    <!-- PWA Meta -->
+    <link rel="manifest" href="admin-manifest.json">
+    <meta name="theme-color" content="#C5A059">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Admin بقدونس">
+    <link rel="apple-touch-icon" href="admin-icon.svg">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Cairo', sans-serif;
+            background: linear-gradient(135deg, #041E42 0%, #0a2d5c 50%, #041E42 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            padding: 20px;
+            overflow-x: hidden;
+        }
+
+        /* Animated background */
+        body::before {
+            content: '';
+            position: fixed;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(ellipse at center, rgba(197, 160, 89, 0.08) 0%, transparent 60%);
+            animation: rotateBg 20s linear infinite;
+            pointer-events: none;
+        }
+
+        @keyframes rotateBg {
+            from {
+                transform: rotate(0deg);
+            }
+
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(197, 160, 89, 0.3);
+            border-radius: 28px;
+            padding: 40px 32px;
+            max-width: 420px;
+            width: 100%;
+            text-align: center;
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(197, 160, 89, 0.1);
+            position: relative;
+            z-index: 1;
+        }
+
+        .app-icon {
+            width: 100px;
+            height: 100px;
+            background: linear-gradient(135deg, #041E42, #0d2d5a);
+            border: 3px solid #C5A059;
+            border-radius: 24px;
+            margin: 0 auto 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            box-shadow: 0 10px 30px rgba(197, 160, 89, 0.3);
+            animation: pulse 3s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                box-shadow: 0 10px 30px rgba(197, 160, 89, 0.3);
+            }
+
+            50% {
+                box-shadow: 0 10px 40px rgba(197, 160, 89, 0.6);
+            }
+        }
+
+        .app-icon img {
+            width: 72px;
+            height: 72px;
+        }
+
+        h1 {
+            font-size: 1.8rem;
+            font-weight: 900;
+            background: linear-gradient(135deg, #C5A059, #f0d080, #C5A059);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 6px;
+        }
+
+        .subtitle {
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 0.95rem;
+            margin-bottom: 30px;
+        }
+
+        /* Install Button */
+        #btn-install-android {
+            display: none;
+            width: 100%;
+            padding: 18px;
+            background: linear-gradient(135deg, #C5A059, #d4b06a, #C5A059);
+            background-size: 200% auto;
+            color: #041E42;
+            border: none;
+            border-radius: 16px;
+            font-family: 'Cairo', sans-serif;
+            font-size: 1.1rem;
+            font-weight: 800;
+            cursor: pointer;
+            margin-bottom: 20px;
+            box-shadow: 0 8px 25px rgba(197, 160, 89, 0.4);
+            animation: shimmer 3s linear infinite;
+            transition: transform 0.2s;
+        }
+
+        #btn-install-android:hover {
+            transform: translateY(-2px);
+        }
+
+        @keyframes shimmer {
+            0% {
+                background-position: 0% center;
+            }
+
+            100% {
+                background-position: 200% center;
+            }
+        }
+
+        /* Steps */
+        .steps-title {
+            font-size: 1rem;
+            font-weight: 700;
+            color: #C5A059;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            justify-content: center;
+        }
+
+        .steps {
+            text-align: right;
+            margin-bottom: 24px;
+        }
+
+        .step {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            padding: 12px 14px;
+            margin-bottom: 10px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            border-right: 3px solid #C5A059;
+            transition: background 0.2s;
+        }
+
+        .step:hover {
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        .step-num {
+            min-width: 28px;
+            height: 28px;
+            background: #C5A059;
+            color: #041E42;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: 0.85rem;
+        }
+
+        .step-text {
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.85);
+            line-height: 1.6;
+        }
+
+        .step-text strong {
+            color: #C5A059;
+        }
+
+        /* OS Toggle */
+        .os-tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 20px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 4px;
+        }
+
+        .os-tab {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            border-radius: 9px;
+            background: transparent;
+            color: rgba(255, 255, 255, 0.5);
+            font-family: 'Cairo', sans-serif;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .os-tab.active {
+            background: rgba(197, 160, 89, 0.2);
+            color: #C5A059;
+            border: 1px solid rgba(197, 160, 89, 0.4);
+        }
+
+        .ios-steps,
+        .android-steps {
+            display: none;
+        }
+
+        .ios-steps.show,
+        .android-steps.show {
+            display: block;
+        }
+
+        /* Direct Link Button */
+        .btn-open {
+            display: block;
+            width: 100%;
+            padding: 15px;
+            background: rgba(197, 160, 89, 0.1);
+            border: 1px solid rgba(197, 160, 89, 0.4);
+            border-radius: 14px;
+            color: #C5A059;
+            text-decoration: none;
+            font-family: 'Cairo', sans-serif;
+            font-size: 1rem;
+            font-weight: 700;
+            text-align: center;
+            transition: all 0.3s;
+            margin-bottom: 16px;
+        }
+
+        .btn-open:hover {
+            background: rgba(197, 160, 89, 0.2);
+            transform: translateY(-1px);
+        }
+
+        .features {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            margin-bottom: 24px;
+        }
+
+        .feature {
+            background: rgba(255, 255, 255, 0.04);
+            border-radius: 10px;
+            padding: 10px;
+            font-size: 0.8rem;
+            color: rgba(255, 255, 255, 0.7);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .feature span {
+            font-size: 1.1rem;
+        }
+
+        .footer-note {
+            font-size: 0.78rem;
+            color: rgba(255, 255, 255, 0.3);
+            margin-top: 10px;
+        }
+
+        /* Installed badge */
+        #installed-badge {
+            display: none;
+            background: rgba(39, 174, 96, 0.15);
+            border: 1px solid #27ae60;
+            border-radius: 12px;
+            padding: 12px 16px;
+            color: #27ae60;
+            font-weight: 700;
+            margin-bottom: 16px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="card">
+        <!-- App Icon -->
+        <div class="app-icon">
+            <img src="admin-icon.svg" alt="Admin Icon" onerror="this.parentElement.innerText='🌿'">
+        </div>
+
+        <h1>Baqduns Admin</h1>
+        <p class="subtitle">لوحة تحكم بقدونس — نسخة التطبيق</p>
+
+        <!-- Installed badge -->
+        <div id="installed-badge">✅ تم تثبيت التطبيق بنجاح!</div>
+
+        <!-- Android Install Button (shows automatically) -->
+        <button id="btn-install-android" onclick="installPWA()">
+            📲 تنزيل التطبيق الآن
+        </button>
+
+        <!-- Features -->
+        <div class="features">
+            <div class="feature"><span>⚡</span> يعمل بدون انترنت</div>
+            <div class="feature"><span>🔔</span> إشعارات فورية</div>
+            <div class="feature"><span>🔒</span> آمن ومشفّر</div>
+            <div class="feature"><span>📱</span> تجربة تطبيق أصلي</div>
+        </div>
+
+        <!-- Direct Open -->
+        <a href="baqduns_optimizer.html" class="btn-open">
+            🚀 فتح لوحة الأدمن مباشرة
+        </a>
+
+        <!-- OS Instructions -->
+        <div class="os-tabs">
+            <button class="os-tab active" onclick="showOS('android')">🤖 Android</button>
+            <button class="os-tab" onclick="showOS('ios')">🍎 iPhone / iOS</button>
+        </div>
+
+        <!-- Android Steps -->
+        <div class="android-steps show" id="android-steps">
+            <div class="steps-title">📲 خطوات التثبيت على Android</div>
+            <div class="steps">
+                <div class="step">
+                    <div class="step-num">1</div>
+                    <div class="step-text">افتح هذا الرابط في <strong>Google Chrome</strong></div>
+                </div>
+                <div class="step">
+                    <div class="step-num">2</div>
+                    <div class="step-text">اضغط على القائمة <strong>⋮</strong> في الأعلى</div>
+                </div>
+                <div class="step">
+                    <div class="step-num">3</div>
+                    <div class="step-text">اختر <strong>"إضافة إلى الشاشة الرئيسية"</strong> أو <strong>"تثبيت
+                            التطبيق"</strong></div>
+                </div>
+                <div class="step">
+                    <div class="step-num">4</div>
+                    <div class="step-text">اضغط <strong>تثبيت</strong> وسيظهر التطبيق على شاشتك ⚡</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- iOS Steps -->
+        <div class="ios-steps" id="ios-steps">
+            <div class="steps-title">📲 خطوات التثبيت على iPhone</div>
+            <div class="steps">
+                <div class="step">
+                    <div class="step-num">1</div>
+                    <div class="step-text">افتح هذا الرابط في <strong>Safari</strong> (ليس Chrome)</div>
+                </div>
+                <div class="step">
+                    <div class="step-num">2</div>
+                    <div class="step-text">اضغط على أيقونة <strong>المشاركة</strong> 📤 في الأسفل</div>
+                </div>
+                <div class="step">
+                    <div class="step-num">3</div>
+                    <div class="step-text">اختر <strong>"إضافة إلى الشاشة الرئيسية"</strong></div>
+                </div>
+                <div class="step">
+                    <div class="step-num">4</div>
+                    <div class="step-text">اضغط <strong>إضافة</strong> وافتح التطبيق 🎉</div>
+                </div>
+            </div>
+        </div>
+
+        <p class="footer-note">🔐 متاح للأدمن فقط — Baqduns 2026</p>
+    </div>
+
+    <script>
+        // ── PWA Install Logic ────────────────────────────────────
+        let deferredPrompt = null;
+
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            // Show Android install button
+            document.getElementById('btn-install-android').style.display = 'block';
+        });
+
+        window.addEventListener('appinstalled', () => {
+            deferredPrompt = null;
+            document.getElementById('btn-install-android').style.display = 'none';
+            document.getElementById('installed-badge').style.display = 'block';
+        });
+
+        function installPWA() {
+            if (!deferredPrompt) return;
+            deferredPrompt.prompt();
+            deferredPrompt.userChoice.then(choice => {
+                if (choice.outcome === 'accepted') {
+                    document.getElementById('installed-badge').style.display = 'block';
+                }
+                deferredPrompt = null;
+                document.getElementById('btn-install-android').style.display = 'none';
+            });
+        }
+
+        // ── OS Tab Switch ────────────────────────────────────────
+        function showOS(os) {
+            document.querySelectorAll('.os-tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.ios-steps, .android-steps').forEach(s => s.classList.remove('show'));
+
+            event.target.classList.add('active');
+            document.getElementById(os + '-steps').classList.add('show');
+        }
+
+        // Auto-detect iOS
+        if (/iPad|iPhone|iPod/.test(navigator.userAgent)) {
+            showOS.call({ target: document.querySelectorAll('.os-tab')[1] }, 'ios');
+            document.querySelectorAll('.os-tab')[0].classList.remove('active');
+            document.querySelectorAll('.os-tab')[1].classList.add('active');
+            document.getElementById('android-steps').classList.remove('show');
+            document.getElementById('ios-steps').classList.add('show');
+        }
+
+        // ── Service Worker Registration ──────────────────────────
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('./admin-sw.js')
+                .then(reg => console.log('[Install Page] SW registered:', reg.scope))
+                .catch(err => console.warn('[Install Page] SW failed:', err));
+        }
+    </script>
+</body>
+
+</html>

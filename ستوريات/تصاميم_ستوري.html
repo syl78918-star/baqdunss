@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تصاميم ستوري بقدونس 🌿</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap" rel="stylesheet">
+    <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+    <style>
+        :root {
+            --color-navy: #041E42;
+            --color-green: #1E3D2F;
+            --color-gold: #C5A059;
+            --color-ivory: #F9F7F2;
+        }
+
+        body {
+            margin: 0;
+            font-family: 'Cairo', sans-serif;
+            background: #222;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 50px 0;
+            gap: 100px;
+        }
+
+        .story-container {
+            width: 405px;
+            /* 1080/2.66 ratio (~9:16) */
+            height: 720px;
+            background: white;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+            display: flex;
+            flex-direction: column;
+            border: 10px solid #333;
+            border-radius: 40px;
+        }
+
+        /* Design 1: Welcome / Ramadan */
+        #design-welcome {
+            background: linear-gradient(135deg, var(--color-navy) 0%, #0a2e5c 100%);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            text-align: center;
+            padding: 40px;
+        }
+
+        #design-welcome::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('https://www.transparenttextures.com/patterns/black-paper.png');
+            opacity: 0.2;
+        }
+
+        .ramadan-moon {
+            font-size: 80px;
+            color: var(--color-gold);
+            margin-bottom: 20px;
+            filter: drop-shadow(0 0 15px var(--color-gold));
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+
+            50% {
+                transform: scale(1.1);
+                opacity: 0.8;
+            }
+        }
+
+        .gold-title {
+            font-size: 42px;
+            font-weight: 900;
+            background: linear-gradient(to bottom, #FFE5B4 0%, var(--color-gold) 50%, #8B6B23 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 10px;
+            line-height: 1.2;
+        }
+
+        .sub-title {
+            font-size: 20px;
+            opacity: 0.9;
+            letter-spacing: 1px;
+            margin-bottom: 30px;
+        }
+
+        .ramadan-kareem {
+            font-size: 24px;
+            color: var(--color-gold);
+            border: 2px solid var(--color-gold);
+            padding: 10px 20px;
+            border-radius: 50px;
+            display: inline-block;
+            margin-top: 20px;
+        }
+
+        /* Design 2: Features */
+        .design-feature {
+            background: var(--color-ivory);
+            padding: 40px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .feature-icon {
+            font-size: 100px;
+            color: var(--color-green);
+            background: white;
+            width: 180px;
+            height: 180px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+            margin-top: 50px;
+        }
+
+        .feature-name {
+            font-size: 36px;
+            font-weight: 900;
+            color: var(--color-navy);
+            margin-bottom: 15px;
+        }
+
+        .feature-desc {
+            font-size: 18px;
+            color: #555;
+            line-height: 1.6;
+            margin-bottom: 50px;
+        }
+
+        .story-footer {
+            width: 100%;
+            padding: 20px;
+            background: var(--color-navy);
+            color: white;
+            text-align: center;
+            font-weight: bold;
+            font-size: 20px;
+        }
+
+        .lantern {
+            position: absolute;
+            top: 20px;
+            font-size: 40px;
+            color: var(--color-gold);
+        }
+
+        .lantern.left {
+            left: 30px;
+        }
+
+        .lantern.right {
+            right: 30px;
+        }
+
+        .screenshot-hint {
+            color: white;
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 1.2rem;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="screenshot-hint">💡 قم بتصوير الشاشة (Screenshot) لكل تصميم لاستخدامه في ستوري انستجرام</div>
+
+    <!-- 1. Welcome / Ramadan -->
+    <div class="story-container" id="design-welcome">
+        <div class="lantern left"><ion-icon name="notifications"></ion-icon></div>
+        <div class="lantern right"><ion-icon name="notifications"></ion-icon></div>
+        <div class="ramadan-moon">🌙</div>
+        <h1 class="gold-title">أهلاً بكم في<br>متجر بقدونس</h1>
+        <p class="sub-title">خياراتك الأفضل لنمو حساباتك</p>
+        <div class="ramadan-kareem">رمضان كريم ✨ 🌙</div>
+        <div style="position: absolute; bottom: 40px; font-size: 18px; opacity: 0.7;">baqduns.com</div>
+    </div>
+
+    <!-- 2. Seeds Feature -->
+    <div class="story-container design-feature" style="background: #e8f5e9;">
+        <div class="feature-icon"><ion-icon name="leaf"></ion-icon></div>
+        <div>
+            <h2 class="feature-name">بذور البقدونس 🌱</h2>
+            <p class="feature-desc">هي العملة الرسمية للموقع! اشحن بذورك وبلّش التطوير. بقدونس بوفرلك بذور بأقل الأسعار
+                في الأردن.</p>
+        </div>
+        <div class="story-footer">اشحن بذورك الآن 🌿</div>
+    </div>
+
+    <!-- 3. Transfer Feature -->
+    <div class="story-container design-feature" style="background: #f3e5f5;">
+        <div class="feature-icon"><ion-icon name="paper-plane" style="color: #8e44ad;"></ion-icon></div>
+        <div>
+            <h2 class="feature-name">ميزة الفزعة 💸</h2>
+            <p class="feature-desc">صاحبك ناقصه بذور؟ بتقدر تحوّل لأي حدا من صحابك بذور بكل سهولة وبسرعة البرق عن طريق
+                إيميله بس!</p>
+        </div>
+        <div class="story-footer">فزع لصحابك اليوم 💸</div>
+    </div>
+
+    <!-- 4. Auctions -->
+    <div class="story-container design-feature" style="background: #fff8e1;">
+        <div class="feature-icon"><ion-icon name="hammer" style="color: #C5A059;"></ion-icon></div>
+        <div>
+            <h2 class="feature-name">المزادات المباشرة 🔨</h2>
+            <p class="feature-desc">أقوى ميزة في بقدونس! فوت وزاود على حسابات فخمة وخدمات VIP. اللي بحط أعلى سعر هو
+                الكسبان.</p>
+        </div>
+        <div class="story-footer">بلّش المزاودة هسا 🔨</div>
+    </div>
+
+    <!-- 5. AI Protection -->
+    <div class="story-container design-feature" style="background: #e1f5fe;">
+        <div class="feature-icon"><ion-icon name="hardware-chip" style="color: #0288d1;"></ion-icon></div>
+        <div>
+            <h2 class="feature-name">الذكاء الاصطناعي 🧠</h2>
+            <p class="feature-desc">نظام بقدونس مجهز بأحدث AI للتحقق من حوالاتك فورياً. ارقع لقطة الشاشة والـ AI بتكفل
+                بالباقي!</p>
+        </div>
+        <div class="story-footer">شغلنا نظيف ومضمون 🛡️</div>
+    </div>
+
+</body>
+
+</html>

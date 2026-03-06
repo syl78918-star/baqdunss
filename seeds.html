@@ -1,0 +1,309 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <!-- Auth Guard: redirect to login if not logged in -->
+    <script>
+        (function() {
+            try {
+                var u = localStorage.getItem('baqdouns_current_user');
+                if (!u || u === 'null') { window.location.replace('login.html'); }
+            } catch(e) {}
+        })();
+    </script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>baqduns Seeds 🌿 | Loyalty Program</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Roboto:wght@300;400;500&display=swap"
+        rel="stylesheet">
+
+    <!-- External CSS -->
+    <link rel="stylesheet" href="style.css">
+    <!-- Ionicons -->
+    <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+    <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
+
+    <style>
+        body {
+            background-color: var(--color-ivory);
+        }
+
+        .hero-seeds {
+            background: linear-gradient(135deg, var(--color-green), var(--color-navy));
+            color: white;
+            padding: 8rem 0 4rem;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-seeds::before {
+            content: '🌿';
+            font-size: 20rem;
+            position: absolute;
+            top: -50px;
+            right: -50px;
+            opacity: 0.1;
+            transform: rotate(20deg);
+        }
+
+        .hero-seeds h1 {
+            color: var(--color-gold);
+            font-size: 3.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .hero-seeds p {
+            font-size: 1.2rem;
+            max-width: 600px;
+            margin: 0 auto;
+            opacity: 0.9;
+        }
+
+        .seeds-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin: -3rem auto 4rem;
+            position: relative;
+            z-index: 2;
+        }
+
+        .seed-card {
+            background: white;
+            padding: 2.5rem;
+            border-radius: 15px;
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+
+        .seed-card:hover {
+            transform: translateY(-10px);
+        }
+
+        .seed-icon {
+            font-size: 3rem;
+            color: var(--color-green);
+            background: #e8f5e9;
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1.5rem;
+        }
+
+        .seed-card h3 {
+            margin-bottom: 1rem;
+            color: var(--color-navy);
+        }
+
+        .value-box {
+            background: var(--color-navy);
+            color: var(--color-gold);
+            padding: 1rem;
+            border-radius: 8px;
+            margin-top: 2rem;
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+    </style>
+    <!-- Google AdSense -->
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3380778876722304"
+        crossorigin="anonymous"></script>
+
+</head>
+
+<body>
+
+
+    <!-- Header -->
+    <header>
+        <div class="container nav-container" style="position: relative;">
+            <div class="header-left">
+                <!-- Hamburger Menu -->
+                <div class="hamburger-menu" onclick="toggleMobileNav()">
+                    <ion-icon name="menu-outline"></ion-icon>
+                </div>
+
+                <!-- User Profile / Auth -->
+                <div id="user-menu-desktop" style="display: none; align-items: center; gap: 8px;">
+                    <span id="user-name-display" class="user-name-display"
+                        style="font-weight: 500; font-size: 0.9rem; color: var(--color-navy);">User</span>
+                </div>
+                <div id="auth-buttons-desktop">
+                    <button class="btn-login-nav" onclick="window.location.href='login.html'"
+                        style="padding: 4px 10px; font-size: 0.8rem;">تسجيل الدخول</button>
+                </div>
+            </div>
+
+            <div class="header-center">
+                <a href="accounts.html" class="nav-extra-link">شراء حسابات 💎</a>
+                <div class="logo" onclick="window.location.href='index.html'" style="cursor: pointer;">baqduns
+                    <span>🌿</span>
+                </div>
+                <a href="auctions.html" class="nav-extra-link">المزادات 🔨</a>
+            </div>
+
+            <div class="header-right">
+                <!-- Links moved to center -->
+
+                <!-- Seeds Dropdown -->
+                <div class="seeds-dropdown-container">
+                    <div id="loyalty-badge" class="loyalty-badge" onclick="toggleSeedsOptions(event)">
+                        <ion-icon name="leaf"></ion-icon>
+                        <span id="user-points">0</span>
+                    </div>
+                    <!-- Seeds Options Popup -->
+                    <div id="seeds-options-popup" class="seeds-options-popup">
+                        <button class="seed-opt-btn" onclick="openSeedModal()">
+                            <ion-icon name="cart-outline"></ion-icon> شراء بذور البقدونس
+                        </button>
+                        <button class="seed-opt-btn" onclick="openTransferModal()">
+                            <ion-icon name="paper-plane-outline"></ion-icon> تحويل بذور لصديق
+                        </button>
+                        <button class="seed-opt-btn" onclick="window.location.href='seeds.html#seeds-program'">
+                            <ion-icon name="gift-outline"></ion-icon> الحصول على بذور مجاناً
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Language Toggle -->
+                <div class="lang-toggle" onclick="toggleLanguage()"
+                    style="cursor: pointer; padding: 5px 10px; border: 1px solid #eee; border-radius: 20px; font-size: 0.8rem; font-weight: bold; background: #f9f9f9; margin-right: 10px; display: flex; align-items: center; gap: 5px;">
+                    <ion-icon name="language-outline"></ion-icon>
+                    <span>EN/عربي</span>
+                </div>
+
+                <!-- Cart Icon -->
+                <div class="cart-trigger" onclick="toggleCart()">
+                    <ion-icon name="bag-outline"></ion-icon>
+                    <span id="cart-count">0</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Google AdSense -->
+    <div style="margin: 20px auto; text-align: center; max-width: 100%; overflow: hidden;">
+        <ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-3380778876722304"
+            data-ad-slot="9256911321" data-ad-format="auto" data-full-width-responsive="true"></ins>
+        <script>
+            (adsbygoogle = window.adsbygoogle || []).push({});
+        </script>
+    </div>
+
+    <div class="hero-seeds" id="seeds-program">
+        <div class="container">
+            <h1>The Seeds Program</h1>
+            <p>Welcome to baqduns loyalty club. Earn Seeds with every purchase and grow your social influence for free.
+            </p>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="seeds-grid">
+            <!-- Card 1: Earn -->
+            <div class="seed-card">
+                <div class="seed-icon"><ion-icon name="cart"></ion-icon></div>
+                <h3>1. Shop & Earn</h3>
+                <p>For every <strong>1 JD</strong> you spend on any of our packages, you earn <strong>100 Seeds</strong>
+                    instantly.</p>
+            </div>
+
+            <!-- Card 2: Redeem -->
+            <div class="seed-card">
+                <div class="seed-icon"><ion-icon name="gift"></ion-icon></div>
+                <h3>2. Redeem for Discounts</h3>
+                <p>Use your seeds at checkout to pay for your orders. Every 100 Seeds saves you money.</p>
+                <div class="value-box">100 Seeds = 0.10 JD (10 Qirsh)</div>
+            </div>
+
+            <!-- Card 3: Refer -->
+            <div class="seed-card">
+                <div class="seed-icon"><ion-icon name="people"></ion-icon></div>
+                <h3>3. Invite Friends</h3>
+                <p>Share your unique referral code. When friends buy, they get a discount, and you get bonus Seeds!</p>
+            </div>
+
+
+            <a href="auctions.html" class="btn-primary"
+                style="margin-top: 1.5rem; display: inline-block; background: var(--color-navy); color: white;">View
+                Auctions</a>
+        </div>
+
+        <!-- Card 6: Play & Earn -->
+        <div class="seed-card" style="border: 2px solid var(--color-gold); position: relative; overflow: hidden;">
+            <div
+                style="position: absolute; top:0; right:0; background: var(--color-gold); color: var(--color-navy); padding: 5px 15px; font-weight: bold; font-size: 0.8rem; border-bottom-left-radius: 10px;">
+                DAILY</div>
+            <div class="seed-icon"><ion-icon name="game-controller"></ion-icon></div>
+            <h3>4. Play & Earn</h3>
+            <p style="margin-bottom: 20px;">Play <strong>Flappy Parsley</strong> daily to earn free seeds!</p>
+            <a href="game.html" class="btn-game-special"
+                style="display: inline-flex; align-items: center; gap: 8px; text-decoration: none; justify-content: center; background: linear-gradient(135deg, #2ecc71, #27ae60); color: white; padding: 12px 20px; border-radius: 50px; font-weight: bold; font-size: 1rem; box-shadow: 0 4px 10px rgba(46, 204, 113, 0.4); transition: transform 0.2s;">
+                <ion-icon name="logo-game-controller-b"></ion-icon> Play Now
+            </a>
+        </div>
+    </div>
+
+    <div style="text-align: center; margin-bottom: 4rem;">
+        <h2 style="margin-bottom: 1rem;">Ready to start growing?</h2>
+        <a href="index.html#packages" class="btn-primary"
+            style="background: var(--color-gold); color: var(--color-navy); padding: 1rem 2rem; border-radius: 50px; text-decoration: none; font-weight: bold; display: inline-block;">Browse
+            Packages</a>
+    </div>
+    </div>
+
+    <!-- Footer -->
+
+
+    <!-- Cart Sidebar -->
+    <div class="cart-overlay" id="cart-overlay" onclick="toggleCart()"></div>
+    <div class="cart-sidebar" id="cart-sidebar">
+        <div class="cart-header">
+            <h3>Your Cart</h3><button class="close-cart" onclick="toggleCart()"><ion-icon
+                    name="close-outline"></ion-icon></button>
+        </div>
+        <div class="cart-items" id="cart-items">
+            <div class="empty-cart-msg">Cart is empty.</div>
+        </div>
+        <div class="cart-footer">
+            <div class="total-row"><span>Total</span><span id="cart-total">0 JD</span></div>
+            <button class="btn-checkout" onclick="openCheckout()">Proceed to Payment</button>
+        </div>
+    </div>
+
+    <!-- Auth Modal -->
+    <!-- Auth Modal Removed - Redirecting to login.html -->
+
+    <!-- Footer -->
+    <footer>
+        <div class="container footer-content">
+            <div class="footer-logo">baqduns 🌿</div>
+            <p style="color: black; font-weight: bold;">All Rights Reserved baqduns 2026 &copy;</p>
+
+            <div class="footer-legal-links">
+                <a href="privacy-policy.html">سياسة الخصوصية</a>
+                <a href="terms-of-service.html">شروط الخدمة</a>
+                <a href="about.html">من نحن</a>
+
+            </div>
+        </div>
+    </footer>
+
+    <script src="firebase-config.js"></script>
+    <script src="firebase-db.js"></script>
+    <script src="notifications.js"></script>
+    <script src="script.js"></script>
+
+</body>
+
+</html>

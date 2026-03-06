@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>بقدونس 🌿 | اختر وجهتك</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet">
+
+    <!-- ✅ PWA Support -->
+    <link rel="manifest" href="visitor-manifest.json">
+    <meta name="theme-color" content="#041E42">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-touch-icon" href="visitor-logo.svg">
+
+    <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+    <script>
+        // Register Service Worker for PWA
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('sw.js').then(reg => {
+                    console.log('✅ Portal SW Registered');
+                });
+            });
+        }
+    </script>
+    <style>
+        :root {
+            --color-navy: #041E42;
+            --color-gold: #C5A059;
+            --color-green: #27ae60;
+            --bg-gradient: linear-gradient(135deg, #041E42 0%, #0a2e5c 100%);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Cairo', sans-serif;
+        }
+
+        body {
+            background: var(--bg-gradient);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            padding: 40px 0;
+        }
+
+        .portal-container {
+            text-align: center;
+            width: 100%;
+            max-width: 400px;
+            padding: 20px;
+            animation: fadeIn 1s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .logo-container {
+            margin-bottom: 40px;
+        }
+
+        .logo-svg {
+            width: 120px;
+            height: 120px;
+            filter: drop-shadow(0 0 20px rgba(197, 160, 89, 0.4));
+            margin-bottom: 15px;
+        }
+
+        .logo-text {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--color-gold);
+            letter-spacing: 2px;
+            text-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .options-grid {
+            display: grid;
+            gap: 20px;
+        }
+
+        .option-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(197, 160, 89, 0.2);
+            padding: 30px;
+            border-radius: 24px;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            text-decoration: none;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            backdrop-filter: blur(10px);
+        }
+
+        .option-card:hover {
+            background: rgba(197, 160, 89, 0.1);
+            border-color: var(--color-gold);
+            transform: scale(1.05);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+        }
+
+        .option-card ion-icon {
+            font-size: 3.5rem;
+            color: var(--color-gold);
+            margin-bottom: 15px;
+        }
+
+        .option-card h2 {
+            font-size: 1.4rem;
+            margin-bottom: 8px;
+        }
+
+        .option-card p {
+            font-size: 0.9rem;
+            color: #aaa;
+        }
+
+        .btn-install-info {
+            margin-top: 10px;
+            font-size: 0.75rem;
+            background: var(--color-gold);
+            color: var(--color-navy);
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-weight: bold;
+        }
+
+        /* Floating background elements */
+        .decoration {
+            position: absolute;
+            z-index: -1;
+            filter: blur(80px);
+            border-radius: 50%;
+        }
+
+        .dec-1 {
+            width: 300px;
+            height: 300px;
+            background: rgba(197, 160, 89, 0.1);
+            top: -100px;
+            left: -100px;
+        }
+
+        .dec-2 {
+            width: 300px;
+            height: 300px;
+            background: rgba(39, 174, 96, 0.05);
+            bottom: -100px;
+            right: -100px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="decoration dec-1"></div>
+    <div class="decoration dec-2"></div>
+
+    <div class="portal-container">
+        <div class="logo-container">
+            <!-- New Premium SVG Logo -->
+            <svg class="logo-svg" viewBox="0 0 100 100">
+                <defs>
+                    <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" style="stop-color:#C5A059;stop-opacity:1" />
+                        <stop offset="100%" style="stop-color:#F0D080;stop-opacity:1" />
+                    </linearGradient>
+                </defs>
+                <circle cx="50" cy="50" r="48" fill="none" stroke="url(#goldGrad)" stroke-width="2" />
+                <path d="M50 20 C60 35 70 50 50 80 C30 50 40 35 50 20" fill="url(#goldGrad)" opacity="0.9" />
+                <path d="M50 30 C55 40 60 55 50 70 C40 55 45 40 50 30" fill="#041E42" />
+            </svg>
+            <div class="logo-text">BAQDUNS</div>
+            <p style="color: #888; margin-top: 10px;">نحو القمة في السوشيال ميديا 🚀</p>
+        </div>
+
+        <div class="options-grid">
+            <!-- PWA Installation Info Banner (Hidden by default) -->
+            <div id="browser-warning"
+                style="display:none; background: rgba(231, 76, 60, 0.2); border: 1px solid #e74c3c; padding: 15px; border-radius: 15px; margin-bottom: 20px; font-size: 0.85rem; color: #ff7675;">
+                ⚠️ أنت تتصفح من خلال متطبيق (Google/Facebook). للتثبيت بشكل صحيح، افتح الرابط في المتصفح الرسمي (Safari
+                للأيفون أو Chrome للأندرويد).
+            </div>
+
+            <!-- Option 1: Install App -->
+            <a href="javascript:void(0)" onclick="triggerAppInstall()" class="option-card" id="install-card">
+                <ion-icon name="cloud-download-outline"></ion-icon>
+                <h2>تثبيت التطبيق</h2>
+                <p>استخدم تطبيقنا لتجربة أسرع وأسهل</p>
+                <div class="btn-install-info">تطبيق PWA مجاني</div>
+            </a>
+
+            <!-- Option 2: Enter Website -->
+            <a href="index.html" class="option-card">
+                <ion-icon name="globe-outline"></ion-icon>
+                <h2>الدخول للموقع</h2>
+                <p>تصفح الموقع مباشرة من المتصفح</p>
+            </a>
+        </div>
+
+        <p style="margin-top: 40px; font-size: 0.8rem; color: #555;">&copy; 2026 Baqduns Services. All rights reserved.
+        </p>
+    </div>
+
+    <script>
+        // PWA Installation Handling
+        let deferredPrompt;
+        const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+        const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
+
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            console.log('✨ PWA Install Prompt Captured');
+        });
+
+        function triggerAppInstall() {
+            if (isStandalone) {
+                alert("التطبيق مثبت بالفعل على جهازك! ✅");
+                return;
+            }
+
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                deferredPrompt.userChoice.then((choiceResult) => {
+                    if (choiceResult.outcome === 'accepted') {
+                        console.log('🚀 User accepted the install prompt');
+                    }
+                    deferredPrompt = null;
+                });
+            } else if (isIOS) {
+                alert("لتثبيت التطبيق على iPhone:\n1. اضغط على زر 'مشاركة' (Share) في المتصفح 📤\n2. اختر 'إضافة إلى الصفحة الرئيسية' (Add to Home Screen) ➕");
+            } else {
+                // For Android/Chrome where prompt is not ready, go to index but stay there
+                // The "Google" redirect might be happening because of certain browser behaviors
+                // We'll show an alert instead of a silent redirect
+                alert("سيتم نقلك للمتجر، يرجى الضغط على النقاط الثلاث في المتصفح واختيار 'تثبيت التطبيق' (Install App)");
+                window.location.href = 'index.html';
+            }
+        }
+
+        // Detection for PWA install intent from URL
+        window.addEventListener('DOMContentLoaded', () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('install') === 'true' || urlParams.get('pwa_install') === '1') {
+                setTimeout(triggerAppInstall, 1000);
+            }
+
+            // Check if user is in an in-app browser (like Google/Facebook apps)
+            const ua = navigator.userAgent || navigator.vendor || window.opera;
+            const isInApp = (ua.indexOf('FBAN') > -1) || (ua.indexOf('FBAV') > -1) || (ua.indexOf('GSA') > -1) || (ua.indexOf('Instagram') > -1);
+
+            if (isInApp && !isStandalone) {
+                document.getElementById('browser-warning').style.display = 'block';
+                document.getElementById('install-card').style.opacity = '0.7';
+            }
+
+            if (isStandalone) {
+                document.getElementById('install-card').innerHTML = `
+                    <ion-icon name="checkmark-done-circle-outline" style="color:#27ae60"></ion-icon>
+                    <h2>تم التثبيت بنجاح</h2>
+                    <p>أنت تستخدم التطبيق الآن</p>
+                `;
+                document.getElementById('install-card').style.pointerEvents = 'none';
+            }
+        });
+    </script>
+</body>
+
+</html>

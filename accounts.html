@@ -1,0 +1,537 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <!-- Auth Guard: redirect to login if not logged in -->
+    <script>
+        (function() {
+            try {
+                var u = localStorage.getItem('baqdouns_current_user');
+                if (!u || u === 'null') { window.location.replace('login.html'); }
+            } catch(e) {}
+        })();
+    </script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>baqduns Store | Premium Accounts 💎</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Roboto:wght@300;400;500&display=swap"
+        rel="stylesheet">
+
+    <!-- External CSS -->
+    <link rel="stylesheet" href="style.css">
+    <!-- Ionicons -->
+    <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+    <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
+
+    <style>
+        body {
+            background-color: var(--bg-light);
+        }
+
+        .hero-store {
+            background: linear-gradient(135deg, var(--color-navy), #2c3e50);
+            color: white;
+            padding: 6rem 0 3rem;
+            text-align: center;
+        }
+
+        .hero-store h1 {
+            color: var(--color-gold);
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        .filters-bar {
+            background: white;
+            padding: 1rem;
+            margin-bottom: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1200px;
+            margin: -2rem auto 2rem;
+            position: relative;
+            z-index: 10;
+        }
+
+        .accounts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 2rem;
+            padding-bottom: 4rem;
+        }
+
+        .account-card {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .account-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+        }
+
+        .account-img-container {
+            height: 180px;
+            background: #f0f0f0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .account-img-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .account-badge {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: var(--color-gold);
+            color: var(--color-navy);
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.7rem;
+            font-weight: bold;
+        }
+
+        .account-details {
+            padding: 1.5rem;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .account-title {
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: var(--color-navy);
+            margin-bottom: 0.5rem;
+        }
+
+        .account-desc {
+            font-size: 0.9rem;
+            color: #666;
+            margin-bottom: 1rem;
+            flex-grow: 1;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .account-price {
+            font-size: 1.4rem;
+            font-weight: bold;
+            color: var(--color-green);
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .btn-add-cart {
+            background: var(--color-navy);
+            color: white;
+            border: none;
+            padding: 10px;
+            border-radius: 6px;
+            width: 100%;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn-add-cart:hover {
+            background: #34495e;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Header -->
+    <header>
+        <div class="container nav-container" style="position: relative;">
+            <div class="header-left">
+                <div class="hamburger-menu" onclick="toggleMobileNav()">
+                    <ion-icon name="menu-outline"></ion-icon>
+                </div>
+                <div id="user-menu-desktop" style="display: none; align-items: center; gap: 8px;">
+                    <span id="user-name-display" class="user-name-display"
+                        style="font-weight: 500; font-size: 0.9rem; color: var(--color-navy);">User</span>
+                </div>
+                <div id="auth-buttons-desktop">
+                    <button class="btn-login-nav" onclick="window.location.href='login.html'"
+                        style="padding: 4px 10px; font-size: 0.8rem;">تسجيل الدخول</button>
+                </div>
+            </div>
+
+            <div class="header-center">
+                <a href="accounts.html" class="nav-extra-link">شراء حسابات 💎</a>
+                <div class="logo" onclick="window.location.href='index.html'"
+                    style="cursor: pointer; display: flex; align-items: center; gap: 8px;">
+                    <svg width="40" height="40" viewBox="0 0 100 100"
+                        style="filter: drop-shadow(0 0 5px rgba(197, 160, 89, 0.3));">
+                        <defs>
+                            <linearGradient id="goldGradNavAcc" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" style="stop-color:#C5A059;stop-opacity:1" />
+                                <stop offset="100%" style="stop-color:#F0D080;stop-opacity:1" />
+                            </linearGradient>
+                        </defs>
+                        <circle cx="50" cy="50" r="48" fill="none" stroke="url(#goldGradNavAcc)" stroke-width="4" />
+                        <path d="M50 20 C60 35 70 50 50 80 C30 50 40 35 50 20" fill="url(#goldGradNavAcc)" />
+                    </svg>
+                    <span
+                        style="font-weight: 800; font-size: 1.6rem; letter-spacing: 1px; color: var(--color-navy);">baqduns</span>
+                </div>
+                <a href="auctions.html" class="nav-extra-link">المزادات 🔨</a>
+            </div>
+
+            <div class="header-right">
+                <!-- Links moved to center -->
+
+                <!-- Seeds Dropdown -->
+                <div class="seeds-dropdown-container">
+                    <div id="loyalty-badge" class="loyalty-badge" onclick="toggleSeedsOptions(event)">
+                        <ion-icon name="leaf"></ion-icon>
+                        <span id="user-points">0</span>
+                    </div>
+                    <div id="seeds-options-popup" class="seeds-options-popup">
+                        <button class="seed-opt-btn" onclick="openSeedModal()">
+                            <ion-icon name="cart-outline"></ion-icon> شراء بذور البقدونس
+                        </button>
+                        <button class="seed-opt-btn" onclick="openTransferModal()">
+                            <ion-icon name="paper-plane-outline"></ion-icon> تحويل بذور لصديق
+                        </button>
+                        <button class="seed-opt-btn" onclick="window.location.href='seeds.html#seeds-program'">
+                            <ion-icon name="gift-outline"></ion-icon> الحصول على بذور مجاناً
+                        </button>
+                    </div>
+                </div>
+
+                <div class="lang-toggle" onclick="toggleLanguage()"
+                    style="cursor: pointer; padding: 5px 10px; border: 1px solid #eee; border-radius: 20px; font-size: 0.8rem; font-weight: bold; background: #f9f9f9; margin-right: 10px; display: flex; align-items: center; gap: 5px;">
+                    <ion-icon name="language-outline"></ion-icon>
+                    <span>EN/عربي</span>
+                </div>
+
+                <div class="cart-trigger" onclick="toggleCart()">
+                    <ion-icon name="bag-outline"></ion-icon>
+                    <span id="cart-count">0</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero -->
+    <div class="hero-store">
+        <div class="container">
+            <h1>Premium Account Store</h1>
+            <p>Verified, high-quality social media accounts ready for you.</p>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- Filters (Visual only for now) -->
+        <div class="filters-bar">
+            <strong><ion-icon name="filter-outline"></ion-icon> Filter By:</strong>
+            <div style="display:flex; gap:10px;">
+                <select style="padding: 8px; border-radius:4px; border:1px solid #ddd;">
+                    <option>All Platforms</option>
+                    <option>Instagram</option>
+                    <option>TikTok</option>
+                    <option>Snapchat</option>
+                </select>
+                <select style="padding: 8px; border-radius:4px; border:1px solid #ddd;">
+                    <option>Price: Low to High</option>
+                    <option>Price: High to Low</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Grid -->
+        <div id="accounts-grid" class="accounts-grid">
+            <!-- Items injected by JS -->
+            <div style="grid-column: 1/-1; text-align: center; padding: 2rem; color: #666;">
+                <ion-icon name="reload-outline" class="spin"></ion-icon> Loading accounts...
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+
+
+    <!-- Cart Sidebar -->
+    <div class="cart-overlay" id="cart-overlay" onclick="toggleCart()"></div>
+    <div class="cart-sidebar" id="cart-sidebar">
+        <div class="cart-header">
+            <h3>Your Cart</h3><button class="close-cart" onclick="toggleCart()"><ion-icon
+                    name="close-outline"></ion-icon></button>
+        </div>
+        <div class="cart-items" id="cart-items">
+            <div class="empty-cart-msg">Cart is empty.</div>
+        </div>
+        <div class="cart-footer">
+            <div class="total-row"><span>Total</span><span id="cart-total">0 JD</span></div>
+            <button class="btn-checkout" onclick="openCheckout()">Proceed to Payment</button>
+        </div>
+    </div>
+
+    <!-- Auth Modal -->
+    <!-- Auth Modal Removed - Redirecting to login.html -->
+
+
+    <script>
+        // Initialize Accounts Page
+        document.addEventListener('DOMContentLoaded', () => {
+            loadAccountsStore();
+            setupFilters();
+        });
+
+        // Global variable to store current accounts for filtering
+        let allAccounts = [];
+
+        function loadAccountsStore() {
+            const grid = document.getElementById('accounts-grid');
+            if (!grid) return;
+
+            // Get accounts from local storage
+            let accounts = JSON.parse(localStorage.getItem('baqdouns_accounts_store') || '[]');
+
+            // If empty, add some demo data (First time run)
+            if (accounts.length === 0) {
+                accounts = [
+                    {
+                        id: 1,
+                        title: "Instagram Page - 10k Followers",
+                        price: 50,
+                        desc: "High quality fashion niche page with organic followers. Great engagement rate. Ready for immediate transfer.",
+                        image: "https://images.unsplash.com/photo-1611162617474-5b21e879e113?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3",
+                        platform: "Instagram"
+                    },
+                    {
+                        id: 2,
+                        title: "TikTok Account - 5k Followers",
+                        price: 25,
+                        desc: "Funny cat videos niche. Ready to monetize with Creativity Program Beta available.",
+                        image: "https://images.unsplash.com/photo-1611605698335-8b1569810432?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3",
+                        platform: "TikTok"
+                    },
+                    {
+                        id: 3,
+                        title: "Fortnite Account - OG Skins",
+                        price: 120,
+                        desc: "Rare skins included: Black Knight, Galaxy, etc. Full access to email and console linking.",
+                        image: "https://images.unsplash.com/photo-1542751371-adc38448a05e?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3",
+                        platform: "Gaming"
+                    }
+                ];
+                localStorage.setItem('baqdouns_accounts_store', JSON.stringify(accounts));
+            }
+
+            allAccounts = accounts;
+            renderAccounts(allAccounts);
+        }
+
+        function renderAccounts(accountsToRender) {
+            const grid = document.getElementById('accounts-grid');
+            grid.innerHTML = '';
+
+            if (accountsToRender.length === 0) {
+                grid.innerHTML = '<div style="grid-column:1/-1; text-align:center; padding:3rem; color:#666;">No accounts found matching your criteria.</div>';
+                return;
+            }
+
+            accountsToRender.forEach(acc => {
+                const card = document.createElement('div');
+                card.className = 'account-card';
+                // Escape description for use in onclick
+                const safeDesc = (acc.desc || "").replace(/'/g, "&apos;").replace(/"/g, "&quot;");
+                const safeTitle = (acc.title || "").replace(/'/g, "&apos;").replace(/"/g, "&quot;");
+
+                card.innerHTML = `
+                    <div class="account-img-container" onclick="showAccountDetails('${acc.id}')" style="cursor:pointer;">
+                        <img src="${acc.image || 'https://via.placeholder.com/300?text=No+Image'}" alt="${safeTitle}" loading="lazy">
+                        <span class="account-badge">${acc.platform || 'General'}</span>
+                    </div>
+                    <div class="account-details">
+                        <div class="account-title" onclick="showAccountDetails('${acc.id}')" style="cursor:pointer;">${acc.title}</div>
+                        <div class="account-desc" onclick="showAccountDetails('${acc.id}')" style="cursor:pointer;">${acc.desc}</div>
+                        <div class="account-price">${acc.price} JD</div>
+                        <button class="btn-add-cart" onclick="addToCartWithFeedback('${safeTitle}', ${acc.price}, this)">
+                            <ion-icon name="cart-outline"></ion-icon> Add into Cart
+                        </button>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        function setupFilters() {
+            const platformSelect = document.querySelector('select:first-of-type'); // Assuming first select is platform
+            const sortSelect = document.querySelector('select:last-of-type'); // Assuming second is sort
+
+            if (platformSelect) {
+                platformSelect.addEventListener('change', (e) => {
+                    const platform = e.target.value;
+                    filterAndSort(platform, sortSelect ? sortSelect.value : 'default');
+                });
+            }
+
+            if (sortSelect) {
+                sortSelect.addEventListener('change', (e) => {
+                    const sort = e.target.value;
+                    filterAndSort(platformSelect ? platformSelect.value : 'All Platforms', sort);
+                });
+            }
+        }
+
+        function filterAndSort(platform, sort) {
+            let filtered = [...allAccounts];
+
+            // Filter
+            if (platform !== 'All Platforms') {
+                filtered = filtered.filter(acc => acc.platform === platform);
+            }
+
+            // Sort
+            if (sort.includes('Low to High')) {
+                filtered.sort((a, b) => a.price - b.price);
+            } else if (sort.includes('High to Low')) {
+                filtered.sort((a, b) => b.price - a.price);
+            }
+
+            renderAccounts(filtered);
+        }
+
+        // Improved Add to Cart with feedback
+        function addToCartWithFeedback(title, price, btn) {
+            // Call the original addToCart from script.js
+            if (window.addToCart) {
+                window.addToCart(title, price);
+            }
+
+            // Visual feedback
+            const originalText = btn.innerHTML;
+            btn.style.background = 'var(--color-green)';
+            btn.innerHTML = '<ion-icon name="checkmark-circle"></ion-icon> Added!';
+
+            setTimeout(() => {
+                btn.style.background = 'var(--color-navy)';
+                btn.innerHTML = originalText;
+            }, 1500);
+
+            showToast(`Added ${title} to cart`);
+        }
+
+        function showToast(msg) {
+            // Check if toast container exists
+            let container = document.getElementById('toast-container');
+            if (!container) {
+                container = document.createElement('div');
+                container.id = 'toast-container';
+                container.style.cssText = 'position:fixed; bottom:20px; right:20px; z-index:9999; display:flex; flex-direction:column; gap:10px;';
+                document.body.appendChild(container);
+            }
+
+            const toast = document.createElement('div');
+            toast.style.cssText = 'background:rgba(0,0,0,0.8); color:white; padding:12px 20px; border-radius:8px; animation: slideIn 0.3s ease-out; box-shadow:0 4px 10px rgba(0,0,0,0.2); display:flex; align-items:center; gap:8px;';
+            toast.innerHTML = `<ion-icon name="bag-check" style="color:#2ecc71; font-size:1.2rem;"></ion-icon> ${msg}`;
+
+            container.appendChild(toast);
+
+            // Remove after 3s
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transform = 'translateY(10px)';
+                toast.style.transition = 'all 0.3s';
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        // Simple Modal for Details
+        function showAccountDetails(id) {
+            const acc = allAccounts.find(a => a.id == id); // loose equality for string/number id
+            if (!acc) return;
+
+            const modalHTML = `
+                <div id="acc-modal" style="position:fixed; inset:0; background:rgba(0,0,0,0.7); z-index:10000; display:flex; align-items:center; justify-content:center; padding:20px;">
+                    <div style="background:white; max-width:500px; width:100%; border-radius:12px; overflow:hidden; animation:zoomIn 0.3s ease;">
+                        <div style="height:250px; background:#eee;">
+                            <img src="${acc.image}" style="width:100%; height:100%; object-fit:cover;">
+                        </div>
+                        <div style="padding:20px;">
+                            <div style="display:flex; justify-content:space-between; align-items:start; margin-bottom:10px;">
+                                <h2 style="font-size:1.5rem; color:var(--color-navy); margin:0;">${acc.title}</h2>
+                                <span style="background:var(--color-gold); padding:4px 8px; border-radius:4px; font-weight:bold; font-size:0.8rem;">${acc.platform}</span>
+                            </div>
+                            <p style="color:#555; line-height:1.6; margin-bottom:20px; font-size:1rem;">${acc.desc}</p>
+                            
+                            <div style="display:flex; justify-content:space-between; align-items:center; border-top:1px solid #eee; padding-top:20px;">
+                                <div style="font-size:1.8rem; font-weight:bold; color:var(--color-green);">${acc.price} JD</div>
+                                <button onclick="addToCartWithFeedback('${acc.title}', ${acc.price}, this); setTimeout(closeAccModal, 500);" 
+                                    style="background:var(--color-navy); color:white; border:none; padding:12px 24px; border-radius:8px; font-weight:bold; cursor:pointer; display:flex; gap:8px; align-items:center;">
+                                    <ion-icon name="cart"></ion-icon> Buy Now
+                                </button>
+                            </div>
+                        </div>
+                        <button onclick="closeAccModal()" style="position:absolute; top:20px; right:20px; background:white; border:none; width:40px; height:40px; border-radius:50%; font-size:1.5rem; cursor:pointer; display:flex; align-items:center; justify-content:center; box-shadow:0 2px 10px rgba(0,0,0,0.2);">&times;</button>
+                    </div>
+                </div>
+            `;
+            document.body.insertAdjacentHTML('beforeend', modalHTML);
+        }
+
+        window.closeAccModal = function () {
+            const m = document.getElementById('acc-modal');
+            if (m) m.remove();
+        }
+
+    </script>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container footer-content">
+            <div class="footer-logo">baqduns 🌿</div>
+            <p style="color: black; font-weight: bold;">All Rights Reserved baqduns 2026 &copy;</p>
+
+            <div class="footer-legal-links">
+                <a href="privacy-policy.html">سياسة الخصوصية</a>
+                <a href="terms-of-service.html">شروط الخدمة</a>
+                <a href="about.html">من نحن</a>
+
+            </div>
+        </div>
+    </footer>
+
+    <script src="firebase-config.js"></script>
+    <script src="firebase-db.js"></script>
+    <script src="notifications.js"></script>
+    <script src="script.js"></script>
+
+
+</body>
+
+</html>

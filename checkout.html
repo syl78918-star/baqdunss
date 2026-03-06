@@ -1,0 +1,558 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <!-- Auth Guard: redirect to login if not logged in -->
+    <script>
+        (function() {
+            try {
+                var u = localStorage.getItem('baqdouns_current_user');
+                if (!u || u === 'null') { window.location.replace('login.html'); }
+            } catch(e) {}
+        })();
+    </script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>baqduns 🌿 | Secure Checkout</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Roboto:wght@300;400;500&display=swap"
+        rel="stylesheet">
+
+    <!-- External CSS -->
+    <link rel="stylesheet" href="style.css">
+    <!-- Ionicons for Icons -->
+    <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+    <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
+    <!-- Tesseract.js for AI OCR -->
+    <script src='https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js'></script>
+    <!-- 🔥 PayPal SDK (Live Client ID) -->
+    <script
+        src="https://www.paypal.com/sdk/js?client-id=AQsRiSwevso3iJ4Ki5Jr4_xyD3Met8wHi7xxFAZFDnfnadjZ5mQU7PmSg2r6SF8jSDHGIWzRyPpyMKib&currency=USD&locale=ar_JO"></script>
+
+    <style>
+        body {
+            background-color: var(--color-ivory);
+            /* padding-top: 100px; REMOVED */
+        }
+
+        .checkout-container {
+            max-width: 800px;
+            margin: 0 auto 4rem;
+            padding: 0 1rem;
+            width: 100%;
+            /* Ensure full width on mobile */
+        }
+
+        @media (max-width: 768px) {
+            .checkout-card {
+                padding: 1.5rem 1rem;
+                /* Reduce padding on mobile */
+            }
+
+            .checkout-header h1 {
+                font-size: 1.5rem;
+            }
+        }
+
+        .checkout-card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+            padding: 2rem;
+            overflow: hidden;
+        }
+
+        .checkout-header {
+            text-align: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid #eee;
+        }
+
+        .checkout-header h1 {
+            font-size: 2rem;
+            color: var(--color-navy);
+            margin-bottom: 0.5rem;
+        }
+    </style>
+    <!-- Google AdSense -->
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3380778876722304"
+        crossorigin="anonymous"></script>
+
+</head>
+
+<body>
+
+
+    <!-- Header -->
+    <header>
+        <div class="container nav-container" style="position: relative;">
+            <div class="header-left">
+                <!-- Hamburger Menu -->
+                <div class="hamburger-menu" onclick="toggleMobileNav()">
+                    <ion-icon name="menu-outline"></ion-icon>
+                </div>
+
+                <!-- User Profile / Auth -->
+                <div id="user-menu-desktop" style="display: none; align-items: center; gap: 8px;">
+                    <span id="user-name-display" class="user-name-display"
+                        style="font-weight: 500; font-size: 0.9rem; color: var(--color-navy);">User</span>
+                </div>
+                <!-- Auth buttons usually hidden on checkout to focus user, but keeping for consistency if requested -->
+                <div id="auth-buttons-desktop">
+                    <button class="btn-login-nav" onclick="window.location.href='login.html'"
+                        style="padding: 4px 10px; font-size: 0.8rem;">تسجيل الدخول</button>
+                </div>
+            </div>
+
+            <div class="header-center">
+                <div class="logo" onclick="window.location.href='index.html'" style="cursor: pointer;">baqduns
+                    <span>🌿</span>
+                </div>
+            </div>
+
+            <div class="header-right">
+                <!-- Auctions Link -->
+                <a href="auctions.html" class="nav-extra-link" style="margin-right: 10px;">المزايدات (مباشر)</a>
+
+                <!-- Seeds Dropdown -->
+                <div class="seeds-dropdown-container">
+                    <div id="loyalty-badge" class="loyalty-badge" onclick="toggleSeedsOptions(event)">
+                        <ion-icon name="leaf"></ion-icon>
+                        <span id="user-points">0</span>
+                    </div>
+                    <!-- Seeds Options Popup -->
+                    <div id="seeds-options-popup" class="seeds-options-popup">
+                        <button class="seed-opt-btn" onclick="openSeedModal()">
+                            <ion-icon name="cart-outline"></ion-icon> شراء بذور البقدونس
+                        </button>
+                        <button class="seed-opt-btn" onclick="openTransferModal()">
+                            <ion-icon name="paper-plane-outline"></ion-icon> تحويل بذور لصديق
+                        </button>
+                        <button class="seed-opt-btn" onclick="window.location.href='seeds.html#seeds-program'">
+                            <ion-icon name="gift-outline"></ion-icon> الحصول على بذور مجاناً
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Language Toggle -->
+                <div class="lang-toggle" onclick="toggleLanguage()"
+                    style="cursor: pointer; padding: 5px 10px; border: 1px solid #eee; border-radius: 20px; font-size: 0.8rem; font-weight: bold; background: #f9f9f9; margin-right: 10px; display: flex; align-items: center; gap: 5px;">
+                    <ion-icon name="language-outline"></ion-icon>
+                    <span>EN/عربي</span>
+                </div>
+
+                <!-- Cart Icon -->
+                <div class="cart-trigger" onclick="toggleCart()">
+                    <ion-icon name="bag-outline"></ion-icon>
+                    <span id="cart-count">0</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Google AdSense: Top -->
+    <div style="margin: 20px auto; text-align: center; max-width: 100%; overflow: hidden;">
+        <ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-3380778876722304"
+            data-ad-slot="9256911321" data-ad-format="auto" data-full-width-responsive="true"></ins>
+        <script>
+            (adsbygoogle = window.adsbygoogle || []).push({});
+        </script>
+    </div>
+
+    <div class="checkout-container">
+        <div class="checkout-card">
+            <div class="checkout-header">
+                <h1>Secure Checkout</h1>
+                <p>Complete your purchase securely.</p>
+            </div>
+
+            <!-- Items Summary -->
+            <div style="margin-bottom: 2rem; background: #f9f9f9; padding: 1.5rem; border-radius: 8px;">
+                <h4 style="margin-bottom: 1rem; color: var(--color-navy);">Order Summary</h4>
+                <div id="checkout-items-list" style="margin-bottom: 1rem;">
+                    <!-- Items injected here -->
+                </div>
+            </div>
+
+            <form id="checkout-form" novalidate>
+                <div class="form-section">
+                    <h4>1. Account Details</h4>
+                    <div class="input-group">
+                        <label>Link or Username to Promote</label>
+                        <input type="text" id="order-target-link" placeholder="@username or https://..." required>
+                    </div>
+                    <div class="input-group">
+                        <label>Email Address</label>
+                        <input type="email" placeholder="For receipt and status updates" required>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <h4>2. Payment Method</h4>
+                    <div class="payment-methods">
+                        <label class="payment-option">
+                            <input type="radio" name="payment" value="cliq" checked onchange="togglePaymentFields()">
+                            <div class="option-box">
+                                <ion-icon name="paper-plane-outline"></ion-icon>
+                                <span>CliQ</span>
+                            </div>
+                        </label>
+                        <label class="payment-option">
+                            <input type="radio" name="payment" value="paypal" onchange="togglePaymentFields()">
+                            <div class="option-box">
+                                <ion-icon name="logo-paypal"></ion-icon>
+                                <span>PayPal / Visa</span>
+                            </div>
+                        </label>
+                    </div>
+
+                    <!-- Dynamic Payment Details -->
+                    <div id="payment-details-container">
+                        <!-- CliQ Fields (Default Visible) -->
+                        <div id="cliq-fields" class="payment-fields">
+                            <div class="cliq-data-card"
+                                style="background: linear-gradient(135deg, #f8fafc 0%, #ffffff 100%); padding: 25px; border-radius: 12px; border: 2px solid #e2e8f0; text-align: center; margin-bottom: 20px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);">
+                                <div
+                                    style="font-size: 0.75rem; color: #94a3b8; font-weight: 700; margin-bottom: 15px; text-transform: uppercase; letter-spacing: 1.5px;">
+                                    CliQ Settlement Info</div>
+
+                                <!-- 1. Alias -->
+                                <div style="margin-bottom: 18px;">
+                                    <label
+                                        style="display: block; font-size: 0.85rem; color: #64748b; margin-bottom: 5px; font-weight: 500;">اسم
+                                        المستعار (CliQ Alias):</label>
+                                    <div
+                                        style="display: flex; align-items: center; justify-content: center; gap: 10px;">
+                                        <div id="cliq-alias-display"
+                                            style="font-size: 1.5rem; font-weight: 800; color: #059669; letter-spacing: 0.5px;">
+                                            LOADING...</div>
+                                        <button type="button" onclick="copyCliqAlias()"
+                                            style="background: #f1f5f9; border: 1px solid #e2e8f0; border-radius: 6px; padding: 4px 8px; cursor: pointer; display: flex; align-items: center; color: #475569; transition: 0.2s;">
+                                            <ion-icon name="copy-outline"></ion-icon>
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <!-- 2. Receiver -->
+                                <div
+                                    style="margin-bottom: 18px; padding: 10px; background: #f1f5f9; border-radius: 8px;">
+                                    <label
+                                        style="display: block; font-size: 0.8rem; color: #64748b; margin-bottom: 3px;">اسم
+                                        المرسل له (Receiver):</label>
+                                    <div id="cliq-receiver-display"
+                                        style="font-size: 1.1rem; font-weight: 700; color: #1e293b;">Anan Nabil Hailat
+                                    </div>
+                                </div>
+
+                                <!-- 3. Bank -->
+                                <div>
+                                    <label
+                                        style="display: block; font-size: 0.8rem; color: #64748b; margin-bottom: 3px;">اسم
+                                        البنك (Bank Name):</label>
+                                    <div id="cliq-bank-display"
+                                        style="font-size: 0.95rem; font-weight: 600; color: #475569;">LOADING...</div>
+                                </div>
+                            </div>
+
+                            <div class="input-group" style="margin-top: 1.5rem;">
+                                <!-- ARABIC INSTRUCTION -->
+                                <div
+                                    style="font-size: 0.9rem; color: #c0392b; background: #fff5f5; padding: 10px; border-right: 4px solid #c0392b; margin-bottom: 10px; text-align: right; direction: rtl; line-height: 1.5;">
+                                    📝 <b>تعليمات هامة:</b><br>
+                                    <div
+                                        style="background: #ffe6e6; padding: 8px; margin: 8px 0; border-radius: 4px; border: 2px solid #c0392b;">
+                                        <b style="font-size: 1.1em; color: #c0392b;">⚠️ نحن لا نقبل إلا لقطة شاشة
+                                            (Screenshot) فقط!</b><br>
+                                        <b style="font-size: 1em; color: #c0392b;">❌ لا نقبل تصوير الشاشة بالكاميرا</b>
+                                    </div>
+                                    لضمان قبول طلبك فوراً، يرجى التأكد من أن صورة الحوالة <b>واضحة كاملة</b> ويظهر فيها:
+                                    <ul style="margin-right: 20px; margin-top: 5px; list-style-type: disc;">
+                                        <li>اسم المستلم (عنان / Anan)</li>
+                                        <li>قيمة المبلغ بوضوح (نفس اجمالي الطلب)</li>
+                                        <li>رقم الحوالة المرجعي</li>
+                                    </ul>
+                                </div>
+                                <label>Upload Payment Screenshot</label>
+                                <input type="file" id="payment-screenshot" accept="image/*"
+                                    style="border: 1px solid #ddd; padding: 10px; background: white;">
+                            </div>
+                        </div>
+
+                        <!-- PayPal Button Container (Hidden by default) -->
+                        <div id="paypal-button-container" class="payment-fields"
+                            style="display: none; margin-top: 1rem;">
+                            <p style="font-size: 0.85rem; color: #666; margin-bottom: 15px; text-align: center;">
+                                دفع آمن عبر PayPal أو البطاقات البنكية (Visa/Mastercard)
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- EXTRAS: Promo & Points -->
+                    <div class="extras-section"
+                        style="border-top: 1px solid #eee; padding-top: 1.5rem; margin-top: 1.5rem;">
+                        <!-- Refer Code -->
+                        <div class="input-group">
+                            <label>Referral/Promo Code (Optional)</label>
+                            <input type="text" id="promo-code-input" placeholder="e.g. BAQ-XXXX"
+                                onkeyup="checkPromoCode()" style="letter-spacing: 1px; text-transform: uppercase;">
+                        </div>
+
+                        <!-- Redeem Points -->
+                        <div class="points-redemption"
+                            style="background: #f9f9f9; padding: 1rem; border-radius: 6px; display: flex; justify-content: space-between; align-items: center;">
+                            <div>
+                                <div style="font-weight: bold; color: var(--color-navy);">Pay with Seeds 🌿</div>
+                                <div style="font-size: 0.8rem; color: #666;">Available: <span
+                                        id="checkout-points-balance">0</span> Seeds</div>
+                            </div>
+                            <label class="switch"
+                                style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+                                <input type="checkbox" id="redeem-points-check" onchange="togglePointsRedemption()">
+                                <span style="font-size: 0.9rem; font-weight: bold; color: var(--color-green);">Use (Max
+                                    <span id="max-discount-val">0</span> JD)</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="order-summary-mini">
+                    <span>Total to Pay:</span>
+                    <span id="checkout-total-display" class="checkout-amount">0 JD</span>
+                </div>
+
+                <button type="button" class="btn-pay" onclick="handlePayment(event)">Pay Securely</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container footer-content">
+            <div class="footer-logo">baqduns 🌿</div>
+            <p style="color: black; font-weight: bold;">All Rights Reserved baqduns 2026 &copy;</p>
+
+            <div class="footer-legal-links">
+                <a href="privacy-policy.html">سياسة الخصوصية</a>
+                <a href="terms-of-service.html">شروط الخدمة</a>
+                <a href="about.html">من نحن</a>
+
+            </div>
+        </div>
+    </footer>
+
+    <script src="firebase-config.js"></script>
+    <script src="firebase-db.js"></script>
+    <script src="notifications.js"></script>
+    <script src="script.js"></script>
+
+    <script>
+        // Init Checkout Page
+        document.addEventListener('DOMContentLoaded', () => {
+            // 1. Load Cart from LocaleStorage
+            const storedCart = JSON.parse(localStorage.getItem('baqdouns_cart_temp') || '[]');
+
+            // Access global cart from script.js scope (assuming script.js runs non-module)
+            // or overwrite it if accessible. 
+            // Since 'let cart' in script.js isn't on window, we can't write to window.cart to affect it.
+            // We must rely on the fact that script.js functions use 'cart'.
+            // BUT, we can't easily inject into script.js scope from here if it's not on window.
+
+            // FIX: We need script.js to expose cart? Or just re-declare?
+            // Actually, since we included script.js, code there runs. 
+            // We can just rely on the fact that we need to populate the UI here.
+            // But handlePayment in script.js uses 'cart'. 'cart' variable there is empty by default.
+            // We need to populate IT.
+
+            // HACK: To make 'cart' and 'currentUser' accessible, we should have attached them to window in script.js
+            // But since we can't edit script.js easily to export, let's assume we can modify script.js to attach to window.
+            // OR, we can just edit script.js to load temp cart on init.
+
+            // FOR NOW: Let's assume script.js variable is NOT accessible and we need a way.
+            // Actually 'cart' in script.js is top-level. 
+            // If I do `cart = storedCart` here, it is assigning to a NEW global `cart` if not found, 
+            // or window.cart. It won't update the `let cart` inside script.js closure if it is treated as separate scope.
+            // But standard <script> tags share top-level scope. 
+            // 'let' does not hoist to window, but is in the shared declarative environment record.
+            // So `cart = storedCart` MIGHT work if this script is treated as same scope.
+            // BUT `window.cart` is definitely wrong for `let`. 
+
+            // Let's retry:
+            try {
+                cart = storedCart; // Try to update the variable from script.js
+            } catch (e) {
+                console.log("Could not update global cart directly");
+            }
+
+            if (cart.length === 0) {
+                alert("Your cart is empty. Redirecting to home.");
+                window.location.href = 'index.html';
+                return;
+            }
+
+            // Render Items List
+            const listEl = document.getElementById('checkout-items-list');
+            let total = 0;
+            cart.forEach(item => {
+                total += item.price;
+                const div = document.createElement('div');
+                div.style.display = 'flex';
+                div.style.justifyContent = 'space-between';
+                div.style.marginBottom = '0.5rem';
+                div.innerHTML = `<span>${item.name}</span> <span style="font-weight:bold;">${item.price} JD</span>`;
+                listEl.appendChild(div);
+            });
+
+            // Update Totals
+            const checkoutTotalDisplay = document.getElementById('checkout-total-display');
+            checkoutTotalDisplay.innerText = total + " JD";
+
+            // Fill User Data - READ DIRECTLY FROM STORAGE TO BE SAFE
+            const storageUser = JSON.parse(localStorage.getItem('baqdouns_current_user'));
+
+            if (storageUser) {
+                const emailField = document.querySelector('input[type="email"]');
+                if (emailField) emailField.value = storageUser.email;
+
+                // Points
+                const pts = storageUser.points || 0;
+                document.getElementById('checkout-points-balance').textContent = pts;
+
+                // Max Discount
+                let maxDisc = Math.floor(pts / 100) * 0.10;
+                if (maxDisc > total) maxDisc = total;
+                document.getElementById('max-discount-val').textContent = maxDisc.toFixed(2);
+            } else {
+                alert("Please login first.");
+                window.location.href = 'index.html';
+            }
+
+            // Sync total and check for zero-cost checkout
+            updateCheckoutTotal();
+
+            // ADMIN MODE UI UPDATES
+            if (localStorage.getItem('baqdouns_admin_mode') === 'true') {
+                console.log("Admin Mode: Hiding payment UI");
+
+                // Hide Payment Methods Section
+                const paymentMethods = document.querySelector('.payment-methods');
+                if (paymentMethods) paymentMethods.style.display = 'none';
+
+                // Hide Card Details
+                const paymentDetails = document.getElementById('payment-details-container');
+                if (paymentDetails) paymentDetails.style.display = 'none';
+
+                // Update Header
+                const paymentHeader = document.querySelectorAll('.form-section h4')[1]; // 2nd header
+                if (paymentHeader) paymentHeader.innerText = "2. Quick Order (Admin)";
+
+                // Update Button
+                const btn = document.querySelector('.btn-pay');
+                if (btn) btn.innerText = "Place Order Instantly";
+            }
+
+            // Initialize PayPal
+            initPayPal();
+        });
+
+        function togglePaymentFields() {
+            const method = document.querySelector('input[name="payment"]:checked').value;
+            const cliqFields = document.getElementById('cliq-fields');
+            const paypalFields = document.getElementById('paypal-button-container');
+            const payBtn = document.querySelector('.btn-pay');
+
+            if (method === 'paypal') {
+                cliqFields.style.display = 'none';
+                paypalFields.style.display = 'block';
+                payBtn.style.display = 'none'; // Hide manual pay button, paypal has its own
+            } else {
+                cliqFields.style.display = 'block';
+                paypalFields.style.display = 'none';
+                payBtn.style.display = 'block';
+            }
+        }
+
+        function initPayPal() {
+            if (!window.paypal) return;
+
+            paypal.Buttons({
+                createOrder: function (data, actions) {
+                    // 🇯🇴 JOD to 🇺🇸 USD Conversion
+                    // PayPal doesn't support JOD, so we convert. 1 JOD ≈ 1.41 USD
+                    let amountJod = window._checkoutFinalAmountJod || 0;
+                    let amountUsd = (amountJod * 1.41).toFixed(2);
+
+                    console.log(`💱 Converting ${amountJod} JOD to ${amountUsd} USD for PayPal`);
+
+                    return actions.order.create({
+                        purchase_units: [{
+                            amount: {
+                                currency_code: 'USD',
+                                value: amountUsd
+                            },
+                            description: 'Baqduns Store Order'
+                        }],
+                        application_context: {
+                            shipping_preference: 'NO_SHIPPING', // 🚫 إخفاء حقول الشحن
+                            user_action: 'PAY_NOW', // جعل الزر "ادفع الآن" مباشرة
+                            brand_name: 'Baqduns Store 🌿'
+                        }
+                    });
+                },
+                onApprove: function (data, actions) {
+                    return actions.order.capture().then(function (details) {
+                        console.log('✅ PayPal Payment Successful:', details);
+                        // Trigger the order recording logic (similar to handlePayment but without screenshot)
+                        handlePaypalSuccess(details);
+                    });
+                },
+                onError: function (err) {
+                    console.error('❌ PayPal Error:', err);
+                    alert("Payment failed. Please try again or use CliQ.");
+                }
+            }).render('#paypal-button-container');
+        }
+
+        async function handlePaypalSuccess(details) {
+            // Show loading
+            const btn = document.querySelector('.btn-pay');
+            const originalText = btn.innerText;
+            btn.disabled = true;
+            btn.innerText = "Processing Order...";
+
+            try {
+                // Re-use logic from script.js handlePayment (mocking the event)
+                // But we need to pass a flag that payment is already verified via PayPal
+                await processOrder('PayPal', details.id);
+                alert("✅ Payment success! Your order is being processed.");
+                window.location.href = 'profile.html';
+            } catch (e) {
+                console.error(e);
+                alert("Order recording failed, but payment was successful. Please contact support with ID: " + details.id);
+            }
+        }
+
+        function copyCliqAlias() {
+            const alias = document.getElementById('cliq-alias-display').innerText;
+            if (alias === 'LOADING...') return;
+
+            navigator.clipboard.writeText(alias).then(() => {
+                const btn = event.currentTarget;
+                const originalIcon = btn.innerHTML;
+                btn.innerHTML = '<ion-icon name="checkmark-outline" style="color:#059669"></ion-icon>';
+                setTimeout(() => {
+                    btn.innerHTML = originalIcon;
+                }, 2000);
+            });
+        }
+
+        // Helper to call processOrder which is in script.js (if accessible)
+        // Or we rewrite parts of it here if needed.
+    </script>
+</body>
+
+```

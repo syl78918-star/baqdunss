@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>أداة التقاط Screenshots - بقدونس 🌿</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --color-navy: #041E42;
+            --color-green: #1E3D2F;
+            --color-gold: #C5A059;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Cairo', sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            text-align: center;
+            color: white;
+            margin-bottom: 20px;
+            font-size: 2rem;
+        }
+
+        .instructions {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+        }
+
+        .instructions h2 {
+            color: var(--color-navy);
+            margin-bottom: 15px;
+        }
+
+        .instructions ol {
+            margin-right: 25px;
+            line-height: 2;
+        }
+
+        .instructions li {
+            margin-bottom: 10px;
+        }
+
+        .screenshot-guide {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 20px;
+        }
+
+        .guide-card {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .guide-card h3 {
+            color: var(--color-navy);
+            margin-bottom: 10px;
+            font-size: 1.2rem;
+        }
+
+        .guide-card .feature-number {
+            background: var(--color-gold);
+            color: white;
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+
+        .guide-card .page-info {
+            background: #f0f0f0;
+            padding: 10px;
+            border-radius: 8px;
+            margin: 10px 0;
+            font-size: 0.9rem;
+        }
+
+        .guide-card .steps {
+            margin-top: 10px;
+            padding: 10px;
+            background: #fff8e1;
+            border-right: 4px solid var(--color-gold);
+            border-radius: 5px;
+        }
+
+        .guide-card .steps ol {
+            margin-right: 20px;
+            font-size: 0.9rem;
+        }
+
+        .btn-open-page {
+            background: var(--color-green);
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 50px;
+            font-weight: bold;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 10px;
+        }
+
+        .btn-open-page:hover {
+            filter: brightness(1.1);
+        }
+
+        .capture-tool {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            margin-top: 20px;
+        }
+
+        .capture-tool h2 {
+            color: var(--color-navy);
+            margin-bottom: 15px;
+        }
+
+        .shortcut-info {
+            background: #e3f2fd;
+            padding: 15px;
+            border-radius: 10px;
+            border-right: 5px solid #2196F3;
+        }
+
+        .shortcut-info strong {
+            color: #1976D2;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>🌿 دليل التقاط Screenshots من موقع بقدونس 📸</h1>
+
+        <div class="instructions">
+            <h2>📋 كيف تستخدم هذه الأداة:</h2>
+            <ol>
+                <li><strong>اضغط على زر "فتح الصفحة"</strong> لكل ميزة</li>
+                <li><strong>اتبع الخطوات الموضحة</strong> للوصول للميزة المطلوبة</li>
+                <li><strong>التقط Screenshot</strong> باستخدام:
+                    <ul style="margin-top: 10px;">
+                        <li><strong>Windows:</strong> Win + Shift + S (أداة القص)</li>
+                        <li><strong>أو:</strong> Print Screen ثم الصق في برنامج الرسام</li>
+                    </ul>
+                </li>
+                <li><strong>احفظ الصورة</strong> باسم الميزة</li>
+                <li><strong>كررالعملية</strong> لجميع الميزات الـ35</li>
+            </ol>
+        </div>
+
+        <div class="capture-tool">
+            <h2>⚡ اختصارات التقاط الشاشة في Windows:</h2>
+            <div class="shortcut-info">
+                <p><strong>Win + Shift + S:</strong> أداة القص (Snipping Tool) - الأسهل والأفضل ✅</p>
+                <p><strong>Print Screen:</strong> التقاط الشاشة بالكامل</p>
+                <p><strong>Alt + Print Screen:</strong> التقاط النافذة النشطة فقط</p>
+            </div>
+        </div>
+
+        <h2 style="color: white; margin: 30px 0; text-align: center;">📸 دليل التصوير لكل ميزة (35 صورة)</h2>
+
+        <div class="screenshot-guide" id="guide-container"></div>
+    </div>
+
+    <script>
+        const screenshotGuide = [
+            {
+                id: 1,
+                title: 'الصفحة الرئيسية - الترحيب',
+                page: '../index.html',
+                steps: [
+                    'افتح الصفحة الرئيسية',
+                    'صوّر قسم Hero (الترحيب) في الأعلى',
+                    'تأكد من ظهور الشعار والعنوان بوضوح'
+                ]
+            },
+            {
+                id: 2,
+                title: 'نافذة التسجيل (Sign Up)',
+                page: '../index.html',
+                steps: [
+                    'اضغط على زر "Sign Up" في الأعلى',
+                    'صوّر النافذة المنبثقة',
+                    'تأكد من ظهور حقول: الاسم، الإيميل، الباسورد، كود الإحالة'
+                ]
+            },
+            {
+                id: 3,
+                title: 'نافذة تسجيل الدخول (Login)',
+                page: '../index.html',
+                steps: [
+                    'اضغط على زر "Login" في الأعلى',
+                    'صوّر النافذة المنبثقة',
+                    'تأكد من ظهور حقول: الإيميل والباسورد'
+                ]
+            },
+            {
+                id: 4,
+                title: 'نافذة شراء البذور',
+                page: '../index.html',
+                steps: [
+                    'سجل دخول أولاً',
+                    'اضغط على "شراء بذور" من القائمة أو الأيقونة',
+                    'صوّر النافذة مع باقات البذور (500، 1000، 2000، إلخ)'
+                ]
+            },
+            {
+                id: 5,
+                title: 'نافذة تحويل البذور (الفزعة)',
+                page: '../index.html',
+                steps: [
+                    'سجل دخول أولاً',
+                    'اضغط على أيقونة "تحويل البذور" من القائمة',
+                    'صوّر النافذة مع حقول: الإيميل والكمية'
+                ]
+            },
+            {
+                id: 6,
+                title: 'صفحة المزادات',
+                page: '../auctions.html',
+                steps: [
+                    'افتح صفحة auctions.html',
+                    'صوّر المزادات النشطة',
+                    'تأكد من ظهور العداد والسعر الحالي'
+                ]
+            },
+            {
+                id: 7,
+                title: 'صفحة AI Achievements',
+                page: '../ai-achievements.html',
+                steps: [
+                    'افتح صفحة ai-achievements.html',
+                    'صوّر القسم الذي يشرح الذكاء الاصطناعي',
+                    'ركز على الإحصائيات والأرقام'
+                ]
+            },
+            {
+                id: 8,
+                title: 'باقات Instagram - متابعين',
+                page: '../index.html#instagram-packages',
+                steps: [
+                    'افتح الصفحة الرئيسية',
+                    'انزل لقسم Instagram Packages',
+                    'صوّر باقات المتابعين (1000، 2000، 5000، إلخ)'
+                ]
+            },
+            {
+                id: 9,
+                title: 'باقات Instagram - لايكات',
+                page: '../index.html#instagram-packages',
+                steps: [
+                    'في نفس قسم Instagram',
+                    'انزل للأسفل شوي',
+                    'صوّر باقات اللايكات'
+                ]
+            },
+            {
+                id: 10,
+                title: 'باقات Instagram - مشاهدات',
+                page: '../index.html#instagram-packages',
+                steps: [
+                    'في نفس قسم Instagram',
+                    'انزل للأسفل أكثر',
+                    'صوّر باقات المشاهدات (Views)'
+                ]
+            },
+            {
+                id: 11,
+                title: 'باقات Facebook - متابعين',
+                page: '../index.html#instagram-packages',
+                steps: [
+                    'انزل لقسم Facebook Packages',
+                    'صوّر باقات المتابعين'
+                ]
+            },
+            {
+                id: 12,
+                title: 'باقات Facebook - لايكات',
+                page: '../index.html#instagram-packages',
+                steps: [
+                    'في نفس قسم Facebook',
+                    'صوّر باقات اللايكات'
+                ]
+            },
+            {
+                id: 13,
+                title: 'باقات TikTok - متابعين',
+                page: '../index.html#instagram-packages',
+                steps: [
+                    'انزل لقسم TikTok Packages',
+                    'صوّر باقات المتابعين'
+                ]
+            },
+            {
+                id: 14,
+                title: 'باقات TikTok - لايكات',
+                page: '../index.html#instagram-packages',
+                steps: [
+                    'في نفس قسم TikTok',
+                    'صوّر باقات اللايكات'
+                ]
+            },
+            {
+                id: 15,
+                title: 'باقات YouTube - مشتركين',
+                page: '../index.html#instagram-packages',
+                steps: [
+                    'انزل لقسم YouTube Packages',
+                    'صوّر باقات المشتركين (Subscribers)'
+                ]
+            },
+            {
+                id: 16,
+                title: 'باقات YouTube - مشاهدات',
+                page: '../index.html#instagram-packages',
+                steps: [
+                    'في نفس قسم YouTube',
+                    'صوّر باقات المشاهدات (Views)'
+                ]
+            },
+            {
+                id: 17,
+                title: 'باقات Twitter - متابعين',
+                page: '../index.html#instagram-packages',
+                steps: [
+                    'انزل لقسم Twitter Packages',
+                    'صوّر باقات المتابعين'
+                ]
+            },
+            {
+                id: 18,
+                title: 'زر الشكاوى (FAB Button)',
+                page: '../index.html',
+                steps: [
+                    'افتح أي صفحة',
+                    'لاحظ الزر الأحمر العائم في الزاوية اليمنى السفلى 📢',
+                    'اضغط عليه وصوّر نافذة الشكوى'
+                ]
+            },
+            {
+                id: 19,
+                title: 'صفحة برنامج البذور المجانية',
+                page: '../seeds.html',
+                steps: [
+                    'افتح صفحة seeds.html',
+                    'صوّر قسم "Seeds Program"',
+                    'ركز على طرق كسب البذور المجانية'
+                ]
+            },
+            {
+                id: 20,
+                title: 'كود الإحالة في الحساب',
+                page: '../index.html',
+                steps: [
+                    'سجل دخول',
+                    'اضغط على اسمك في الأعلى',
+                    'صوّر رمز الإحالة (BAQ-XXXXX)'
+                ]
+            },
+            {
+                id: 21,
+                title: 'نقاط الولاء (Loyalty Badge)',
+                page: '../index.html',
+                steps: [
+                    'سجل دخول',
+                    'لاحظ أيقونة البذور 🌿 في الأعلى',
+                    'صوّر عداد النقاط'
+                ]
+            },
+            {
+                id: 22,
+                title: 'حقل الكود الترويجي',
+                page: '../checkout.html',
+                steps: [
+                    'أضف منتج للسلة واذهب للدفع',
+                    'انزل لحقل "Promo Code"',
+                    'صوّر الحقل وزر "Apply"'
+                ]
+            },
+            {
+                id: 23,
+                title: 'حقل استرداد النقاط',
+                page: '../checkout.html',
+                steps: [
+                    'في صفحة الدفع',
+                    'لاحظ قسم "Redeem Points"',
+                    'صوّر الحقل وزر الاسترداد'
+                ]
+            },
+            {
+                id: 24,
+                title: 'صفحة طلباتي',
+                page: '../index.html#my-orders',
+                steps: [
+                    'سجل دخول',
+                    'اضغط على "My Orders" من القائمة',
+                    'صوّر جدول الطلبات'
+                ]
+            },
+            {
+                id: 25,
+                title: 'سلة المشتريات (Cart)',
+                page: '../index.html',
+                steps: [
+                    'أضف منتج للسلة',
+                    'اضغط على أيقونة السلة 🛒 في الأعلى',
+                    'صوّر السلة المنبثقة من الجانب'
+                ]
+            },
+            {
+                id: 26,
+                title: 'صفحة الدفع - CliQ',
+                page: '../checkout.html',
+                steps: [
+                    'اذهب لصفحة الدفع',
+                    'اختر "CliQ" كطريقة دفع',
+                    'صوّر تفاصيل CliQ والتعليمات'
+                ]
+            },
+            {
+                id: 27,
+                title: 'صفحة الدفع - زين كاش',
+                page: '../checkout.html',
+                steps: [
+                    'في صفحة الدفع',
+                    'اختر "Zain Cash"',
+                    'صوّر تفاصيل زين كاش والتعليمات'
+                ]
+            },
+            {
+                id: 28,
+                title: 'رسالة تأكيد الطلب',
+                page: 'ملاحظة',
+                steps: [
+                    'بعد إتمام الطلب بنجاح',
+                    'صوّر صفحة التأكيد الخضراء',
+                    'تأكد من ظهور رقم الطلب والرسالة'
+                ]
+            },
+            {
+                id: 29,
+                title: 'بطاقة الباقة البرونزية',
+                page: '../index.html#instagram-packages',
+                steps: [
+                    'اذهب لأي قسم باقات',
+                    'صوّر بطاقة واحدة بلون برونزي/عادي',
+                    'ركز على السعر والتفاصيل'
+                ]
+            },
+            {
+                id: 30,
+                title: 'بطاقة الباقة الفضية',
+                page: '../index.html#instagram-packages',
+                steps: [
+                    'اختر باقة متوسطة السعر',
+                    'صوّر البطاقة كاملة'
+                ]
+            },
+            {
+                id: 31,
+                title: 'بطاقة الباقة الذهبية',
+                page: '../index.html#instagram-packages',
+                steps: [
+                    'اختر باقة كبيرة (مثل 10K)',
+                    'صوّر البطاقة المميزة "Popular"'
+                ]
+            },
+            {
+                id: 32,
+                title: 'بطاقة الباقة البلاتينية',
+                page: '../index.html#instagram-packages',
+                steps: [
+                    'اختر أكبر باقة متاحة',
+                    'صوّر البطاقة الفخمة'
+                ]
+            },
+            {
+                id: 33,
+                title: 'عرض كود الإحالة الكامل',
+                page: '../index.html',
+                steps: [
+                    'سجل دخول',
+                    'اضغط على "رمز الإحالة" أو "Referral"',
+                    'صوّر الكود الكامل مع زر النسخ'
+                ]
+            },
+            {
+                id: 34,
+                title: 'قسم How It Works',
+                page: '../index.html#how-it-works',
+                steps: [
+                    'انزل لقسم "How It Works"',
+                    'صوّر الخطوات الثلاث أو الأربع',
+                    'تأكد من وضوح الأيقونات'
+                ]
+            },
+            {
+                id: 35,
+                title: 'صفحة الشكاوى للزبون',
+                page: '../my-complaints.html',
+                steps: [
+                    'افتح صفحة my-complaints.html',
+                    'صوّر قائمة الشكاوى',
+                    'ركز على حالة الشكوى والردود'
+                ]
+            }
+        ];
+
+        function renderGuide() {
+            const container = document.getElementById('guide-container');
+
+            screenshotGuide.forEach(item => {
+                const card = document.createElement('div');
+                card.className = 'guide-card';
+
+                card.innerHTML = `
+                    <h3>
+                        <span class="feature-number">${item.id}</span>
+                        ${item.title}
+                    </h3>
+                    <div class="page-info">
+                        📄 الصفحة: <strong>${item.page}</strong>
+                    </div>
+                    <div class="steps">
+                        <strong>📸 خطوات التصوير:</strong>
+                        <ol>
+                            ${item.steps.map(step => `<li>${step}</li>`).join('')}
+                        </ol>
+                    </div>
+                    <button class="btn-open-page" onclick="openPage('${item.page}')">
+                        🌐 فتح الصفحة
+                    </button>
+                `;
+
+                container.appendChild(card);
+            });
+        }
+
+        function openPage(page) {
+            if (page === 'ملاحظة') {
+                alert('⚠️ هذه الصورة تظهر فقط بعد إتمام طلب حقيقي.\n\nيمكنك عمل طلب تجريبي للحصول عليها.');
+                return;
+            }
+            window.open(page, '_blank');
+        }
+
+        renderGuide();
+    </script>
+</body>
+
+</html>

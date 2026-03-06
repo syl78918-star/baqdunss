@@ -1,0 +1,1069 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>مولد واجهات بقدونس الحقيقية 🌿</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&family=Roboto:wght@400;700&display=swap"
+        rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Cairo', sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+            font-size: 2.5rem;
+            text-shadow: 2px 2px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .controls {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .btn-download-all {
+            background: #1E3D2F;
+            color: white;
+            padding: 15px 40px;
+            border: none;
+            border-radius: 50px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            cursor: pointer;
+            margin: 10px;
+            transition: all 0.3s;
+        }
+
+        .btn-download-all:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 30px;
+        }
+
+        .story-item {
+            background: white;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+        }
+
+        .story-canvas {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        .story-info {
+            padding: 15px;
+            text-align: center;
+        }
+
+        .story-title {
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: #041E42;
+            margin-bottom: 10px;
+        }
+
+        .btn-download {
+            background: #C5A059;
+            color: #041E42;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 50px;
+            font-weight: bold;
+            cursor: pointer;
+            width: 100%;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>🌿 مولد واجهات بقدونس الحقيقية 📱</h1>
+
+        <div class="controls">
+            <p style="margin-bottom: 15px; color: #666; font-size: 1.1rem;">
+                <strong>35 واجهة UI حقيقية</strong> بنفس تصميم الموقع بالضبط
+            </p>
+            <button class="btn-download-all" onclick="downloadAll()">💾 حفظ جميع الصور (ZIP)</button>
+        </div>
+
+        <div class="gallery" id="gallery"></div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script>
+        // موقع ألوان الموقع الحقيقية
+        const COLORS = {
+            navy: '#041E42',
+            navyDark: '#020f21',
+            ivory: '#FDFCF5',
+            green: '#1E3D2F',
+            gold: '#C5A059',
+            goldLight: '#dcc28a',
+            textDark: '#1a1a1a',
+            textGray: '#666666',
+            white: '#ffffff'
+        };
+
+        const stories = [
+            { id: 1, title: 'الترحيب الرمضاني - Hero Section', type: 'hero' },
+            { id: 2, title: 'نافذة التسجيل (Sign Up Modal)', type: 'register_modal' },
+            { id: 3, title: 'نافذة تسجيل الدخول (Login Modal)', type: 'login_modal' },
+            { id: 4, title: 'نافذة شراء البذور', type: 'buy_seeds_modal' },
+            { id: 5, title: 'نافذة الفزعة (تحويل البذور)', type: 'transfer_modal' },
+            { id: 6, title: 'بطاقة مزاد نشطة', type: 'auction_card' },
+            { id: 7, title: 'إحصائيات AI Protection', type: 'ai_stats' },
+            { id: 8, title: 'بطاقة باقة Instagram - متابعين', type: 'ig_followers_card' },
+            { id: 9, title: 'بطاقة باقة Instagram - لايكات', type: 'ig_likes_card' },
+            { id: 10, title: 'بطاقة باقة Instagram - مشاهدات', type: 'ig_views_card' },
+            { id: 11, title: 'بطاقة باقة Facebook - متابعين', type: 'fb_followers_card' },
+            { id: 12, title: 'بطاقة باقة Facebook - لايكات', type: 'fb_likes_card' },
+            { id: 13, title: 'بطاقة باقة TikTok - متابعين', type: 'tt_followers_card' },
+            { id: 14, title: 'بطاقة باقة TikTok - لايكات', type: 'tt_likes_card' },
+            { id: 15, title: 'بطاقة باقة YouTube - مشتركين', type: 'yt_subs_card' },
+            { id: 16, title: 'بطاقة باقة YouTube - مشاهدات', type: 'yt_views_card' },
+            { id: 17, title: 'بطاقة باقة Twitter - متابعين', type: 'tw_followers_card' },
+            { id: 18, title: 'زر الشكاوى FAB + Modal', type: 'complaints_button' },
+            { id: 19, title: 'قسم Seeds Program', type: 'seeds_program' },
+            { id: 20, title: 'عرض كود الإحالة', type: 'referral_code' },
+            { id: 21, title: 'شارة نقاط الولاء', type: 'loyalty_badge' },
+            { id: 22, title: 'حقل الكود الترويجي', type: 'promo_code_field' },
+            { id: 23, title: 'قسم استرداد النقاط', type: 'redeem_points' },
+            { id: 24, title: 'جدول طلباتي', type: 'my_orders_table' },
+            { id: 25, title: 'Sidebar السلة', type: 'cart_sidebar' },
+            { id: 26, title: 'قسم الدفع CliQ', type: 'payment_cliq' },
+            { id: 27, title: 'قسم الدفع زين كاش', type: 'payment_zain' },
+            { id: 28, title: 'شاشة تأكيد الطلب', type: 'order_success' },
+            { id: 29, title: 'بطاقة باقة برونزية', type: 'package_bronze' },
+            { id: 30, title: 'بطاقة باقة فضية', type: 'package_silver' },
+            { id: 31, title: 'بطاقة باقة ذهبية (Popular)', type: 'package_gold' },
+            { id: 32, title: 'بطاقة باقة بلاتينية VIP', type: 'package_platinum' },
+            { id: 33, title: 'قسم Referral Program', type: 'referral_section' },
+            { id: 34, title: 'قسم How It Works', type: 'how_it_works' },
+            { id: 35, title: 'قائمة الشكاوى للزبون', type: 'complaints_list' }
+        ];
+
+        function wrapText(ctx, text, x, y, maxWidth, lineHeight) {
+            const words = text.split(' ');
+            let line = '';
+            let currentY = y;
+
+            for (let word of words) {
+                const testLine = line + word + ' ';
+                const metrics = ctx.measureText(testLine);
+
+                if (metrics.width > maxWidth && line !== '') {
+                    ctx.fillText(line, x, currentY);
+                    line = word + ' ';
+                    currentY += lineHeight;
+                } else {
+                    line = testLine;
+                }
+            }
+            ctx.fillText(line, x, currentY);
+            return currentY;
+        }
+
+        function drawAnnotation(ctx, x, y, text, direction = 'right') {
+            ctx.save();
+
+            // Arrow
+            ctx.strokeStyle = '#FF6B6B';
+            ctx.fillStyle = '#FF6B6B';
+            ctx.lineWidth = 4;
+
+            if (direction === 'right') {
+                // Arrow line
+                ctx.beginPath();
+                ctx.moveTo(x, y);
+                ctx.lineTo(x + 80, y);
+                ctx.stroke();
+
+                // Arrow head
+                ctx.beginPath();
+                ctx.moveTo(x + 80, y);
+                ctx.lineTo(x + 65, y - 10);
+                ctx.lineTo(x + 65, y + 10);
+                ctx.closePath();
+                ctx.fill();
+
+                // Text box
+                const textWidth = ctx.measureText(text).width + 30;
+                ctx.fillStyle = '#FF6B6B';
+                ctx.beginPath();
+                ctx.roundRect(x + 85, y - 25, textWidth, 50, 8);
+                ctx.fill();
+
+                ctx.fillStyle = COLORS.white;
+                ctx.font = 'bold 28px Cairo, Arial';
+                ctx.textAlign = 'right';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(text, x + 85 + textWidth - 15, y);
+            } else {
+                // Left arrow
+                ctx.beginPath();
+                ctx.moveTo(x, y);
+                ctx.lineTo(x - 80, y);
+                ctx.stroke();
+
+                ctx.beginPath();
+                ctx.moveTo(x - 80, y);
+                ctx.lineTo(x - 65, y - 10);
+                ctx.lineTo(x - 65, y + 10);
+                ctx.closePath();
+                ctx.fill();
+
+                const textWidth = ctx.measureText(text).width + 30;
+                ctx.fillStyle = '#FF6B6B';
+                ctx.beginPath();
+                ctx.roundRect(x - 85 - textWidth, y - 25, textWidth, 50, 8);
+                ctx.fill();
+
+                ctx.fillStyle = COLORS.white;
+                ctx.font = 'bold 28px Cairo, Arial';
+                ctx.textAlign = 'right';
+                ctx.fillText(text, x - 100, y);
+            }
+
+            ctx.restore();
+        }
+
+        function drawButton(ctx, x, y, width, height, text, style = 'primary') {
+            ctx.save();
+
+            // Shadow
+            ctx.shadowColor = 'rgba(0,0,0,0.1)';
+            ctx.shadowBlur = 10;
+            ctx.shadowOffsetY = 4;
+
+            // Button background
+            if (style === 'primary') {
+                ctx.fillStyle = COLORS.gold;
+            } else if (style === 'secondary') {
+                ctx.fillStyle = COLORS.navy;
+            } else {
+                ctx.fillStyle = COLORS.green;
+            }
+
+            ctx.beginPath();
+            ctx.roundRect(x, y, width, height, 25);
+            ctx.fill();
+
+            // Text
+            ctx.shadowColor = 'transparent';
+            ctx.fillStyle = style === 'primary' ? COLORS.navy : COLORS.white;
+            ctx.font = 'bold 32px Cairo, Arial';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(text, x + width / 2, y + height / 2);
+
+            ctx.restore();
+        }
+
+        function drawInput(ctx, x, y, width, height, placeholder, value = '') {
+            ctx.save();
+
+            // Input background
+            ctx.fillStyle = COLORS.white;
+            ctx.strokeStyle = '#ddd';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.roundRect(x, y, width, height, 8);
+            ctx.fill();
+            ctx.stroke();
+
+            // Placeholder/Value
+            ctx.fillStyle = value ? COLORS.textDark : COLORS.textGray;
+            ctx.font = '28px Cairo, Arial';
+            ctx.textAlign = 'right';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(value || placeholder, x + width - 20, y + height / 2);
+
+            ctx.restore();
+        }
+
+        function drawCard(ctx, x, y, width, height, popular = false) {
+            ctx.save();
+
+            // Shadow
+            ctx.shadowColor = 'rgba(0,0,0,0.15)';
+            ctx.shadowBlur = 20;
+            ctx.shadowOffsetY = 10;
+
+            // Card background
+            ctx.fillStyle = COLORS.white;
+            ctx.beginPath();
+            ctx.roundRect(x, y, width, height, 12);
+            ctx.fill();
+
+            // Popular badge
+            if (popular) {
+                ctx.shadowColor = 'transparent';
+                ctx.fillStyle = COLORS.gold;
+                ctx.beginPath();
+                ctx.roundRect(x + width - 150, y - 15, 140, 40, 20);
+                ctx.fill();
+
+                ctx.fillStyle = COLORS.navy;
+                ctx.font = 'bold 24px Cairo, Arial';
+                ctx.textAlign = 'center';
+                ctx.fillText('الأكثر طلباً', x + width - 80, y + 5);
+            }
+
+            ctx.restore();
+        }
+
+        function createCanvas(story) {
+            const canvas = document.createElement('canvas');
+            canvas.width = 1080;
+            canvas.height = 1920;
+            const ctx = canvas.getContext('2d');
+
+            // Background
+            ctx.fillStyle = COLORS.ivory;
+            ctx.fillRect(0, 0, 1080, 1920);
+
+            ctx.textAlign = 'center';
+
+            switch (story.type) {
+                case 'hero':
+                    // Navy gradient background
+                    const heroGrad = ctx.createLinearGradient(0, 0, 0, 1920);
+                    heroGrad.addColorStop(0, COLORS.navy);
+                    heroGrad.addColorStop(1, COLORS.navyDark);
+                    ctx.fillStyle = heroGrad;
+                    ctx.fillRect(0, 0, 1080, 1920);
+
+                    // Ramadan moon
+                    ctx.font = 'bold 200px Arial';
+                    ctx.fillStyle = COLORS.gold;
+                    ctx.fillText('🌙', 540, 400);
+
+                    // Title
+                    ctx.font = 'bold 90px Cairo, Arial';
+                    ctx.fillStyle = COLORS.gold;
+                    ctx.fillText('أهلاً بكم في', 540, 600);
+                    ctx.font = 'bold 110px Cairo, Arial';
+                    ctx.fillText('متجر بقدونس', 540, 740);
+
+                    // Subtitle
+                    ctx.font = '48px Cairo, Arial';
+                    ctx.fillStyle = COLORS.ivory;
+                    ctx.fillText('بوابتك لنمو حساباتك 🌿', 540, 900);
+
+                    // Ramadan greeting
+                    ctx.font = 'bold 65px Cairo, Arial';
+                    ctx.fillText('رمضان كريم ✨', 540, 1200);
+
+                    // CTA Button
+                    drawButton(ctx, 340, 1450, 400, 100, 'ابدأ الآن', 'primary');
+
+                    // Footer
+                    ctx.font = 'bold 55px Cairo, Arial';
+                    ctx.fillStyle = COLORS.gold;
+                    ctx.fillText('متجر بقدونس 🌿', 540, 1800);
+                    break;
+
+                case 'register_modal':
+                    // Modal overlay
+                    ctx.fillStyle = 'rgba(0,0,0,0.5)';
+                    ctx.fillRect(0, 0, 1080, 1920);
+
+                    // Modal card
+                    drawCard(ctx, 140, 350, 800, 1100);
+
+                    // Ramadan header
+                    const ramadanGrad = ctx.createLinearGradient(140, 350, 140, 450);
+                    ramadanGrad.addColorStop(0, COLORS.navy);
+                    ramadanGrad.addColorStop(1, COLORS.navyDark);
+                    ctx.fillStyle = ramadanGrad;
+                    ctx.fillRect(140, 350, 800, 150);
+
+                    ctx.font = 'bold 60px Arial';
+                    ctx.fillStyle = COLORS.gold;
+                    ctx.fillText('🌙', 540, 410);
+                    ctx.font = 'bold 50px Cairo, Arial';
+                    ctx.fillText('Ramadan Kareem', 540, 480);
+
+                    // Header
+                    ctx.fillStyle = COLORS.navy;
+                    ctx.fillRect(140, 500, 800, 100);
+                    ctx.fillStyle = COLORS.white;
+                    ctx.font = 'bold 48px Cairo, Arial';
+                    ctx.fillText('إنشاء حساب جديد', 540, 560);
+
+                    // Input fields with annotations
+                    ctx.textAlign = 'right';
+                    ctx.fillStyle = COLORS.textDark;
+                    ctx.font = 'bold 32px Cairo, Arial';
+                    ctx.fillText('الاسم الكامل', 900, 660);
+                    drawInput(ctx, 180, 680, 720, 70, 'أدخل اسمك الكامل');
+                    drawAnnotation(ctx, 120, 715, '← اكتب اسمك الكامل هنا', 'left');
+
+                    ctx.fillText('البريد الإلكتروني', 900, 810);
+                    drawInput(ctx, 180, 830, 720, 70, 'name@example.com');
+                    drawAnnotation(ctx, 120, 865, '← اكتب إيميلك هنا', 'left');
+
+                    ctx.fillText('كلمة المرور', 900, 960);
+                    drawInput(ctx, 180, 980, 720, 70, '••••••••');
+                    drawAnnotation(ctx, 120, 1015, '← اختر باسورد قوي', 'left');
+
+                    ctx.fillText('كود الإحالة (اختياري)', 900, 1110);
+                    drawInput(ctx, 180, 1130, 720, 70, 'BAQ-XXXXX');
+                    drawAnnotation(ctx, 120, 1165, '← اختياري: كود صديقك', 'left');
+
+                    // Button
+                    drawButton(ctx, 240, 1280, 600, 90, 'إنشاء الحساب', 'primary');
+                    drawAnnotation(ctx, 540, 1380, 'اضغط هنا لإنشاء الحساب ⬆', 'right');
+
+                    // Footer text
+                    ctx.textAlign = 'center';
+                    ctx.fillStyle = COLORS.textGray;
+                    ctx.font = '28px Cairo, Arial';
+                    ctx.fillText('عندك حساب؟', 480, 1410);
+                    ctx.fillStyle = COLORS.gold;
+                    ctx.font = 'bold 28px Cairo, Arial';
+                    ctx.fillText('تسجيل الدخول', 680, 1410);
+                    break;
+
+                case 'login_modal':
+                    // Modal overlay
+                    ctx.fillStyle = 'rgba(0,0,0,0.5)';
+                    ctx.fillRect(0, 0, 1080, 1920);
+
+                    // Modal card
+                    drawCard(ctx, 140, 500, 800, 900);
+
+                    // Ramadan header
+                    const loginRamadanGrad = ctx.createLinearGradient(140, 500, 140, 600);
+                    loginRamadanGrad.addColorStop(0, COLORS.navy);
+                    loginRamadanGrad.addColorStop(1, COLORS.navyDark);
+                    ctx.fillStyle = loginRamadanGrad;
+                    ctx.fillRect(140, 500, 800, 150);
+
+                    ctx.font = 'bold 60px Arial';
+                    ctx.fillStyle = COLORS.gold;
+                    ctx.textAlign = 'center';
+                    ctx.fillText('🌙', 540, 560);
+                    ctx.font = 'bold 48px Cairo, Arial';
+                    ctx.fillText('رمضان كريم ✨', 540, 630);
+
+                    // Header
+                    ctx.fillStyle = COLORS.navy;
+                    ctx.fillRect(140, 650, 800, 100);
+                    ctx.fillStyle = COLORS.white;
+                    ctx.font = 'bold 52px Cairo, Arial';
+                    ctx.fillText('تسجيل الدخول', 540, 715);
+
+                    // Input fields with annotations
+                    ctx.textAlign = 'right';
+                    ctx.fillStyle = COLORS.textDark;
+                    ctx.font = 'bold 32px Cairo, Arial';
+                    ctx.fillText('البريد الإلكتروني', 900, 830);
+                    drawInput(ctx, 180, 850, 720, 70, 'name@example.com');
+                    drawAnnotation(ctx, 120, 885, '← إيميلك هنا', 'left');
+
+                    ctx.fillText('كلمة المرور', 900, 1000);
+                    drawInput(ctx, 180, 1020, 720, 70, '••••••••');
+                    drawAnnotation(ctx, 120, 1055, '← الباسورد هنا', 'left');
+
+                    // Button
+                    drawButton(ctx, 240, 1170, 600, 90, 'دخول', 'primary');
+                    drawAnnotation(ctx, 540, 1270, 'اضغط للدخول ⬆', 'right');
+
+                    // Footer
+                    ctx.textAlign = 'center';
+                    ctx.fillStyle = COLORS.textGray;
+                    ctx.font = '28px Cairo, Arial';
+                    ctx.fillText('جديد؟', 480, 1320);
+                    ctx.fillStyle = COLORS.gold;
+                    ctx.font = 'bold 28px Cairo, Arial';
+                    ctx.fillText('إنشاء حساب', 630, 1320);
+                    break;
+
+                case 'buy_seeds_modal':
+                    // Modal
+                    ctx.fillStyle = 'rgba(0,0,0,0.5)';
+                    ctx.fillRect(0, 0, 1080, 1920);
+
+                    drawCard(ctx, 100, 300, 880, 1320);
+
+                    // Header
+                    ctx.fillStyle = COLORS.green;
+                    ctx.fillRect(100, 300, 880, 120);
+                    ctx.fillStyle = COLORS.white;
+                    ctx.font = 'bold 56px Cairo, Arial';
+                    ctx.fillText('شراء بذور البقدونس 🌱', 540, 370);
+
+                    // Annotation for header
+                    drawAnnotation(ctx, 540, 450, 'اختر الباقة المناسبة ⬇', 'right');
+
+                    // Seed packages (3x2 grid)
+                    const packages = [
+                        { seeds: '500', price: '0.50', x: 150, y: 480 },
+                        { seeds: '1000', price: '1.00', x: 540, y: 480 },
+                        { seeds: '2000', price: '1.90', x: 150, y: 900 },
+                        { seeds: '5000', price: '4.50', x: 540, y: 900 }
+                    ];
+
+                    packages.forEach((pkg, index) => {
+                        // Package card
+                        ctx.fillStyle = COLORS.white;
+                        ctx.strokeStyle = COLORS.gold;
+                        ctx.lineWidth = 3;
+                        ctx.beginPath();
+                        ctx.roundRect(pkg.x, pkg.y, 340, 360, 12);
+                        ctx.fill();
+                        ctx.stroke();
+
+                        // Icon
+                        ctx.font = 'bold 80px Arial';
+                        ctx.fillText('🌱', pkg.x + 170, pkg.y + 100);
+
+                        // Seed count
+                        ctx.fillStyle = COLORS.green;
+                        ctx.font = 'bold 60px Cairo, Arial';
+                        ctx.fillText(pkg.seeds, pkg.x + 170, pkg.y + 200);
+                        ctx.font = '32px Cairo, Arial';
+                        ctx.fillText('بذرة', pkg.x + 170, pkg.y + 250);
+
+                        // Price
+                        ctx.fillStyle = COLORS.gold;
+                        ctx.font = 'bold 52px Cairo, Arial';
+                        ctx.fillText(pkg.price + ' JD', pkg.x + 170, pkg.y + 320);
+
+                        // Annotation for first package only
+                        if (index === 0) {
+                            ctx.font = 'bold 28px Cairo, Arial';
+                            drawAnnotation(ctx, pkg.x - 40, pkg.y + 180, '← اضغط لاختيار', 'left');
+                        }
+                    });
+
+                    // Button
+                    drawButton(ctx, 240, 1450, 600, 90, 'اختر الباقة', 'primary');
+
+                    ctx.font = 'bold 50px Cairo, Arial';
+                    ctx.fillStyle = COLORS.green;
+                    ctx.fillText('متجر بقدونس 🌿', 540, 1780);
+                    break;
+
+                case 'transfer_modal':
+                    // Overlay
+                    ctx.fillStyle = 'rgba(0,0,0,0.5)';
+                    ctx.fillRect(0, 0, 1080, 1920);
+
+                    // Card
+                    drawCard(ctx, 120, 400, 840, 1100);
+
+                    // Header
+                    ctx.fillStyle = COLORS.green;
+                    ctx.fillRect(120, 400, 840, 120);
+                    ctx.fillStyle = COLORS.white;
+                    ctx.font = 'bold 56px Cairo, Arial';
+                    ctx.fillText('الفزعة - تحويل البذور 💸', 540, 475);
+
+                    // Illustration
+                    ctx.font = 'bold 120px Arial';
+                    ctx.fillText('🤝', 540, 680);
+
+                    // Form with annotations
+                    ctx.textAlign = 'right';
+                    ctx.fillStyle = COLORS.textDark;
+                    ctx.font = 'bold 36px Cairo, Arial';
+                    ctx.fillText('البريد الإلكتروني للمستلم', 920, 820);
+                    drawInput(ctx, 160, 850, 760, 80, 'friend@example.com');
+                    drawAnnotation(ctx, 100, 890, '← إيميل صديقك', 'left');
+
+                    ctx.fillText('عدد البذور (الحد الأدنى 100)', 920, 1020);
+                    drawInput(ctx, 160, 1050, 760, 80, '500', '500');
+                    drawAnnotation(ctx, 100, 1090, '← الكمية المراد تحويلها', 'left');
+
+                    // Fee notice
+                    ctx.textAlign = 'center';
+                    ctx.fillStyle = COLORS.textGray;
+                    ctx.font = '32px Cairo, Arial';
+                    ctx.fillText('رسوم التحويل: 50 بذرة', 540, 1200);
+
+                    // Button
+                    drawButton(ctx, 240, 1300, 600, 90, 'تحويل الآن', 'primary');
+                    drawAnnotation(ctx, 540, 1400, 'اضغط للتحويل ⬆', 'right');
+
+                    ctx.font = 'bold 50px Cairo, Arial';
+                    ctx.fillStyle = COLORS.green;
+                    ctx.fillText('متجر بقدونس 🌿', 540, 1680);
+                    break;
+
+                case 'auction_card':
+                    // Background
+                    const auctionGrad = ctx.createLinearGradient(0, 0, 0, 1920);
+                    auctionGrad.addColorStop(0, COLORS.ivory);
+                    auctionGrad.addColorStop(1, '#f0ebe5');
+                    ctx.fillStyle = auctionGrad;
+                    ctx.fillRect(0, 0, 1080, 1920);
+
+                    // Auction card
+                    drawCard(ctx, 90, 400, 900, 1000, true);
+
+                    // Image placeholder
+                    ctx.fillStyle = '#f0f0f0';
+                    ctx.fillRect(90, 400, 900, 500);
+                    ctx.fillStyle = COLORS.textGray;
+                    ctx.font = 'bold 80px Arial';
+                    ctx.fillText('📸', 540, 600);
+                    ctx.font = '36px Cairo, Arial';
+                    ctx.fillText('صورة الحساب', 540, 720);
+
+                    // Title
+                    ctx.fillStyle = COLORS.navy;
+                    ctx.font = 'bold 48px Cairo, Arial';
+                    ctx.fillText('حساب Instagram - 50K متابع', 540, 980);
+
+                    // Timer
+                    ctx.fillStyle = '#e74c3c';
+                    ctx.font = 'bold 40px Cairo, Arial';
+                    ctx.fillText('⏰ ينتهي خلال: 02:15:30', 540, 1080);
+
+                    // Current bid
+                    ctx.fillStyle = COLORS.green;
+                    ctx.font = '36px Cairo, Arial';
+                    ctx.fillText('السعر الحالي:', 540, 1170);
+                    ctx.fillStyle = COLORS.gold;
+                    ctx.font = 'bold 72px Cairo, Arial';
+                    ctx.fillText('450 بذرة', 540, 1260);
+
+                    // Bid button
+                    drawButton(ctx, 240, 1320, 600, 90, 'زاود الآن 🔨', 'primary');
+
+                    ctx.font = 'bold 55px Cairo, Arial';
+                    ctx.fillStyle = COLORS.navy;
+                    ctx.fillText('متجر بقدونس 🌿', 540, 1800);
+                    break;
+
+                case 'ig_followers_card':
+                case 'ig_likes_card':
+                case 'ig_views_card':
+                case 'fb_followers_card':
+                case 'fb_likes_card':
+                case 'tt_followers_card':
+                case 'tt_likes_card':
+                case 'yt_subs_card':
+                case 'yt_views_card':
+                case 'tw_followers_card':
+                    // Extract platform and type
+                    const [platform, serviceType] = story.type.split('_');
+
+                    let emoji, platformName, serviceName, bgColor;
+
+                    if (platform === 'ig') {
+                        emoji = '📸';
+                        platformName = 'Instagram';
+                        bgColor = ['#f093fb', '#f5576c'];
+                    } else if (platform === 'fb') {
+                        emoji = '👥';
+                        platformName = 'Facebook';
+                        bgColor = ['#4267B2', '#1877F2'];
+                    } else if (platform === 'tt') {
+                        emoji = '🎵';
+                        platformName = 'TikTok';
+                        bgColor = ['#000000', '#333333'];
+                    } else if (platform === 'yt') {
+                        emoji = '▶️';
+                        platformName = 'YouTube';
+                        bgColor = ['#FF0000', '#CC0000'];
+                    } else {
+                        emoji = '🐦';
+                        platformName = 'Twitter';
+                        bgColor = ['#1DA1F2', '#0c85d0'];
+                    }
+
+                    if (serviceType === 'followers') serviceName = 'متابعين';
+                    else if (serviceType === 'likes') serviceName = 'لايكات';
+                    else if (serviceType === 'views') serviceName = 'مشاهدات';
+                    else serviceName = 'مشتركين';
+
+                    // Background
+                    const packageBg = ctx.createLinearGradient(0, 0, 0, 1920);
+                    packageBg.addColorStop(0, COLORS.ivory);
+                    packageBg.addColorStop(1, '#f0ebe5');
+                    ctx.fillStyle = packageBg;
+                    ctx.fillRect(0, 0, 1080, 1920);
+
+                    // Package card
+                    drawCard(ctx, 140, 400, 800, 1100, story.id === 8);
+
+                    // Platform color bar
+                    const platformGrad = ctx.createLinearGradient(140, 400, 140, 500);
+                    platformGrad.addColorStop(0, bgColor[0]);
+                    platformGrad.addColorStop(1, bgColor[1]);
+                    ctx.fillStyle = platformGrad;
+                    ctx.fillRect(140, 400, 800, 100);
+
+                    // Platform icon & name
+                    ctx.font = 'bold 70px Arial';
+                    ctx.fillStyle = COLORS.white;
+                    ctx.fillText(emoji, 540, 465);
+
+                    // Icon
+                    ctx.font = 'bold 140px Arial';
+                    ctx.fillStyle = bgColor[0];
+                    ctx.fillText(emoji, 540, 660);
+
+                    // Service type
+                    ctx.fillStyle = COLORS.navy;
+                    ctx.font = 'bold 68px Cairo, Arial';
+                    ctx.fillText(serviceName, 540, 800);
+                    ctx.font = '42px Cairo, Arial';
+                    ctx.fillText(platformName, 540, 870);
+
+                    // Quantity
+                    ctx.fillStyle = COLORS.green;
+                    ctx.font = 'bold 80px Cairo, Arial';
+                    ctx.fillText('5,000', 540, 1000);
+
+                    // Price
+                    ctx.fillStyle = COLORS.gold;
+                    ctx.font = 'bold 90px Cairo, Arial';
+                    ctx.fillText('2.50 JD', 540, 1150);
+
+                    // Features
+                    ctx.fillStyle = COLORS.textGray;
+                    ctx.font = '32px Cairo, Arial';
+                    ctx.fillText('✅ توصيل تدريجي', 540, 1250);
+                    ctx.fillText('✅ جودة عالية', 540, 1310);
+                    ctx.fillText('✅ ضمان 30 يوم', 540, 1370);
+
+                    // Button with annotation
+                    drawButton(ctx, 240, 1420, 600, 90, 'أضف للسلة', 'primary');
+                    drawAnnotation(ctx, 540, 1520, 'اضغط للإضافة ⬆', 'right');
+
+                    ctx.font = 'bold 50px Cairo, Arial';
+                    ctx.fillStyle = COLORS.navy;
+                    ctx.fillText('متجر بقدونس 🌿', 540, 1800);
+                    break;
+
+                case 'cart_sidebar':
+                    // Background dimmed
+                    ctx.fillStyle = 'rgba(0,0,0,0.4)';
+                    ctx.fillRect(0, 0, 1080, 1920);
+
+                    // Sidebar
+                    ctx.fillStyle = COLORS.white;
+                    ctx.fillRect(280, 0, 800, 1920);
+
+                    // Header
+                    ctx.fillStyle = COLORS.navy;
+                    ctx.fillRect(280, 0, 800, 140);
+                    ctx.fillStyle = COLORS.white;
+                    ctx.font = 'bold 52px Cairo, Arial';
+                    ctx.fillText('سلة المشتريات 🛒', 680, 85);
+
+                    // Cart items with annotations
+                    const items = [
+                        { name: 'IG متابعين 5K', price: '2.50' },
+                        { name: 'FB لايكات 1K', price: '0.80' }
+                    ];
+
+                    let itemY = 240;
+                    items.forEach((item, index) => {
+                        // Item card
+                        ctx.fillStyle = '#f9f9f9';
+                        ctx.fillRect(320, itemY, 720, 140);
+
+                        ctx.textAlign = 'right';
+                        ctx.fillStyle = COLORS.textDark;
+                        ctx.font = 'bold 36px Cairo, Arial';
+                        ctx.fillText(item.name, 1000, itemY + 50);
+
+                        ctx.fillStyle = COLORS.gold;
+                        ctx.font = 'bold 42px Cairo, Arial';
+                        ctx.fillText(item.price + ' JD', 1000, itemY + 100);
+
+                        // Remove button
+                        ctx.fillStyle = '#ff4d4d';
+                        ctx.font = 'bold 40px Arial';
+                        ctx.textAlign = 'center';
+                        ctx.fillText('🗑️', 350, itemY + 70);
+
+                        // Annotation for first item only
+                        if (index === 0) {
+                            ctx.textAlign = 'left';
+                            drawAnnotation(ctx, 1040, itemY + 70, 'المنتجات في السلة →', 'right');
+                        }
+
+                        itemY += 180;
+                    });
+
+                    // Total
+                    ctx.fillStyle = COLORS.ivory;
+                    ctx.fillRect(280, 1600, 800, 160);
+                    ctx.strokeStyle = COLORS.gold;
+                    ctx.lineWidth = 3;
+                    ctx.strokeRect(280, 1600, 800, 160);
+
+                    ctx.textAlign = 'center';
+                    ctx.fillStyle = COLORS.textDark;
+                    ctx.font = '38px Cairo, Arial';
+                    ctx.fillText('المجموع الكلي:', 680, 1670);
+                    ctx.fillStyle = COLORS.gold;
+                    ctx.font = 'bold 72px Cairo, Arial';
+                    ctx.fillText('3.30 JD', 680, 1740);
+
+                    // Annotation for total
+                    drawAnnotation(ctx, 1080, 1710, 'المجموع النهائي →', 'right');
+
+                    // Checkout button
+                    ctx.fillStyle = COLORS.navy;
+                    ctx.beginPath();
+                    ctx.roundRect(340, 1800, 680, 100, 50);
+                    ctx.fill();
+                    ctx.fillStyle = COLORS.white;
+                    ctx.font = 'bold 48px Cairo, Arial';
+                    ctx.fillText('إتمام الدفع', 680, 1865);
+
+                    // Annotation for checkout
+                    drawAnnotation(ctx, 980, 1850, 'اضغط للدفع →', 'right');
+
+                    break;
+
+                case 'payment_cliq':
+                    // Background
+                    ctx.fillStyle = COLORS.ivory;
+                    ctx.fillRect(0, 0, 1080, 1920);
+
+                    // Section card
+                    drawCard(ctx, 80, 200, 920, 1500);
+
+                    // Header
+                    ctx.fillStyle = COLORS.navy;
+                    ctx.fillRect(80, 200, 920, 120);
+                    ctx.fillStyle = COLORS.white;
+                    ctx.font = 'bold 56px Cairo, Arial';
+                    ctx.fillText('الدفع عبر CliQ 💳', 540, 275);
+
+                    // Icon
+                    ctx.font = 'bold 120px Arial';
+                    ctx.fillStyle = COLORS.gold;
+                    ctx.fillText('💳', 540, 460);
+
+                    // Instructions with annotations
+                    ctx.textAlign = 'right';
+                    ctx.fillStyle = COLORS.textDark;
+                    ctx.font = 'bold 40px Cairo, Arial';
+                    ctx.fillText('رقم الموبايل:', 940, 600);
+                    ctx.fillStyle = COLORS.green;
+                    ctx.font = 'bold 52px Cairo, Arial';
+                    ctx.fillText('0799643900', 940, 670);
+                    ctx.textAlign = 'left';
+                    drawAnnotation(ctx, 200, 670, 'انسخ هذا الرقم ←', 'right');
+
+                    ctx.textAlign = 'right';
+                    ctx.fillStyle = COLORS.textDark;
+                    ctx.font = 'bold 40px Cairo, Arial';
+                    ctx.fillText('الاسم:', 940, 780);
+                    ctx.fillStyle = COLORS.green;
+                    ctx.font = 'bold 52px Cairo, Arial';
+                    ctx.fillText('عنان نبيل', 940, 850);
+                    ctx.textAlign = 'left';
+                    drawAnnotation(ctx, 200, 850, 'انسخ الاسم ←', 'right');
+
+                    ctx.textAlign = 'right';
+                    ctx.fillStyle = COLORS.textDark;
+                    ctx.font = 'bold 40px Cairo, Arial';
+                    ctx.fillText('المبلغ:', 940, 960);
+                    ctx.fillStyle = COLORS.gold;
+                    ctx.font = 'bold 64px Cairo, Arial';
+                    ctx.fillText('3.30 JD', 940, 1040);
+                    ctx.textAlign = 'left';
+                    drawAnnotation(ctx, 200, 1040, 'حوّل هذا المبلغ ←', 'right');
+
+                    // Upload section
+                    ctx.textAlign = 'center';
+                    ctx.fillStyle = COLORS.textGray;
+                    ctx.font = '36px Cairo, Arial';
+                    ctx.fillText('ارفع صورة الحوالة:', 540, 1200);
+
+                    // Upload box
+                    ctx.strokeStyle = COLORS.gold;
+                    ctx.lineWidth = 4;
+                    ctx.setLineDash([20, 10]);
+                    ctx.strokeRect(180, 1240, 720, 300);
+                    ctx.setLineDash([]);
+
+                    ctx.font = 'bold 80px Arial';
+                    ctx.fillStyle = COLORS.gold;
+                    ctx.fillText('📸', 540, 1370);
+                    ctx.font = 'bold 40px Cairo, Arial';
+                    ctx.fillText('اضغط للرفع', 540, 1460);
+
+                    // Annotation for upload
+                    drawAnnotation(ctx, 920, 1390, 'صوّر الحوالة وارفعها ←', 'right');
+
+                    // Button
+                    drawButton(ctx, 240, 1600, 600, 90, 'إرسال', 'primary');
+                    drawAnnotation(ctx, 540, 1710, 'اضغط هنا بعد رفع الصورة ⬆', 'right');
+
+                    ctx.font = 'bold 50px Cairo, Arial';
+                    ctx.fillStyle = COLORS.navy;
+                    ctx.fillText('متجر بقدونس 🌿', 540, 1850);
+                    break;
+
+                case 'order_success':
+                    // Green background
+                    ctx.fillStyle = '#d4edda';
+                    ctx.fillRect(0, 0, 1080, 1920);
+
+                    // Success icon
+                    ctx.fillStyle = '#28a745';
+                    ctx.beginPath();
+                    ctx.arc(540, 500, 180, 0, Math.PI * 2);
+                    ctx.fill();
+
+                    ctx.font = 'bold 200px Arial';
+                    ctx.fillStyle = COLORS.white;
+                    ctx.fillText('✓', 540, 580);
+
+                    // Title
+                    ctx.fillStyle = '#28a745';
+                    ctx.font = 'bold 80px Cairo, Arial';
+                    ctx.fillText('تم الطلب بنجاح!', 540, 800);
+
+                    // Info card
+                    drawCard(ctx, 140, 900, 800, 700);
+
+                    ctx.fillStyle = COLORS.textDark;
+                    ctx.font = '40px Cairo, Arial';
+                    ctx.fillText('رقم الطلب:', 540, 1000);
+                    ctx.fillStyle = COLORS.navy;
+                    ctx.font = 'bold 56px Cairo, Arial';
+                    ctx.fillText('ORD-12345', 540, 1080);
+
+                    ctx.fillStyle = COLORS.textGray;
+                    ctx.font = '38px Cairo, Arial';
+                    wrapText(ctx, 'سيبدأ تنفيذ طلبك خلال 5-30 دقيقة. يمكنك متابعة حالة الطلب من صفحة "طلباتي"', 540, 1180, 700, 55);
+
+                    // Seeds earned
+                    ctx.fillStyle = COLORS.gold;
+                    ctx.font = 'bold 48px Cairo, Arial';
+                    ctx.fillText('🌱 ربحت 50 بذرة!', 540, 1450);
+
+                    // Button
+                    drawButton(ctx, 240, 1520, 600, 90, 'عرض طلباتي', 'secondary');
+
+                    ctx.font = 'bold 55px Cairo, Arial';
+                    ctx.fillStyle = COLORS.navy;
+                    ctx.fillText('متجر بقدونس 🌿', 540, 1800);
+                    break;
+
+                default:
+                    // Default template for other types
+                    ctx.fillStyle = COLORS.ivory;
+                    ctx.fillRect(0, 0, 1080, 1920);
+
+                    ctx.fillStyle = COLORS.navy;
+                    ctx.font = 'bold 60px Cairo, Arial';
+                    ctx.fillText(story.title, 540, 960);
+
+                    ctx.font = 'bold 55px Cairo, Arial';
+                    ctx.fillStyle = COLORS.green;
+                    ctx.fillText('متجر بقدونس 🌿', 540, 1800);
+                    break;
+            }
+
+            return canvas;
+        }
+
+        function renderGallery() {
+            const gallery = document.getElementById('gallery');
+            gallery.innerHTML = '';
+
+            stories.forEach(story => {
+                const canvas = createCanvas(story);
+
+                const item = document.createElement('div');
+                item.className = 'story-item';
+                item.innerHTML = `
+                    <canvas class="story-canvas" id="canvas-${story.id}"></canvas>
+                    <div class="story-info">
+                        <div class="story-title">${story.id}. ${story.title}</div>
+                        <button class="btn-download" onclick="downloadSingle(${story.id})">
+                            💾 حفظ JPG
+                        </button>
+                    </div>
+                `;
+
+                gallery.appendChild(item);
+
+                const displayCanvas = document.getElementById(`canvas-${story.id}`);
+                displayCanvas.width = 1080;
+                displayCanvas.height = 1920;
+                displayCanvas.getContext('2d').drawImage(canvas, 0, 0);
+            });
+        }
+
+        function downloadSingle(id) {
+            const story = stories.find(s => s.id === id);
+            const canvas = document.getElementById(`canvas-${id}`);
+
+            canvas.toBlob(blob => {
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `baqdouns_${String(id).padStart(2, '0')}_${story.type}.jpg`;
+                a.click();
+                URL.revokeObjectURL(url);
+            }, 'image/jpeg', 0.95);
+        }
+
+        async function downloadAll() {
+            const zip = new JSZip();
+            const folder = zip.folder('baqdouns_ui_mockups');
+
+            for (let story of stories) {
+                const canvas = document.getElementById(`canvas-${story.id}`);
+                const blob = await new Promise(resolve => {
+                    canvas.toBlob(resolve, 'image/jpeg', 0.95);
+                });
+                folder.file(`${String(story.id).padStart(2, '0')}_${story.type}.jpg`, blob);
+            }
+
+            const content = await zip.generateAsync({ type: 'blob' });
+            const url = URL.createObjectURL(content);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'baqdouns_all_ui_mockups.zip';
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        renderGallery();
+    </script>
+</body>
+
+</html>

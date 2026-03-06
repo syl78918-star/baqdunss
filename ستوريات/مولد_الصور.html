@@ -1,0 +1,827 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>مولد صور ستوريات بقدونس 🌿</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap" rel="stylesheet">
+    <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+    <style>
+        :root {
+            --color-navy: #041E42;
+            --color-green: #1E3D2F;
+            --color-gold: #C5A059;
+            --color-ivory: #F9F7F2;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Cairo', sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+            font-size: 2.5rem;
+            text-shadow: 2px 2px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .controls {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .btn-download-all {
+            background: var(--color-green);
+            color: white;
+            padding: 15px 40px;
+            border: none;
+            border-radius: 50px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            cursor: pointer;
+            margin: 10px;
+            transition: all 0.3s;
+        }
+
+        .btn-download-all:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+            gap: 30px;
+        }
+
+        .story-item {
+            background: white;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            transition: transform 0.3s;
+        }
+
+        .story-item:hover {
+            transform: translateY(-10px);
+        }
+
+        .story-canvas {
+            width: 100%;
+            height: auto;
+            display: block;
+            cursor: pointer;
+        }
+
+        .story-info {
+            padding: 20px;
+        }
+
+        .story-title {
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: var(--color-navy);
+            margin-bottom: 10px;
+        }
+
+        .story-description {
+            font-size: 0.95rem;
+            color: #555;
+            line-height: 1.8;
+            margin-bottom: 15px;
+            padding: 15px;
+            background: linear-gradient(135deg, #f9f9f9 0%, #fff 100%);
+            border-right: 4px solid var(--color-gold);
+            border-radius: 8px;
+        }
+
+        .story-example {
+            font-size: 0.9rem;
+            color: #666;
+            background: #fff8e1;
+            padding: 12px;
+            border-radius: 6px;
+            margin-bottom: 15px;
+            border-left: 3px solid var(--color-gold);
+        }
+
+        .btn-download {
+            background: var(--color-gold);
+            color: var(--color-navy);
+            padding: 12px 25px;
+            border: none;
+            border-radius: 50px;
+            font-weight: bold;
+            cursor: pointer;
+            width: 100%;
+            font-size: 1rem;
+            transition: all 0.3s;
+        }
+
+        .btn-download:hover {
+            filter: brightness(1.1);
+            transform: scale(1.02);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>🌿 مولد صور ستوريات بقدونس 📱</h1>
+
+        <div class="controls">
+            <p style="margin-bottom: 15px; color: #666; font-size: 1.1rem;">
+                <strong>35 تصميم احترافي</strong> مع رسومات توضيحية وشرح تفصيلي
+            </p>
+            <button class="btn-download-all" onclick="downloadAll()">💾 حفظ جميع الصور (ZIP)</button>
+            <button class="btn-download-all" style="background: var(--color-gold); color: var(--color-navy);"
+                onclick="regenerateAll()">🔄 إعادة توليد الكل</button>
+        </div>
+
+        <div class="gallery" id="gallery"></div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script>
+        const stories = [
+            {
+                id: 1,
+                title: 'الترحيب الرمضاني',
+                type: 'ramadan_welcome',
+                description: 'أهلاً وسهلاً في متجر بقدونس! نحن المتجر الأول في الأردن المتخصص في نمو الحسابات على جميع المنصات. بمناسبة رمضان المبارك، نقدم لك أفضل الخدمات بأسعار لا تقبل المنافسة.',
+                example: '✨ عرض رمضان: اشتر 1000 بذرة واحصل على 200 بذرة مجاناً!'
+            },
+            {
+                id: 2,
+                title: 'إنشاء حساب جديد',
+                type: 'register',
+                description: 'التسجيل سهل وسريع! فقط أدخل اسمك الكامل، بريدك الإلكتروني، وكلمة مرور قوية. بمجرد التسجيل، ستحصل على 100 بذرة مجانية كهدية ترحيب!',
+                example: '💡 مثال: أحمد سجّل اليوم وحصل على 100 بذرة، استخدمها مباشرة لشراء 1000 متابع انستقرام!'
+            },
+            {
+                id: 3,
+                title: 'تسجيل الدخول',
+                type: 'login',
+                description: 'استخدم بريدك الإلكتروني وكلمة المرور للدخول إلى حسابك. تابع طلباتك، شاهد رصيد بذورك، واطلع على العروض الحصرية.',
+                example: '🔐 نصيحة: احفظ كلمة المرور في مكان آمن للدخول السريع!'
+            },
+            {
+                id: 4,
+                title: 'شراء بذور البقدونس',
+                type: 'buy_seeds',
+                description: 'البذور هي عملة الموقع! اختر باقة البذور المناسبة (من 500 لـ 5000 بذرة)، ادفع بأمان عبر CliQ أو زين كاش، صوّر شاشة الدفع بوضوح، ارفعها للموقع، والذكاء الاصطناعي يفحصها ويفعّل رصيدك خلال 30 ثانية!',
+                example: '💰 مثال: سارة اشترت 1000 بذرة بـ 1 دينار، استخدمتهم لشراء 2000 متابع انستقرام وباقي معها 200 بذرة!'
+            },
+            {
+                id: 5,
+                title: 'الفزعة - تحويل البذور',
+                type: 'transfer_seeds',
+                description: 'هل صديقك محتاج بذور؟ فزعله! أدخل إيميله، حدد الكمية (الحد الأدنى 100 بذرة)، وحوّل له فوراً. رسوم رمزية 50 بذرة فقط. الفزعة الأردنية الأصيلة صارت رقمية!',
+                example: '🤝 مثال: محمد حوّل 500 بذرة لأخوه خالد عشان يشتري باقة يوتيوب. الفزعة تقوي الروابط!'
+            },
+            {
+                id: 6,
+                title: 'المزادات المباشرة',
+                type: 'auctions',
+                description: 'قسم الحماس والمنافسة! كل يوم نطرح حسابات جاهزة، باقات VIP، وخدمات حصرية للمزاد. المزاودة تبدأ من 10 بذور فقط. كل مزاود يرفع السعر، وفي نهاية الوقت أعلى سعر يفوز بالجائزة!',
+                example: '🔨 مثال: حساب انستقرام 50K متابع طُرح بمزاد، بدأ بـ 100 بذرة، وانتهى بـ 800 بذرة. الفائز حصل على صفقة خرافية!'
+            },
+            {
+                id: 7,
+                title: 'الذكاء الاصطناعي للحماية',
+                type: 'ai_protection',
+                description: 'نظام AI من إنتاج المبرمج عنان نبيل! يفحص كل صورة حوالة بدقة 98%. يكشف: الصور المعدلة، التكرار، عدم وضوح الاسم أو المبلغ. يحمي المتجر من الاحتيال ويضمن حقوق الزبائن الصادقين.',
+                example: '🧠 مثال: AI رفض صورة معدلة ببرنامج فوتوشوب لأنه كشف تغيير الأرقام، وحمى المتجر من خسارة 500 دينار!'
+            },
+            {
+                id: 8,
+                title: 'انستقرام - متابعين',
+                type: 'ig_followers',
+                description: 'متابعين انستقرام حقيقيين بروفايلات كاملة! نوصّل من 1000 لـ 10,000 متابع. التوصيل تدريجي (100-500 يومياً) عشان يبين طبيعي. ضمان عدم النقصان لمدة 30 يوم!',
+                example: '📸 مثال: متجر إلكتروني طلب 5000 متابع، وصلوا خلال 10 أيام، المبيعات زادت 300%!'
+            },
+            {
+                id: 9,
+                title: 'انستقرام - لايكات',
+                type: 'ig_likes',
+                description: 'لايكات حقيقية على صورك ومنشوراتك! من 100 لـ 10,000 لايك. التوصيل سريع (خلال ساعات). اللايكات تزيد فرصة ظهورك في Explore وتجذب متابعين جدد!',
+                example: '❤️ مثال: مصور فوتوغرافي طلب 2000 لايك على صورة، ظهرت بالإكسبلور، وحصل على 500 متابع جديد!'
+            },
+            {
+                id: 10,
+                title: 'انستقرام - مشاهدات',
+                type: 'ig_views',
+                description: 'ملايين المشاهدات على Reels و Stories! من 1000 لـ 100,000 مشاهدة. المشاهدات العالية تخلي الخوارزمية تدفع محتواك لملايين الناس. صير ترند!',
+                example: '🎥 مثال: فيديو Reels حصل على 50K مشاهدة، انتشر في كل الأردن، والصفحة صارت مشهورة!'
+            },
+            {
+                id: 11,
+                title: 'فيسبوك - متابعين',
+                type: 'fb_followers',
+                description: 'متابعين فيسبوك نشطين لصفحتك! مثالي للصفحات التجارية والشخصية. من 1000 لـ 10,000 متابع. زود مصداقيتك وثقة الزبائن.',
+                example: '👥 مثال: مطعم شعبي طلب 3000 متابع، زادت الطلبات من الفيسبوك بنسبة 250%!'
+            },
+            {
+                id: 12,
+                title: 'فيسبوك - لايكات',
+                type: 'fb_likes',
+                description: 'لايكات على منشوراتك وصورك في فيسبوك! اللايكات تزيد وصول المنشور من 100 شخص لـ 10,000 شخص. استثمار مضمون!',
+                example: '👍 مثال: منشور إعلاني حصل على 1000 لايك، وصل لـ 15,000 شخص، وحقق 50 عملية بيع!'
+            },
+            {
+                id: 13,
+                title: 'تيك توك - متابعين',
+                type: 'tt_followers',
+                description: 'متابعين تيك توك نشطين يشوفون ويتفاعلون مع فيديوهاتك! من 1000 لـ 10,000 متابع. كل ما زاد عدد المتابعين، كل ما زادت فرصتك تطلع على For You Page!',
+                example: '🎵 مثال: راقص شعبي طلب 5000 متابع، فيديوهاته صارت تنتشر، وصار يكسب من Creator Fund!'
+            },
+            {
+                id: 14,
+                title: 'تيك توك - لايكات',
+                type: 'tt_likes',
+                description: 'آلاف اللايكات على فيديوهاتك! من 500 لـ 50,000 لايك. اللايكات السريعة تخلي الخوارزمية تدفع الفيديو لملايين المشاهدات!',
+                example: '❤️ مثال: فيديو طبخ حصل على 10K لايك خلال ساعة، انتشر بكل العالم، وحصل على 2M مشاهدة!'
+            },
+            {
+                id: 15,
+                title: 'يوتيوب - مشتركين',
+                type: 'yt_subs',
+                description: 'مشتركين حقيقيين لقناتك على يوتيوب! من 100 لـ 10,000 مشترك. وصّل لـ 1000 مشترك و 4000 ساعة مشاهدة، وفعّل الربح من إعلانات يوتيوب!',
+                example: '▶️ مثال: قناة تعليمية وصلت 1000 مشترك، فعّلت الربح، ودخلها الشهري صار 200 دولار!'
+            },
+            {
+                id: 16,
+                title: 'يوتيوب - مشاهدات',
+                type: 'yt_views',
+                description: 'ملايين المشاهدات لفيديوهاتك! من 1000 لـ 100,000 مشاهدة. المشاهدات تزيد ترتيب الفيديو في البحث وتجذب مشتركين جدد!',
+                example: '📺 مثال: فيديو تقني حصل على 50K مشاهدة، ظهر في نتائج البحث الأولى، والقناة انفجرت!'
+            },
+            {
+                id: 17,
+                title: 'تويتر - متابعين',
+                type: 'tw_followers',
+                description: 'متابعين تويتر نشطين يعيدون تغريد منشوراتك! من 500 لـ 5000 متابع. زود تأثيرك ووصول صوتك!',
+                example: '🐦 مثال: ناشط سياسي زاد متابعينه لـ 3000، تغريداته صارت تنتشر وتأثيره زاد!'
+            },
+            {
+                id: 18,
+                title: 'نظام الشكاوى والردود',
+                type: 'complaints',
+                description: 'واجهت مشكلة؟ خدمة العملاء جاهزة! اكتب شكواك بالتفصيل، ورقم طلبك إذا موجود. الإدارة ترد خلال 24 ساعة. تابع الرد من حسابك مباشرة!',
+                example: '📢 مثال: زبون اشتكى من تأخير التوصيل، الإدارة ردت خلال ساعتين وعوضته بـ 200 بذرة مجانية!'
+            },
+            {
+                id: 19,
+                title: 'برنامج البذور المجانية',
+                type: 'free_seeds',
+                description: 'اربح بذور بدون ما تدفع! طرق الربح: شارك رابط الموقع على السوشيال ميديا (10 بذور)، العب لعبة البذور اليومية (5-50 بذرة)، شارك في المسابقات (100-1000 بذرة)!',
+                example: '🎁 مثال: ليلى شاركت الموقع 10 مرات، لعبت اللعبة 30 يوم، ربحت 500 بذرة مجاناً!'
+            },
+            {
+                id: 20,
+                title: 'برنامج الإحالة',
+                type: 'referral',
+                description: 'اربح مع كل صديق تدعوه! كودك الخاص موجود في حسابك. كل ما واحد يسجل بكودك، أنت تاخذ 100 بذرة فوراً! لا حد أقصى للربح!',
+                example: '🤝 مثال: عمر دعا 20 صديق، كل واحد سجل بكوده، ربح 2000 بذرة (20 دينار) بدون ما يدفع قرش!'
+            },
+            {
+                id: 21,
+                title: 'نقاط الولاء',
+                type: 'loyalty',
+                description: 'كل طلب بيعطيك نقاط ولاء! كل 1 دينار = 10 نقاط. اجمع النقاط واستبدلها: 100 نقطة = خصم 0.10 دينار!',
+                example: '⭐ مثال: فاطمة طلبت 10 مرات، جمعت 1000 نقطة، استبدلتهم بخصم 1 دينار على طلبها الجاي!'
+            },
+            {
+                id: 22,
+                title: 'الكود الترويجي',
+                type: 'promo_code',
+                description: 'أكواد خصم حصرية! تابع صفحاتنا (انستقرام، فيسبوك، تيك توك) للحصول على أكواد خصم تصل لـ 50%! الأكواد محدودة، استخدمها بسرعة!',
+                example: '🎟️ مثال: كود "RAMADAN25" يعطي خصم 25% على كل الباقات طول رمضان!'
+            },
+            {
+                id: 23,
+                title: 'استرداد النقاط',
+                type: 'redeem_points',
+                description: 'حوّل نقاطك لبذور أو خصم! 100 نقطة = 100 بذرة أو خصم 0.10 دينار. استخدمها في أي طلبية جاية!',
+                example: '💎 مثال: سامي عنده 500 نقطة، حولهم لـ 500 بذرة، اشترى فيهم 1000 متابع انستقرام!'
+            },
+            {
+                id: 24,
+                title: 'صفحة طلباتي',
+                type: 'my_orders',
+                description: 'تابع كل طلباتك من مكان واحد! شاهد: حالة الطلب (قيد التنفيذ/مكتمل)، تاريخ الطلب، المبلغ، البذور المكتسبة، ورابط الحساب المستهدف.',
+                example: '📦 مثال: أحمد دخل على صفحة طلباته، لقى طلب المتابعين اكتمل، والطلب الثاني قيد التنفيذ!'
+            },
+            {
+                id: 25,
+                title: 'سلة المشتريات',
+                type: 'cart',
+                description: 'اطلب أكثر من خدمة مرة واحدة! أضف باقات متابعين، لايكات، ومشاهدات للسلة، وادفع مرة واحدة. وفّر وقت ومجهود!',
+                example: '🛒 مثال: نور أضافت للسلة: 2000 متابع انستقرام + 500 لايك + 1000 مشاهدة ريلز، ودفعت كلهم مرة واحدة!'
+            },
+            {
+                id: 26,
+                title: 'الدفع عبر CliQ',
+                type: 'payment_cliq',
+                description: 'ادفع بأمان عبر CliQ! حوّل للرقم: 0799643900، اكتب الاسم: عنان نبيل، صوّر شاشة الحوالة بوضوح (لازم يظهر الاسم والمبلغ)، وارفعها. AI يفحصها ويفعل رصيدك خلال 30 ثانية!',
+                example: '💳 مثال: خالد حوّل 5 دنانير عبر CliQ، صور الشاشة، رفعها، والبذور وصلت بعد 20 ثانية!'
+            },
+            {
+                id: 27,
+                title: 'الدفع عبر زين كاش',
+                type: 'payment_zain',
+                description: 'ادفع براحتك عبر زين كاش! حوّل للرقم: 0799643900، صوّر شاشة الحوالة الناجحة، تأكد إن الاسم والمبلغ واضحين، وارفعها للتفعيل الفوري!',
+                example: '📱 مثال: مريم حولت 3 دنانير عبر زين كاش، صورت الرسالة، رفعتها، والبذور فُعلت فوراً!'
+            },
+            {
+                id: 28,
+                title: 'تأكيد الطلب',
+                type: 'order_confirm',
+                description: 'مبروك! طلبك تم بنجاح! ستصلك رسالة تأكيد برقم الطلب. البذور وصلت لحسابك، والخدمة بتبدأ خلال 5-30 دقيقة. تابع الطلب من "طلباتي"!',
+                example: '✅ مثال: بعد ما دانا دفعت، وصلها إشعار: "طلبك ORD-12345 تم بنجاح! سنبدأ التوصيل خلال 10 دقائق."'
+            },
+            {
+                id: 29,
+                title: 'الباقة البرونزية',
+                type: 'package_bronze',
+                description: 'باقة المبتدئين المثالية! 1000 متابع/لايك/مشاهدة بأسعار اقتصادية. جرّب الخدمة بتكلفة قليلة وشوف النتيجة!',
+                example: '🥉 مثال: باقة 1000 متابع انستقرام بـ 0.50 دينار فقط! مثالية للتجربة الأولى.'
+            },
+            {
+                id: 30,
+                title: 'الباقة الفضية',
+                type: 'package_silver',
+                description: 'الباقة الأكثر مبيعاً! 3000-5000 متابع/لايك بسعر ممتاز. توازن مثالي بين السعر والكمية. مناسبة للحسابات المتوسطة!',
+                example: '🥈 مثال: باقة 5000 متابع انستقرام بـ 2 دينار. توفير 40% عن السعر العادي!'
+            },
+            {
+                id: 31,
+                title: 'الباقة الذهبية',
+                type: 'package_gold',
+                description: 'باقة VIP! 10,000 متابع/لايك بسعر خيالي + هدية 1000 بذرة مجانية! الاختيار الأمثل للطموحين!',
+                example: '🥇 مثال: باقة 10K متابع انستقرام بـ 3 دنانير + 1000 بذرة هدية = صفقة خرافية!'
+            },
+            {
+                id: 32,
+                title: 'الباقة البلاتينية',
+                type: 'package_platinum',
+                description: 'الباقة الأسطورية! 20,000+ متابع/لايك، أولوية في التنفيذ (خلال دقائق)، دعم فني VIP متاح 24/7، وضمان مدى الحياة!',
+                example: '💎 مثال: باقة 50K متابع انستقرام بـ 10 دنانير، توصيل خلال ساعة، ودعم مخصص!'
+            },
+            {
+                id: 33,
+                title: 'رمز الإحالة الخاص بك',
+                type: 'my_referral',
+                description: 'كودك موجود في حسابك تحت "برنامج الإحالة". انسخه وشاركه مع أصدقائك على واتساب، انستقرام، فيسبوك. كل تسجيل = 100 بذرة لك!',
+                example: '🔗 مثال: كود أحمد: BAQ854621. شاره مع 15 صديق، سجلوا كلهم، وربح 1500 بذرة (15 دينار)!'
+            },
+            {
+                id: 34,
+                title: 'دليل الاستخدام الكامل',
+                type: 'how_to_use',
+                description: 'خطوات استخدام الموقع: 1) سجّل حساب جديد، 2) اشتر بذور، 3) اختر الخدمة، 4) أدخل رابط حسابك، 5) أضف للسلة، 6) ادفع، 7) ارفع صورة الدفع، 8) انتظر التفعيل (30 ثانية)، 9) تابع طلبك من "طلباتي"!',
+                example: '📚 مثال: راما اتبعت الخطوات، استغرقت 3 دقائق فقط من التسجيل للطلب!'
+            },
+            {
+                id: 35,
+                title: 'الأسئلة الشائعة',
+                type: 'faq',
+                description: 'أكثر الأسئلة: كم وقت التوصيل؟ (5-30 دقيقة للبدء، 1-10 أيام للإكمال). هل المتابعين حقيقيين؟ (نعم 100%). هل في ضمان؟ (نعم 30 يوم). طرق الدفع؟ (CliQ وزين كاش). كيف أتواصل؟ (واتساب: 0799643900).',
+                example: '❓ مثال: سؤال شائع "هل البذور تنتهي؟" الجواب: لا، البذور تبقى في حسابك للأبد!'
+            }
+        ];
+
+        function wrapText(ctx, text, x, y, maxWidth, lineHeight) {
+            const words = text.split(' ');
+            let line = '';
+            let currentY = y;
+
+            for (let n = 0; n < words.length; n++) {
+                const testLine = line + words[n] + ' ';
+                const metrics = ctx.measureText(testLine);
+                const testWidth = metrics.width;
+
+                if (testWidth > maxWidth && n > 0) {
+                    ctx.fillText(line, x, currentY);
+                    line = words[n] + ' ';
+                    currentY += lineHeight;
+                } else {
+                    line = testLine;
+                }
+            }
+            ctx.fillText(line, x, currentY);
+            return currentY;
+        }
+
+        function drawIllustration(ctx, type) {
+            ctx.save();
+
+            if (type === 'transfer_seeds') {
+                // Draw two people shaking hands
+                // Person 1 (left)
+                ctx.fillStyle = '#FFD700';
+                ctx.beginPath();
+                ctx.arc(350, 950, 60, 0, Math.PI * 2); // head
+                ctx.fill();
+                ctx.fillRect(320, 1010, 60, 120); // body
+                ctx.fillRect(280, 1040, 40, 15); // left arm
+                ctx.fillRect(380, 1040, 40, 15); // right arm pointing to handshake
+
+                // Person 2 (right)
+                ctx.fillStyle = '#87CEEB';
+                ctx.beginPath();
+                ctx.arc(730, 950, 60, 0, Math.PI * 2); // head
+                ctx.fill();
+                ctx.fillRect(700, 1010, 60, 120); // body
+                ctx.fillRect(660, 1040, 40, 15); // left arm pointing to handshake
+                ctx.fillRect(760, 1040, 40, 15); // right arm
+
+                // Handshake in middle
+                ctx.fillStyle = '#FFA500';
+                ctx.fillRect(510, 1030, 60, 40);
+
+                // Seeds/money transfer arrow
+                ctx.strokeStyle = '#C5A059';
+                ctx.lineWidth = 8;
+                ctx.beginPath();
+                ctx.moveTo(420, 1000);
+                ctx.lineTo(540, 1000);
+                ctx.stroke();
+                // Arrow head
+                ctx.beginPath();
+                ctx.moveTo(540, 1000);
+                ctx.lineTo(520, 985);
+                ctx.lineTo(520, 1015);
+                ctx.closePath();
+                ctx.fillStyle = '#C5A059';
+                ctx.fill();
+
+            } else if (type === 'ai_protection') {
+                // Draw shield with AI brain
+                ctx.fillStyle = '#4A90E2';
+                ctx.beginPath();
+                ctx.moveTo(540, 900);
+                ctx.lineTo(340, 950);
+                ctx.lineTo(340, 1150);
+                ctx.lineTo(540, 1250);
+                ctx.lineTo(740, 1150);
+                ctx.lineTo(740, 950);
+                ctx.closePath();
+                ctx.fill();
+
+                // Brain inside
+                ctx.fillStyle = '#FFD700';
+                ctx.beginPath();
+                ctx.arc(540, 1080, 80, 0, Math.PI * 2);
+                ctx.fill();
+
+                // Neural connections
+                ctx.strokeStyle = '#FFF';
+                ctx.lineWidth = 3;
+                for (let i = 0; i < 8; i++) {
+                    const angle = (Math.PI * 2 / 8) * i;
+                    ctx.beginPath();
+                    ctx.moveTo(540, 1080);
+                    ctx.lineTo(540 + Math.cos(angle) * 60, 1080 + Math.sin(angle) * 60);
+                    ctx.stroke();
+                }
+
+            } else if (type === 'auctions') {
+                // Draw auction hammer
+                ctx.fillStyle = '#8B4513';
+                ctx.fillRect(480, 950, 40, 200); // handle
+                ctx.fillStyle = '#C5A059';
+                ctx.fillRect(420, 920, 160, 60); // hammer head
+
+                // Price tags going up
+                const prices = ['10', '50', '100', '500'];
+                prices.forEach((price, i) => {
+                    ctx.fillStyle = i === 3 ? '#FFD700' : '#FFF';
+                    ctx.fillRect(600 + i * 70, 1100 - i * 40, 60, 40);
+                    ctx.fillStyle = '#000';
+                    ctx.font = 'bold 24px Arial';
+                    ctx.textAlign = 'center';
+                    ctx.fillText(price, 630 + i * 70, 1130 - i * 40);
+                });
+
+            } else if (type === 'buy_seeds') {
+                // Draw seed bag with coins
+                ctx.fillStyle = '#8B4513';
+                ctx.fillRect(420, 1000, 240, 200);
+                ctx.fillStyle = '#654321';
+                ctx.beginPath();
+                ctx.moveTo(420, 1000);
+                ctx.lineTo(540, 900);
+                ctx.lineTo(660, 1000);
+                ctx.fill();
+
+                // Seeds/coins
+                for (let i = 0; i < 6; i++) {
+                    ctx.fillStyle = '#FFD700';
+                    ctx.beginPath();
+                    ctx.arc(460 + (i % 3) * 60, 1050 + Math.floor(i / 3) * 60, 25, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+            }
+
+            ctx.restore();
+        }
+
+        function createCanvas(story) {
+            const canvas = document.createElement('canvas');
+            canvas.width = 1080;
+            canvas.height = 1920;
+            const ctx = canvas.getContext('2d');
+
+            // Background gradient
+            const gradient = ctx.createLinearGradient(0, 0, 0, 1920);
+
+            if (story.type === 'ramadan_welcome') {
+                gradient.addColorStop(0, '#041E42');
+                gradient.addColorStop(1, '#0a2e5c');
+                ctx.fillStyle = gradient;
+                ctx.fillRect(0, 0, 1080, 1920);
+
+                // Decorative stars
+                ctx.fillStyle = 'rgba(197, 160, 89, 0.3)';
+                for (let i = 0; i < 80; i++) {
+                    const x = Math.random() * 1080;
+                    const y = Math.random() * 1920;
+                    const size = Math.random() * 4 + 1;
+                    ctx.beginPath();
+                    ctx.arc(x, y, size, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+
+                // Moon
+                ctx.font = 'bold 200px Arial';
+                ctx.textAlign = 'center';
+                ctx.fillStyle = '#C5A059';
+                ctx.fillText('🌙', 540, 380);
+
+                // Title
+                ctx.font = 'bold 90px Cairo, Arial';
+                ctx.fillStyle = '#C5A059';
+                ctx.fillText('أهلاً بكم في', 540, 580);
+                ctx.font = 'bold 110px Cairo, Arial';
+                ctx.fillText('متجر بقدونس', 540, 720);
+
+                // Subtitle
+                ctx.font = '50px Cairo, Arial';
+                ctx.fillStyle = 'rgba(255,255,255,0.9)';
+                ctx.fillText('بوابتك لنمو حساباتك 🌿', 540, 850);
+
+                // Ramadan greeting
+                ctx.font = 'bold 65px Cairo, Arial';
+                ctx.fillStyle = 'white';
+                ctx.fillText('رمضان كريم ✨', 540, 1100);
+
+                // Description box
+                ctx.fillStyle = 'rgba(197, 160, 89, 0.2)';
+                ctx.fillRect(100, 1250, 880, 300);
+                ctx.strokeStyle = '#C5A059';
+                ctx.lineWidth = 3;
+                ctx.strokeRect(100, 1250, 880, 300);
+
+                // Description text
+                ctx.font = '32px Cairo, Arial';
+                ctx.fillStyle = 'white';
+                wrapText(ctx, story.description, 540, 1320, 800, 45);
+
+                // Example
+                ctx.font = 'bold 36px Cairo, Arial';
+                ctx.fillStyle = '#FFD700';
+                wrapText(ctx, story.example, 540, 1480, 800, 50);
+
+                // Store name
+                ctx.font = 'bold 60px Cairo, Arial';
+                ctx.fillStyle = '#C5A059';
+                ctx.fillText('متجر بقدونس 🌿', 540, 1800);
+
+            } else if (story.type.includes('_followers') || story.type.includes('_likes') || story.type.includes('_views') || story.type.includes('_subs')) {
+                // Platform packages
+                const platform = story.type.split('_')[0];
+                let bgColor1, bgColor2, emoji, platformName;
+
+                switch (platform) {
+                    case 'ig': bgColor1 = '#f093fb'; bgColor2 = '#f5576c'; emoji = '📸'; platformName = 'Instagram'; break;
+                    case 'fb': bgColor1 = '#4267B2'; bgColor2 = '#1877F2'; emoji = '👥'; platformName = 'Facebook'; break;
+                    case 'tt': bgColor1 = '#000000'; bgColor2 = '#333333'; emoji = '🎵'; platformName = 'TikTok'; break;
+                    case 'yt': bgColor1 = '#FF0000'; bgColor2 = '#CC0000'; emoji = '▶️'; platformName = 'YouTube'; break;
+                    case 'tw': bgColor1 = '#1DA1F2'; bgColor2 = '#0c85d0'; emoji = '🐦'; platformName = 'Twitter'; break;
+                }
+
+                const packageGradient = ctx.createLinearGradient(0, 0, 0, 1920);
+                packageGradient.addColorStop(0, bgColor1);
+                packageGradient.addColorStop(1, bgColor2);
+                ctx.fillStyle = packageGradient;
+                ctx.fillRect(0, 0, 1080, 1920);
+
+                // Platform icon
+                ctx.font = 'bold 220px Arial';
+                ctx.textAlign = 'center';
+                ctx.fillText(emoji, 540, 420);
+
+                // Platform name
+                ctx.font = 'bold 90px Cairo, Arial';
+                ctx.fillStyle = 'white';
+                ctx.fillText(platformName, 540, 620);
+
+                // Service type
+                const serviceType = story.type.includes('followers') ? 'متابعين' :
+                    story.type.includes('likes') ? 'لايكات' :
+                        story.type.includes('views') ? 'مشاهدات' : 'مشتركين';
+                ctx.font = 'bold 110px Cairo, Arial';
+                ctx.fillText(serviceType, 540, 780);
+
+                // Features
+                ctx.font = '55px Cairo, Arial';
+                ctx.fillStyle = 'rgba(255,255,255,0.95)';
+                ctx.fillText('🚀 توصيل فوري', 540, 1000);
+                ctx.fillText('✅ جودة مضمونة 100%', 540, 1100);
+                ctx.fillText('💎 أسعار منافسة', 540, 1200);
+
+                // Description box
+                ctx.fillStyle = 'rgba(255,255,255,0.15)';
+                ctx.fillRect(80, 1300, 920, 350);
+
+                // Description
+                ctx.font = '36px Cairo, Arial';
+                ctx.fillStyle = 'white';
+                wrapText(ctx, story.description, 540, 1370, 840, 52);
+
+                // Example
+                ctx.font = 'bold 38px Cairo, Arial';
+                ctx.fillStyle = '#FFD700';
+                wrapText(ctx, story.example, 540, 1570, 840, 55);
+
+                // Store name
+                ctx.font = 'bold 60px Cairo, Arial';
+                ctx.fillStyle = 'white';
+                ctx.fillText('متجر بقدونس 🌿', 540, 1820);
+
+            } else {
+                // Other features
+                gradient.addColorStop(0, '#1E3D2F');
+                gradient.addColorStop(1, '#0a1f17');
+                ctx.fillStyle = gradient;
+                ctx.fillRect(0, 0, 1080, 1920);
+
+                // Icon
+                let emoji = '🌿';
+                if (story.type === 'buy_seeds') emoji = '🌱💰';
+                if (story.type === 'transfer_seeds') emoji = '💸🤝';
+                if (story.type === 'auctions') emoji = '🔨⚡';
+                if (story.type === 'ai_protection') emoji = '🧠🛡️';
+                if (story.type === 'complaints') emoji = '📢💬';
+                if (story.type === 'free_seeds') emoji = '🎁🌱';
+                if (story.type === 'referral') emoji = '🤝💰';
+                if (story.type === 'loyalty') emoji = '⭐🎖️';
+                if (story.type === 'cart') emoji = '🛒✨';
+                if (story.type === 'register') emoji = '📝✅';
+                if (story.type === 'login') emoji = '🔐🚪';
+                if (story.type === 'promo_code') emoji = '🎟️💸';
+                if (story.type === 'redeem_points') emoji = '💎🔄';
+                if (story.type === 'my_orders') emoji = '📦✅';
+                if (story.type === 'payment_cliq') emoji = '💳⚡';
+                if (story.type === 'payment_zain') emoji = '📱💰';
+                if (story.type === 'order_confirm') emoji = '✅🎉';
+                if (story.type.includes('package_')) emoji = '📦🌟';
+                if (story.type === 'my_referral') emoji = '🔗💰';
+                if (story.type === 'how_to_use') emoji = '📚📖';
+                if (story.type === 'faq') emoji = '❓💡';
+
+                ctx.font = 'bold 200px Arial';
+                ctx.textAlign = 'center';
+                ctx.fillStyle = '#C5A059';
+                ctx.fillText(emoji, 540, 420);
+
+                // Title
+                ctx.font = 'bold 85px Cairo, Arial';
+                ctx.fillStyle = 'white';
+                wrapText(ctx, story.title, 540, 650, 900, 100);
+
+                // Draw illustration for specific types
+                if (['transfer_seeds', 'ai_protection', 'auctions', 'buy_seeds'].includes(story.type)) {
+                    drawIllustration(ctx, story.type);
+                }
+
+                // Description box
+                ctx.fillStyle = 'rgba(197, 160, 89, 0.15)';
+                ctx.fillRect(80, 1300, 920, 450);
+                ctx.strokeStyle = '#C5A059';
+                ctx.lineWidth = 4;
+                ctx.strokeRect(80, 1300, 920, 450);
+
+                // Description
+                ctx.font = '35px Cairo, Arial';
+                ctx.fillStyle = 'rgba(255,255,255,0.95)';
+                wrapText(ctx, story.description, 540, 1370, 840, 50);
+
+                // Example
+                ctx.font = 'bold 37px Cairo, Arial';
+                ctx.fillStyle = '#FFD700';
+                wrapText(ctx, story.example, 540, 1620, 840, 54);
+
+                // Store name
+                ctx.font = 'bold 60px Cairo, Arial';
+                ctx.fillStyle = '#C5A059';
+                ctx.fillText('متجر بقدونس 🌿', 540, 1830);
+            }
+
+            return canvas;
+        }
+
+        function renderGallery() {
+            const gallery = document.getElementById('gallery');
+            gallery.innerHTML = '';
+
+            stories.forEach(story => {
+                const canvas = createCanvas(story);
+
+                const item = document.createElement('div');
+                item.className = 'story-item';
+                item.innerHTML = `
+                    <canvas class="story-canvas" id="canvas-${story.id}"></canvas>
+                    <div class="story-info">
+                        <div class="story-title">${story.id}. ${story.title}</div>
+                        <div class="story-description">${story.description}</div>
+                        <div class="story-example"><strong>💡 مثال:</strong> ${story.example}</div>
+                        <button class="btn-download" onclick="downloadSingle(${story.id})">
+                            💾 حفظ الصورة JPG
+                        </button>
+                    </div>
+                `;
+
+                gallery.appendChild(item);
+
+                const displayCanvas = document.getElementById(`canvas-${story.id}`);
+                displayCanvas.width = 1080;
+                displayCanvas.height = 1920;
+                displayCanvas.getContext('2d').drawImage(canvas, 0, 0);
+            });
+        }
+
+        function downloadSingle(id) {
+            const story = stories.find(s => s.id === id);
+            const canvas = document.getElementById(`canvas-${id}`);
+
+            canvas.toBlob(blob => {
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `story_${String(id).padStart(2, '0')}_${story.type}.jpg`;
+                a.click();
+                URL.revokeObjectURL(url);
+            }, 'image/jpeg', 0.95);
+        }
+
+        async function downloadAll() {
+            const zip = new JSZip();
+            const folder = zip.folder('baqdouns_stories');
+
+            for (let story of stories) {
+                const canvas = document.getElementById(`canvas-${story.id}`);
+                const blob = await new Promise(resolve => {
+                    canvas.toBlob(resolve, 'image/jpeg', 0.95);
+                });
+                folder.file(`story_${String(story.id).padStart(2, '0')}_${story.type}.jpg`, blob);
+            }
+
+            const content = await zip.generateAsync({ type: 'blob' });
+            const url = URL.createObjectURL(content);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'baqdouns_stories_all.zip';
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        function regenerateAll() {
+            renderGallery();
+        }
+
+        renderGallery();
+    </script>
+</body>
+
+</html>
