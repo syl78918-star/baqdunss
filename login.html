@@ -1,0 +1,1008 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- 🔐 Already logged in? Skip login page and go to main site -->
+    <script>
+        (function () {
+            try {
+                var user = localStorage.getItem('baqdouns_current_user');
+                if (user && user !== 'null') {
+                    window.location.replace('index.html');
+                }
+            } catch (e) { }
+        })();
+    </script>
+
+    <title>تسجيل الدخول | Baqduns 🌿</title>
+    <!-- PWA Manifest (Customer App) -->
+    <link rel="manifest" href="/visitor-manifest.json">
+    <meta name="theme-color" content="#2ecc71">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="بقدونس">
+    <link rel="apple-touch-icon" href="/visitor-logo.png">
+    <!-- Google Fonts -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&family=Outfit:wght@300;500;700&display=swap"
+        rel="stylesheet">
+    <!-- Ionicons -->
+    <script type="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"></script>
+    <script nomodule src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"></script>
+
+    <style>
+        :root {
+            --primary: #2ecc71;
+            --accent: #27ae60;
+            --dark-bg: #0f172a;
+            --light-text: #ffffff;
+            --glass-border: rgba(255, 255, 255, 0.1);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            height: 100vh;
+            width: 100vw;
+            overflow: hidden;
+            font-family: 'Cairo', sans-serif;
+            display: flex;
+            background: var(--dark-bg);
+        }
+
+        /* --- LEFT SIDE: THE VISUAL (4K AESTHETIC) --- */
+        .visual-side {
+            flex: 1.2;
+            position: relative;
+            overflow: hidden;
+            background: radial-gradient(circle at center, #1e293b, #0f172a);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* High-Res Animated Mesh Gradient */
+        .mesh-gradient {
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle at 50% 50%, rgba(46, 204, 113, 0.15), transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(39, 174, 96, 0.2), transparent 40%),
+                radial-gradient(circle at 20% 80%, rgba(241, 196, 15, 0.1), transparent 40%);
+            animation: meshMove 20s infinite alternate ease-in-out;
+            filter: blur(60px);
+            z-index: 1;
+        }
+
+        @keyframes meshMove {
+            0% {
+                transform: rotate(0deg) translate(0, 0);
+            }
+
+            100% {
+                transform: rotate(10deg) translate(-5%, -5%);
+            }
+        }
+
+        /* 3D Abstract Object (CSS Only) */
+        .floating-object {
+            position: relative;
+            z-index: 2;
+            width: 400px;
+            height: 400px;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.01));
+            /* backdrop-filter: blur(20px); REMOVED */
+            /* -webkit-backdrop-filter: blur(20px); REMOVED */
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 40px;
+            transform: rotate(-15deg) skewX(5deg);
+            box-shadow: 20px 20px 60px rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            animation: floatObj 8s ease-in-out infinite;
+        }
+
+        .floating-object::after {
+            content: '';
+            position: absolute;
+            top: 20%;
+            left: 20%;
+            width: 60%;
+            height: 60%;
+            background: linear-gradient(135deg, rgba(46, 204, 113, 0.4), rgba(39, 174, 96, 0.1));
+            border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%;
+            /* filter: blur(30px); REMOVED */
+            animation: morphBlob 8s ease-in-out infinite;
+            display: block;
+            z-index: 0;
+        }
+
+        .floating-object::before {
+            content: '';
+            /* Removed the leaf icon to avoid duplicate logos */
+            display: none;
+        }
+
+        @keyframes morphBlob {
+            0% {
+                border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%;
+            }
+
+            50% {
+                border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;
+            }
+
+            100% {
+                border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%;
+            }
+        }
+
+        @keyframes floatObj {
+
+            0%,
+            100% {
+                transform: rotate(-15deg) skewX(5deg) translateY(0);
+            }
+
+            50% {
+                transform: rotate(-12deg) skewX(2deg) translateY(-20px);
+            }
+        }
+
+        @keyframes pulseIcon {
+
+            0%,
+            100% {
+                transform: scale(1);
+                opacity: 0.9;
+            }
+
+            50% {
+                transform: scale(1.05);
+                opacity: 1;
+            }
+        }
+
+        /* --- RIGHT SIDE: THE LOGIN (INTERACTION) --- */
+        .login-side {
+            flex: 0.8;
+            max-width: 600px;
+            background: rgba(25, 25, 35, 0.95);
+            backdrop-filter: blur(50px);
+            border-left: 1px solid var(--glass-border);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 2.5rem;
+            position: relative;
+            z-index: 10;
+            overflow-y: auto;
+        }
+
+        .login-content {
+            width: 100%;
+            max-width: 400px;
+            margin: 0 auto;
+            opacity: 0;
+            animation: fadeInRight 1s cubic-bezier(0.2, 0.8, 0.2, 1) forwards 0.3s;
+        }
+
+        @keyframes fadeInRight {
+            from {
+                opacity: 0;
+                transform: translateX(30px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        /* Animated Custom CSS Logo */
+        .logo-container {
+            width: 90px;
+            height: 90px;
+            margin: 0 auto 1rem auto;
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .css-parsley-logo {
+            width: 100px;
+            height: 100px;
+            position: relative;
+            animation: floatLogo 4s ease-in-out infinite;
+            border-radius: 50%;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(197, 160, 89, 0.4);
+        }
+
+        .css-parsley-logo img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+
+        .css-parsley-logo::after {
+            content: '';
+            position: absolute;
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #C5A059 0%, #F0D080 100%);
+            border-radius: 50%;
+            transform: translate(10px, 10px);
+            opacity: 0.8;
+            filter: blur(15px);
+            z-index: 0;
+        }
+
+        @keyframes floatLogo {
+
+            0%,
+            100% {
+                transform: translateY(0) rotate(0deg);
+            }
+
+            50% {
+                transform: translateY(-10px) rotate(2deg);
+            }
+        }
+
+        .brand-title {
+            font-family: 'Outfit', sans-serif;
+            font-size: 3rem;
+            font-weight: 700;
+            color: white;
+            margin-bottom: 0.5rem;
+            letter-spacing: -1px;
+            background: linear-gradient(90deg, #fff, #a3a3a3);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .welcome-text {
+            font-size: 1.1rem;
+            color: rgba(255, 255, 255, 0.6);
+            margin-bottom: 3rem;
+            font-weight: 300;
+            line-height: 1.6;
+        }
+
+        /* Google Button Container */
+        .google-btn-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: stretch;
+            gap: 0;
+            margin-bottom: 1.5rem;
+        }
+
+        .google-btn-wrapper:hover {
+            border-color: rgba(46, 204, 113, 0.5);
+            box-shadow: 0 0 30px rgba(46, 204, 113, 0.1);
+            background: rgba(46, 204, 113, 0.05);
+            transform: translateY(-2px);
+        }
+
+        /* Social Buttons */
+        .social-login-links {
+            display: flex;
+            justify-content: center;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .social-btn {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.5rem;
+            color: white;
+            transition: 0.3s;
+            text-decoration: none;
+        }
+
+        .social-btn:hover {
+            transform: translateY(-3px);
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .social-btn.instagram:hover {
+            border-color: #E1306C;
+            color: #E1306C;
+            box-shadow: 0 0 15px rgba(225, 48, 108, 0.3);
+        }
+
+        .social-btn.whatsapp:hover {
+            border-color: #25D366;
+            color: #25D366;
+            box-shadow: 0 0 15px rgba(37, 211, 102, 0.3);
+        }
+
+        /* Action Links */
+        .action-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: auto;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            padding-top: 2rem;
+        }
+
+        .back-btn {
+            color: white;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 600;
+            opacity: 0.7;
+            transition: 0.3s;
+        }
+
+        .back-btn:hover {
+            opacity: 1;
+            color: var(--primary);
+        }
+
+        .legal-links a {
+            color: var(--primary);
+            /* Changed to primary color for better visibility */
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 500;
+            margin-right: 15px;
+            transition: 0.3s;
+            text-shadow: 0 0 10px rgba(46, 204, 113, 0.2);
+        }
+
+        .legal-links a:hover {
+            color: white;
+        }
+
+        /* Loader */
+        #loader {
+            position: fixed;
+            inset: 0;
+            background: #0f172a;
+            z-index: 9999;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .loading-bar {
+            width: 200px;
+            height: 2px;
+            background: rgba(255, 255, 255, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .loading-bar::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 40%;
+            height: 100%;
+            background: var(--primary);
+            animation: loadBar 1s infinite ease-in-out;
+        }
+
+        @keyframes loadBar {
+            0% {
+                left: -40%;
+            }
+
+            100% {
+                left: 100%;
+            }
+        }
+
+        /* Responsive */
+        @media (max-width: 900px) {
+            body {
+                flex-direction: column;
+            }
+
+            /* Enable Visual Side on Mobile (Top Section) */
+            .visual-side {
+                display: flex;
+                flex: 0 0 35vh;
+                /* Occupy top 35% */
+                width: 100%;
+                border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            }
+
+            /* Scale down the 3D crystal for mobile */
+            .floating-object {
+                transform: scale(0.6);
+                animation: floatObjMobile 8s ease-in-out infinite;
+            }
+
+            /* Adjust Login Area (Bottom Section) */
+            .login-side {
+                flex: 1;
+                max-width: 100%;
+                border-left: none;
+                padding: 2rem 1.5rem;
+                justify-content: flex-start;
+                /* Align content to top of section */
+                padding-top: 3rem;
+                background: rgba(15, 23, 42, 0.98);
+                /* Simpler background for readability */
+                box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.3);
+                /* Shadow showing overlap */
+                z-index: 20;
+            }
+
+            .brand-title {
+                font-size: 2.2rem;
+            }
+
+            .welcome-text {
+                font-size: 1rem;
+                margin-bottom: 2rem;
+            }
+        }
+
+        @keyframes floatObjMobile {
+
+            0%,
+            100% {
+                transform: scale(0.6) rotate(-15deg) translateY(0);
+            }
+
+            50% {
+                transform: scale(0.6) rotate(-12deg) translateY(-15px);
+            }
+        }
+    </style>
+    <!-- 🔥 Firebase Integration -->
+    <script src="firebase-config.js"></script>
+    <script src="firebase-db.js"></script>
+    <!-- Google Identity Services -->
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+</head>
+
+<body>
+
+
+
+    <!-- LEFT: Visual Experience -->
+    <div class="visual-side">
+        <div class="mesh-gradient"></div>
+        <!-- <div class="floating-object"></div> REPLACED -->
+        <img src="https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=1000&auto=format&fit=crop"
+            alt="Abstract 3D Art" class="floating-object-img">
+    </div>
+
+    <!-- RIGHT: Interaction Area -->
+    <div class="login-side">
+        <div class="login-content">
+            <!-- Animated Logo -->
+            <div class="logo-container">
+                <div class="css-parsley-logo">
+                    <img src="visitor-logo.png" alt="Baqduns Logo">
+                </div>
+            </div>
+            <h1 class="brand-title">BAQDUNS</h1>
+            <p class="welcome-text">
+                منصتك الأولى للنمو الرقمي.<br>
+                سجل دخولك للمتابعة بسهولة وأمان.
+            </p>
+
+            <div class="google-btn-wrapper">
+
+                <!-- 🎁 REFERRAL CODE INPUT -->
+                <div id="referral-box" style="
+                    background: rgba(255,255,255,0.06);
+                    border: 1px solid rgba(46,204,113,0.35);
+                    border-radius: 12px;
+                    padding: 12px 14px;
+                    margin-bottom: 14px;
+                    direction: rtl;
+                ">
+                    <div style="margin-bottom:8px;">
+                        <div
+                            style="font-size:0.9rem; font-weight:700; color:#2ecc71; display:flex; align-items:center; gap:6px;">
+                            <span>🎁</span> كود الإحالة <span
+                                style="font-weight:400; color:rgba(255,255,255,0.5); font-size:0.8rem;">(اختياري)</span>
+                        </div>
+                        <div style="font-size:0.78rem; color:rgba(255,255,255,0.8); margin-top:4px; line-height:1.4;">
+                            صاحب الكود يحصل على <b style="color:#f1c40f;">100 🌿</b>
+                            &nbsp;+&nbsp;
+                            أنت تحصل على <b style="color:#f1c40f;">100 🌿</b> ترحيبية
+                        </div>
+                    </div>
+                    <div style="display:flex; gap:7px; align-items:center;">
+                        <input type="text" id="referral-code-input" placeholder="مثال: BAQ123456" maxlength="12"
+                            oninput="this.value=this.value.toUpperCase()" style="
+                                flex:1; background:rgba(255,255,255,0.08);
+                                border:1px solid rgba(46,204,113,0.3);
+                                color:white; border-radius:7px;
+                                padding:8px 12px; font-size:0.88rem;
+                                font-family:'Cairo',sans-serif;
+                                outline:none; letter-spacing:1px;
+                                transition:border 0.3s;
+                            " onfocus="this.style.borderColor='#2ecc71'"
+                            onblur="this.style.borderColor='rgba(46,204,113,0.3)'">
+                        <button onclick="saveReferralCode()" style="
+                                background:linear-gradient(135deg,#2ecc71,#27ae60);
+                                border:none; color:white; border-radius:7px;
+                                padding:8px 14px; cursor:pointer;
+                                font-family:'Cairo',sans-serif; font-weight:700;
+                                font-size:0.82rem; white-space:nowrap;
+                            ">تطبيق</button>
+                    </div>
+                    <div id="referral-msg"
+                        style="font-size:0.78rem; margin-top:6px; min-height:16px; color:#2ecc71; display:none;"></div>
+                </div>
+
+
+                <div style="display:flex; justify-content:center; align-items:center; padding: 8px 0 4px 0;">
+                    <div id="g_id_onload"
+                        data-client_id="828087017030-6u9g6ll3f2i22lfnvaatgqpmp2lbff9h.apps.googleusercontent.com"
+                        data-callback="handleCredentialResponse" data-auto_prompt="false" data-itp_support="true"
+                        data-use_fedcm_for_prompt="true">
+                    </div>
+                    <div class="g_id_signin" data-type="standard" data-size="large" data-theme="filled_black"
+                        data-text="sign_in_with" data-shape="rectangular" data-logo_alignment="left" data-width="340">
+                    </div>
+                </div>
+            </div>
+
+            <!-- 📲 Install App Button -->
+            <div style="margin-top: 14px; text-align: center;">
+                <button id="pwa-install-btn-login" onclick="triggerPWAInstall()" style="
+                    width: 100%;
+                    max-width: 340px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    gap: 10px;
+                    background: linear-gradient(135deg, rgba(46,204,113,0.15), rgba(39,174,96,0.1));
+                    border: 1.5px solid rgba(46,204,113,0.5);
+                    color: #2ecc71;
+                    border-radius: 8px;
+                    padding: 12px 20px;
+                    font-size: 0.95rem;
+                    font-family: 'Cairo', sans-serif;
+                    font-weight: 700;
+                    cursor: pointer;
+                    transition: all 0.3s ease;
+                    margin: 0 auto;
+                    letter-spacing: 0.3px;
+                " onmouseover="this.style.background='rgba(46,204,113,0.25)'; this.style.borderColor='#2ecc71'; this.style.transform='translateY(-2px)'; this.style.boxShadow='0 8px 25px rgba(46,204,113,0.2)'"
+                    onmouseout="this.style.background='linear-gradient(135deg,rgba(46,204,113,0.15),rgba(39,174,96,0.1))'; this.style.borderColor='rgba(46,204,113,0.5)'; this.style.transform='translateY(0)'; this.style.boxShadow='none'">
+                    <ion-icon name="cloud-download-outline" style="font-size: 1.3rem; flex-shrink:0;"></ion-icon>
+                    <span id="pwa-btn-text">تنزيل التطبيق 📲</span>
+                </button>
+                <div id="ios-install-hint"
+                    style="display:none; margin-top:10px; background:rgba(255,255,255,0.07); border:1px solid rgba(255,255,255,0.15); border-radius:10px; padding:12px 14px; font-size:0.82rem; color:rgba(255,255,255,0.8); line-height:1.6; text-align:right; direction:rtl; max-width:340px; margin:10px auto 0;">
+                    <strong style="color:#2ecc71;">📱 على iPhone / iPad:</strong><br>
+                    اضغط زر <strong style="color:white;">المشاركة</strong> <span style="font-size:1rem;">⬆️</span> في
+                    Safari<br>
+                    ثم اختر <strong style="color:white;">"إضافة إلى الشاشة الرئيسية"</strong> 🏠
+                </div>
+            </div>
+
+
+            <!-- Social Links -->
+            <div class="social-login-links">
+                <a href="https://www.instagram.com/baqduns._.1/?__pwa=1" class="social-btn instagram" title="Instagram"
+                    target="_blank">
+                    <ion-icon name="logo-instagram"></ion-icon>
+                </a>
+                <a href="https://wa.me/962799643900" class="social-btn whatsapp" title="WhatsApp" target="_blank">
+                    <ion-icon name="logo-whatsapp"></ion-icon>
+                </a>
+            </div>
+
+            <div class="action-row">
+                <a href="index.html" class="back-btn">
+                    <ion-icon name="arrow-forward"></ion-icon> الرجوع للمتجر
+                </a>
+                <div class="legal-links">
+                    <a href="privacy-policy.html">الخصوصية</a>
+                    <a href="terms-of-service.html">الشروط</a>
+                    <a href="about.html">من نحن</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Auth Logic
+        function decodeJwtResponse(token) {
+            var base64Url = token.split('.')[1];
+            var base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+            var jsonPayload = decodeURIComponent(window.atob(base64).split('').map(function (c) {
+                return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+            }).join(''));
+            return JSON.parse(jsonPayload);
+        }
+
+        // =====================================================================
+        // 🔒 DEVICE FINGERPRINT v2 (Cross-Browser + VPN-Resistant)
+        // Same logic as script.js — duplicated here for login-page independence
+        // =====================================================================
+        function _webglFP() {
+            try {
+                const c = document.createElement('canvas');
+                const gl = c.getContext('webgl') || c.getContext('experimental-webgl');
+                if (!gl) return 'nowebgl';
+                return ((gl.getParameter(gl.VENDOR) || '') + '|' + (gl.getParameter(gl.RENDERER) || '')).slice(0, 80);
+            } catch (e) { return 'webglerr'; }
+        }
+        function _canvasFP() {
+            try {
+                const c = document.createElement('canvas');
+                c.width = 200; c.height = 50;
+                const ctx = c.getContext('2d');
+                ctx.textBaseline = 'alphabetic';
+                ctx.fillStyle = '#f60'; ctx.fillRect(10, 1, 62, 20);
+                ctx.fillStyle = '#069'; ctx.font = '15px Arial';
+                ctx.fillText('baqduns🌿', 2, 15);
+                ctx.fillStyle = 'rgba(102,204,0,0.7)'; ctx.font = '15px sans-serif';
+                ctx.fillText('baqduns🌿', 4, 17);
+                return c.toDataURL().slice(-60);
+            } catch (e) { return 'nocanvas'; }
+        }
+        function _audioFP() {
+            try {
+                const ctx = new (window.AudioContext || window.webkitAudioContext)({ sampleRate: 44100 });
+                const osc = ctx.createOscillator();
+                const analyser = ctx.createAnalyser();
+                const gain = ctx.createGain();
+                gain.gain.value = 0;
+                osc.connect(analyser); analyser.connect(gain); gain.connect(ctx.destination);
+                osc.start(0);
+                const data = new Float32Array(analyser.frequencyBinCount);
+                analyser.getFloatFrequencyData(data);
+                osc.stop(); ctx.close();
+                return data.slice(0, 5).join(',');
+            } catch (e) { return 'noaudio'; }
+        }
+        function _fnvHash(str) {
+            let h = 0x811c9dc5 >>> 0;
+            for (let i = 0; i < str.length; i++) {
+                h ^= str.charCodeAt(i);
+                h = Math.imul(h, 0x01000193) >>> 0;
+            }
+            return 'DFP-' + h.toString(16).toUpperCase().padStart(8, '0');
+        }
+        function getDeviceFingerprint() {
+            // Device-level signals ONLY — no user-agent (browser-agnostic)
+            const raw = [
+                screen.width, screen.height, screen.colorDepth,
+                screen.pixelDepth || screen.colorDepth,
+                new Date().getTimezoneOffset(),
+                (Intl.DateTimeFormat().resolvedOptions().timeZone || ''),
+                navigator.platform || '',
+                navigator.language || '',
+                navigator.hardwareConcurrency || 0,
+                navigator.deviceMemory || 0,
+                _webglFP(), _canvasFP(), _audioFP()
+            ].join('||');
+            const fp = _fnvHash(raw);
+            localStorage.setItem('baqdouns_fp', fp);
+            return fp;
+        }
+
+        function registerFingerprintLogin(email, users) {
+            const fp = getDeviceFingerprint();
+            const emailLower = email.toLowerCase();
+
+            // Layer 1: Local registry
+            const registry = JSON.parse(localStorage.getItem('baqdouns_fp_registry') || '{}');
+            if (!registry[fp]) {
+                registry[fp] = { email: emailLower, registeredAt: Date.now() };
+            }
+            const registryEmail = registry[fp].email;
+            registry[fp].lastSeen = Date.now();
+            localStorage.setItem('baqdouns_fp_registry', JSON.stringify(registry));
+            localStorage.setItem('baqdouns_fp_email', emailLower);
+
+            // Layer 2: Cross-reference ALL users' stored fingerprints (cross-browser!)
+            const conflictUser = users.find(u =>
+                u.deviceFingerprint && u.deviceFingerprint === fp &&
+                u.email.toLowerCase() !== emailLower
+            );
+            if (conflictUser) {
+                _logAbuse(fp, conflictUser.email, email, 'cross-user-db');
+                return { isMultiAccount: true, originalEmail: conflictUser.email };
+            }
+
+            // Layer 3: Registry mismatch
+            if (registryEmail !== emailLower) {
+                _logAbuse(fp, registryEmail, email, 'registry-mismatch');
+                return { isMultiAccount: true, originalEmail: registryEmail };
+            }
+
+            // ✅ Clean — bind fingerprint to this user record
+            return { isMultiAccount: false, originalEmail: email, fp };
+        }
+
+        function _logAbuse(fp, originalEmail, newEmail, source) {
+            const logs = JSON.parse(localStorage.getItem('baqdouns_abuse_logs') || '[]');
+            logs.push({ date: new Date().toISOString(), fp, originalEmail, newEmail, source });
+            if (logs.length > 100) logs.splice(0, logs.length - 100);
+            localStorage.setItem('baqdouns_abuse_logs', JSON.stringify(logs));
+        }
+
+        // =====================================================================
+        // 🎁 REFERRAL CODE HELPERS
+        // =====================================================================
+        function saveReferralCode() {
+            const input = document.getElementById('referral-code-input');
+            const msg = document.getElementById('referral-msg');
+            if (!input) return;
+            const code = input.value.trim().toUpperCase();
+            if (!code) { showRefMsg('أدخل الكود أولاً', '#e74c3c'); return; }
+
+            const users = JSON.parse(localStorage.getItem('baqdouns_users') || '[]');
+            const referrer = users.find(u => u.referralCode === code);
+            if (!referrer) {
+                showRefMsg('❌ كود غير صحيح أو غير موجود', '#e74c3c');
+                return;
+            }
+            // Valid
+            localStorage.setItem('baqdouns_pending_referral', code);
+            showRefMsg(`✅ كود ${referrer.name} محفوظ! ستحصل كلاكما على 100 بذرة 🌿`, '#2ecc71');
+        }
+
+        function showRefMsg(text, color) {
+            const msg = document.getElementById('referral-msg');
+            if (!msg) return;
+            msg.textContent = text;
+            msg.style.color = color;
+            msg.style.display = 'block';
+        }
+
+        // Auto-fill referral from URL ?ref=BAQXXXXXX
+        window.addEventListener('DOMContentLoaded', () => {
+            const params = new URLSearchParams(window.location.search);
+            const refParam = params.get('ref');
+            if (refParam) {
+                const inp = document.getElementById('referral-code-input');
+                if (inp) { inp.value = refParam.toUpperCase(); saveReferralCode(); }
+            }
+        });
+
+        // =====================================================================
+        // Google Sign-In Handler
+        // =====================================================================
+        function handleCredentialResponse(response) {
+            try {
+                const responsePayload = decodeJwtResponse(response.credential);
+
+                const email = responsePayload.email;
+                const name = responsePayload.name;
+                const picture = responsePayload.picture;
+                const sub = responsePayload.sub;
+
+                let users = JSON.parse(localStorage.getItem('baqdouns_users') || '[]');
+                let user = users.find(u => u.email === email);
+
+                const isNewUser = !user;
+
+                // ============================================================
+                // 🎁 REFERRAL: apply pending referral code for NEW users only
+                // ============================================================
+                let referralApplied = false;
+                let referrerName = '';
+                if (isNewUser) {
+                    const pendingCode = localStorage.getItem('baqdouns_pending_referral') || '';
+                    if (pendingCode) {
+                        const referrer = users.find(u => u.referralCode === pendingCode && u.email !== email);
+                        if (referrer) {
+                            const rIdx = users.findIndex(u => u.referralCode === pendingCode);
+                            if (rIdx > -1) {
+                                users[rIdx].points = (users[rIdx].points || 0) + 100; // Referrer earns 100
+                                referralApplied = true;
+                                referrerName = users[rIdx].name;
+                            }
+                        }
+                    }
+                    localStorage.removeItem('baqdouns_pending_referral');
+                }
+
+                // ============================================================
+                // 🌿 WELCOME SEEDS: respect admin freeze + device duplicate check
+                // ============================================================
+                const fp = getDeviceFingerprint();
+                const welcomeFrozen = localStorage.getItem('baqdouns_freeze_welcome') === 'true';
+                const fpConflict = users.find(u => u.deviceFingerprint && u.deviceFingerprint === fp && u.email !== email);
+                const welcomeSeeds = (isNewUser && !welcomeFrozen && !fpConflict) ? 100 : (isNewUser ? 0 : undefined);
+
+                if (!user) {
+                    user = {
+                        id: 'USR-' + Date.now(),
+                        googleId: sub, name, email,
+                        password: null,
+                        points: welcomeSeeds !== undefined ? welcomeSeeds : 0,
+                        referralCode: 'BAQ' + Math.floor(100000 + Math.random() * 900000),
+                        joined: new Date().toLocaleDateString(),
+                        profilePic: picture, isVerified: true,
+                        isBanned: false, banReason: "",
+                        isMultiAccount: !!fpConflict,
+                        multiAccountOriginal: fpConflict ? fpConflict.email : null
+                    };
+                    users.push(user);
+                } else {
+                    user.profilePic = picture;
+                    user.name = name;
+                    user.googleId = sub;
+                }
+
+                // 🔒 Register fingerprint + detect multi-account (3-layer check)
+                const fpResult = registerFingerprintLogin(email, users);
+                const uidx = users.findIndex(u => u.email === email);
+
+                if (fpResult.isMultiAccount) {
+                    if (uidx > -1) {
+                        users[uidx].isMultiAccount = true;
+                        users[uidx].multiAccountOriginal = fpResult.originalEmail;
+                        user = users[uidx];
+                    }
+                    setTimeout(() => {
+                        alert(`⚠️ تنبيه: هذا الجهاز مرتبط بحساب آخر!\n\nالحساب الأصلي: ${fpResult.originalEmail}\n\n🚫 البذور واللعبة والتحويل محظورة على هذا الجهاز.\nلا يفيد تغيير المتصفح أو استخدام VPN.`);
+                    }, 800);
+                } else {
+                    if (uidx > -1 && !users[uidx].deviceFingerprint) {
+                        users[uidx].deviceFingerprint = fpResult.fp || fp;
+                        user = users[uidx];
+                    }
+                }
+
+                localStorage.setItem('baqdouns_users', JSON.stringify(users));
+                localStorage.setItem('baqdouns_current_user', JSON.stringify(user));
+
+                // 🔥 FIREBASE AUTH: Official Sign-in for Amazon-level security
+                if (window.BaqdDB) {
+                    BaqdDB.onReady(async () => {
+                        try {
+                            // 1. Try official Firebase Auth
+                            try {
+                                await BaqdDB.authWithGoogle(response.credential);
+                                console.log("🛡️ Firebase Auth Success!");
+                            } catch (authErr) {
+                                console.warn("🛡️ Auth Error (Proceeding in Hybrid Mode):", authErr.message);
+                            }
+
+                            // 2. Prepare user data & logs
+                            const ua = navigator.userAgent || '';
+                            const isMobile = /Android|iPhone|iPad|iPod|Mobile/i.test(ua);
+                            const loginEntry = {
+                                id: 'LGN-' + Date.now(),
+                                timestamp: Date.now(),
+                                date: new Date().toLocaleString('ar-JO', { hour12: true }),
+                                email: user.email,
+                                name: user.name || 'Unknown',
+                                method: 'Google',
+                                deviceFp: localStorage.getItem('baqdouns_fp') || '—',
+                                deviceType: isMobile ? '📱 موبايل' : '💻 كمبيوتر',
+                                platform: navigator.platform || '—',
+                                isMultiAccount: fpResult.isMultiAccount || false,
+                                isRead: false
+                            };
+
+                            // 3. PERSIST DATA (This makes them appear for Admin)
+                            try {
+                                await BaqdDB.addLoginLog(loginEntry);
+                                await BaqdDB.saveUser(user);
+                                await BaqdDB.setPresence(user.email, true);
+                            } catch (dbErr) {
+                                console.warn("Could not sync to cloud yet:", dbErr.message);
+                            }
+
+                            // 4. Migrate and Complete
+                            BaqdDB.onReady(() => {
+                                BaqdDB.migrate();
+                                window.location.href = 'index.html';
+                            });
+                        } catch (fatal) {
+                            console.error("Fatal login process error:", fatal);
+                            window.location.href = 'index.html';
+                        }
+                    });
+                } else {
+                    window.location.href = 'index.html';
+                }
+
+            } catch (error) {
+                console.error("Auth Error", error);
+                alert("Login Error. Please try again.");
+            }
+        }
+    </script>
+
+    <script>
+        // =====================================================
+        // 📲 PWA INSTALL LOGIC — Full cross-platform support
+        // =====================================================
+        var _pwaPrompt = null; // Stores the deferred install prompt
+
+        // Listen for Chrome/Android install prompt
+        window.addEventListener('beforeinstallprompt', function (e) {
+            e.preventDefault();
+            _pwaPrompt = e;
+            console.log('✅ PWA Install prompt ready');
+        });
+
+        // Listen for successful install
+        window.addEventListener('appinstalled', function () {
+            _pwaPrompt = null;
+            var btn = document.getElementById('pwa-install-btn-login');
+            var txt = document.getElementById('pwa-btn-text');
+            if (txt) txt.textContent = 'تم التنزيل بنجاح ✅';
+            if (btn) {
+                btn.style.borderColor = 'rgba(255,255,255,0.2)';
+                btn.style.color = 'rgba(255,255,255,0.5)';
+                btn.style.cursor = 'default';
+                btn.onclick = null;
+            }
+        });
+
+        function triggerPWAInstall() {
+            var isIOS = /iPhone|iPad|iPod/.test(navigator.userAgent) && !window.MSStream;
+            var isInStandaloneMode = window.matchMedia('(display-mode: standalone)').matches
+                || window.navigator.standalone === true;
+
+            // Already installed?
+            if (isInStandaloneMode) {
+                var txt = document.getElementById('pwa-btn-text');
+                if (txt) txt.textContent = 'التطبيق مثبّت بالفعل ✅';
+                return;
+            }
+
+            // iOS Safari — show manual instructions
+            if (isIOS) {
+                var hint = document.getElementById('ios-install-hint');
+                if (hint) {
+                    hint.style.display = hint.style.display === 'none' ? 'block' : 'none';
+                }
+                return;
+            }
+
+            // Chrome/Android/Desktop — use native prompt
+            if (_pwaPrompt) {
+                _pwaPrompt.prompt();
+                _pwaPrompt.userChoice.then(function (result) {
+                    if (result.outcome === 'accepted') {
+                        var txt = document.getElementById('pwa-btn-text');
+                        if (txt) txt.textContent = 'جاري التنزيل... ⏳';
+                    }
+                    _pwaPrompt = null;
+                });
+            } else {
+                // Fallback: guide user
+                alert('لتنزيل التطبيق:\n\n🟢 Chrome: اضغط ⋮ (القائمة) ← "إضافة إلى الشاشة الرئيسية"\n🍎 Safari (iPhone): اضغط ⬆️ ← "إضافة إلى الشاشة الرئيسية"');
+            }
+        }
+    </script>
+</body>
+
+</html>

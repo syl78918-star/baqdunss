@@ -1,0 +1,23 @@
+{
+    "name": "Baqduns Store | متجر بقدونس 🌿",
+    "short_name": "Baqduns",
+    "description": "تجربة النخبة في دعم السوشيال ميديا في الأردن",
+    "id": "baqduns-visitor-v2",
+    "start_url": "/portal.html",
+    "display": "standalone",
+    "background_color": "#041E42",
+    "theme_color": "#041E42",
+    "icons": [
+        {
+            "src": "visitor-logo.svg",
+            "sizes": "192x192 512x512",
+            "type": "image/svg+xml",
+            "purpose": "any maskable"
+        },
+        {
+            "src": "visitor-logo.svg",
+            "sizes": "512x512",
+            "type": "image/svg+xml"
+        }
+    ]
+}

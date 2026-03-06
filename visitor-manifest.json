@@ -1,0 +1,62 @@
+{
+    "name": "بقدونس | خدمات السوشيال ميديا 🌿",
+    "short_name": "بقدونس",
+    "description": "متجر بقدونس - خدمات السوشيال ميديا النخبوية في الأردن",
+    "id": "baqduns-store-customer-v8",
+    "start_url": "/login.html?source=pwa",
+    "scope": "/",
+    "display": "standalone",
+    "orientation": "portrait",
+    "background_color": "#0f172a",
+    "theme_color": "#2ecc71",
+    "categories": [
+        "business",
+        "social"
+    ],
+    "icons": [
+        {
+            "src": "/visitor-logo.png",
+            "sizes": "192x192",
+            "type": "image/png",
+            "purpose": "any maskable"
+        },
+        {
+            "src": "/visitor-logo.png",
+            "sizes": "512x512",
+            "type": "image/png",
+            "purpose": "any"
+        }
+    ],
+    "shortcuts": [
+        {
+            "name": "العروض والخدمات",
+            "url": "/index.html#instagram-packages",
+            "icons": [
+                {
+                    "src": "/visitor-logo.png",
+                    "sizes": "96x96"
+                }
+            ]
+        },
+        {
+            "name": "المزادات",
+            "url": "/auctions.html",
+            "icons": [
+                {
+                    "src": "/visitor-logo.png",
+                    "sizes": "96x96"
+                }
+            ]
+        },
+        {
+            "name": "بذور بقدونس 🌿",
+            "url": "/seeds.html",
+            "icons": [
+                {
+                    "src": "/visitor-logo.png",
+                    "sizes": "96x96"
+                }
+            ]
+        }
+    ]
+}

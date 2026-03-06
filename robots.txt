@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Disallow: /baqduns_optimizer.html
