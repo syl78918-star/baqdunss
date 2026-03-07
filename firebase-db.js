@@ -638,12 +638,20 @@
                 let snap;
                 if (filterEmail) {
                     const lowEmail = filterEmail.toLowerCase();
-                    // Optimized: Only fetch orders for this specific user
-                    snap = await _db.ref('orders').orderByChild('email').equalTo(lowEmail).get();
-                    if (!snap.exists()) {
-                        // Fallback: check userEmail field too (for consistency)
-                        snap = await _db.ref('orders').orderByChild('userEmail').equalTo(lowEmail).get();
-                    }
+                    // Query both 'email' and 'userEmail' fields to ensure no orders are missed
+                    const [snap1, snap2] = await Promise.all([
+                        _db.ref('orders').orderByChild('email').equalTo(lowEmail).get(),
+                        _db.ref('orders').orderByChild('userEmail').equalTo(lowEmail).get()
+                    ]);
+
+                    let combined = {};
+                    if (snap1.exists()) combined = snap1.val();
+                    if (snap2.exists()) Object.assign(combined, snap2.val());
+
+                    const orders = Object.values(combined);
+                    // Sort by timestamp descending
+                    orders.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+                    return orders;
                 } else {
                     // Admin mode: fetch all
                     snap = await _db.ref('orders').get();

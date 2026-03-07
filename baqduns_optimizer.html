@@ -4878,6 +4878,9 @@ TIMESTAMP: ${new Date().toISOString()}
                         loadOrders();
                     }
                 });
+
+                // ✅ Initial load on ready
+                if (typeof loadOrders === 'function') loadOrders();
             });
         }
 
