@@ -621,6 +621,9 @@
                     }
                 }
 
+                if (orderForFirebase.email) orderForFirebase.email = orderForFirebase.email.toLowerCase();
+                if (orderForFirebase.userEmail) orderForFirebase.userEmail = orderForFirebase.userEmail.toLowerCase();
+
                 await _db.ref(`orders/${order.id}`).set(orderForFirebase);
             } catch (e) { console.warn('BaqdDB.addOrder error:', e.message); }
         },
@@ -634,11 +637,12 @@
             try {
                 let snap;
                 if (filterEmail) {
+                    const lowEmail = filterEmail.toLowerCase();
                     // Optimized: Only fetch orders for this specific user
-                    snap = await _db.ref('orders').orderByChild('email').equalTo(filterEmail).get();
+                    snap = await _db.ref('orders').orderByChild('email').equalTo(lowEmail).get();
                     if (!snap.exists()) {
                         // Fallback: check userEmail field too (for consistency)
-                        snap = await _db.ref('orders').orderByChild('userEmail').equalTo(filterEmail).get();
+                        snap = await _db.ref('orders').orderByChild('userEmail').equalTo(lowEmail).get();
                     }
                 } else {
                     // Admin mode: fetch all

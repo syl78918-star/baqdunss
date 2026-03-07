@@ -2884,8 +2884,12 @@ async function renderOrdersList() {
         all = JSON.parse(localStorage.getItem('baqdouns_orders') || '[]');
     }
 
-    // فلتر طلبات المستخدم الحالي بالإيميل
-    const myOrders = all.filter(o => o.email === currentUser.email || o.userEmail === currentUser.email);
+    // فلتر طلبات المستخدم الحالي بالإيميل (Case-Insensitive)
+    const myEmail = currentUser.email.toLowerCase();
+    const myOrders = all.filter(o =>
+        (o.email && o.email.toLowerCase() === myEmail) ||
+        (o.userEmail && o.userEmail.toLowerCase() === myEmail)
+    );
 
     tbody.innerHTML = '';
 
@@ -4111,6 +4115,11 @@ if (window.BaqdDB) {
                 alert("✅ تم تحديث تطبيق بقدونس بنجاح!\nأنت الآن تستخدم أحدث إصدار مستقر وآمن.");
             }, 1000);
         }
+
+        // ✅ IMPORTANT: Sync orders across devices as soon as DB is ready
+        if (currentUser) {
+            renderOrdersList();
+        }
     });
 }
 
@@ -4131,8 +4140,9 @@ if (window.BaqdDB) {
     const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
     const isDesktop = !/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
 
-    // 🍎 Show Install Button for iOS (since beforeinstallprompt never fires on iOS)
-    if (isIOS && !isStandalone && installBtn) {
+    // 📱 Show Install Button for ALL Mobile devices proactively
+    const isMobile = !isDesktop;
+    if (isMobile && !isStandalone && installBtn) {
         installBtn.style.display = 'flex';
         installBtn.onclick = showPWAModal;
     }
@@ -4172,15 +4182,22 @@ if (window.BaqdDB) {
         if (modal) {
             modal.style.display = 'flex';
             if (isIOS) {
-                iosInstructions.style.display = 'block';
-                modalBtn.style.display = 'none';
+                if (iosInstructions) iosInstructions.style.display = 'block';
+                if (modalBtn) modalBtn.style.display = 'none';
             } else if (deferredPrompt) {
-                modalBtn.style.display = 'block';
-                iosInstructions.style.display = 'none';
+                if (modalBtn) modalBtn.style.display = 'block';
+                if (iosInstructions) iosInstructions.style.display = 'none';
             } else {
-                // Fallback for browsers that don't support beforeinstallprompt but are installable
-                iosInstructions.style.display = 'block';
-                iosInstructions.innerHTML = '<p style="color:var(--color-navy); font-weight:bold;">لتثبيت التطبيق:</p><p style="font-size:0.9rem;">اضغط على القائمة (⋮) ثم اختر "تثبيت التطبيق" (Install App)</p>';
+                // Universal Fallback for Android/Others
+                if (iosInstructions) {
+                    iosInstructions.style.display = 'block';
+                    iosInstructions.innerHTML = `
+                        <p style="color:var(--color-navy); font-weight:bold; margin-bottom:10px;">طريقة التثبيت:</p>
+                        <p style="font-size:0.9rem; color:#444; direction:rtl; text-align:right;">1. اضغط على النقاط الثلاث (⋮) في أعلى المتصفح.<br>
+                        2. اختر <b>"إضافة إلى الشاشة الرئيسية"</b> أو <b>"تثبيت التطبيق"</b>.</p>
+                    `;
+                }
+                if (modalBtn) modalBtn.style.display = 'none';
             }
         }
     }

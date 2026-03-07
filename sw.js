@@ -7,20 +7,20 @@
 // ✅ دمج أداة OneSignal في السيرفر ووركر الخاص بـ PWA لضمان وصول الإشعارات في الخلفية
 importScripts("https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.sw.js");
 
-const CACHE_NAME = 'baqduns-store-v7';
+const CACHE_NAME = 'baqduns-store-v8';
 const urlsToCache = [
-    '/',
-    '/index.html',
-    '/portal.html',
-    '/accounts.html',
-    '/script.js',
-    '/style.css',
-    '/visitor-logo.png',
-    '/instagram_3d.png',
-    '/facebook_3d.png',
-    '/tiktok_3d.png',
-    '/visitor-manifest.json',
-    '/firebase-config.js'
+    './',
+    'index.html',
+    'portal.html',
+    'accounts.html',
+    'script.js',
+    'style.css',
+    'visitor-logo.png',
+    'instagram_3d.png',
+    'facebook_3d.png',
+    'tiktok_3d.png',
+    'visitor-manifest.json',
+    'firebase-config.js'
 ];
 
 // ── Install: Cache essential files ──────────────────────────────
