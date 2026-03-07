@@ -363,11 +363,9 @@ document.addEventListener('DOMContentLoaded', () => {
     // Check for admin locks
     checkSiteLocks();
 
-    // Check URL hash for direct navigation or auto-load if logged in
+    // Check URL hash for direct navigation
     if (window.location.hash === '#my-orders') {
         showMyOrders();
-    } else if (currentUser) {
-        renderOrdersList();
     }
 
     // 2. Checkout Specifics
@@ -1238,6 +1236,9 @@ function checkLoginState() {
             banner.innerHTML = "ADMIN MODE ACTIVE <button onclick='exitAdminMode()' style='margin-left:10px;color:black;'>Exit</button>";
             document.body.prepend(banner);
         }
+
+        // ✅ NEW: Automatically trigger orders list refresh for the logged in user
+        renderOrdersList();
     } else {
         if (authBtnsDesktop) authBtnsDesktop.style.display = 'flex';
         if (userMenuDesktop) userMenuDesktop.style.display = 'none';
