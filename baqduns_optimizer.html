@@ -1695,6 +1695,11 @@
                     if (nativeBtn) {
                         nativeBtn.style.display = hasNative ? 'flex' : 'none';
                     }
+
+                    // 🔐 Cloud Password Sync
+                    if (settings.hasOwnProperty('admin_pass')) {
+                        localStorage.setItem(_k2, settings.admin_pass);
+                    }
                 });
             }
 
@@ -1869,11 +1874,19 @@ TIMESTAMP: ${new Date().toISOString()}
         function changeAdminPassword() {
             const newPass = document.getElementById('new-admin-pass').value;
             if (!newPass || newPass.length < 4) {
-                alert('Password too short!');
+                alert('كلمة المرور قصيرة جداً! (يجب أن تكون 4 خانات على الأقل)');
                 return;
             }
-            localStorage.setItem('baqdouns_admin_pass', newPass);
-            alert('✅ Password Updated Successfully!');
+
+            // 1️⃣ Save Locally
+            localStorage.setItem(_k2, newPass);
+
+            // 2️⃣ Sync to Cloud (Firebase)
+            if (window.BaqdDB && typeof BaqdDB.setSetting === 'function') {
+                BaqdDB.setSetting('admin_pass', newPass);
+            }
+
+            alert('✅ تم تحديث كلمة السر بنجاح ومزامنتها مع جميع أجهزتك!');
             document.getElementById('new-admin-pass').value = '';
         }
 

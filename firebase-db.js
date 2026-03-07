@@ -649,6 +649,17 @@
                     if (snap2.exists()) Object.assign(combined, snap2.val());
 
                     const orders = Object.values(combined);
+
+                    // 🔥 SELF-HEALING: Push client's local orders to Firebase if they are missing from server
+                    const lsOrders = _ls('baqdouns_orders');
+                    lsOrders.forEach(lo => {
+                        // If it's the current user's order and it's missing from the server's response
+                        if (lo && lo.id && (lo.email === lowEmail || lo.userEmail === lowEmail) && !orders.find(fo => fo.id === lo.id)) {
+                            console.log('🔄 BaqdDB: Healing missing order for client', lo.id);
+                            BaqdDB.addOrder(lo); // Re-set on Firebase
+                        }
+                    });
+
                     // Sort by timestamp descending
                     orders.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
                     return orders;
@@ -657,14 +668,29 @@
                     snap = await _db.ref('orders').get();
                 }
 
-                if (!snap.exists()) return filterEmail ? [] : _ls('baqdouns_orders');
+                const fbOrders = snap.exists() ? Object.values(snap.val() || {}) : [];
+                const lsOrders = _ls('baqdouns_orders');
 
-                const orders = Object.values(snap.val() || {});
+                // 🔥 SELF-HEALING: Push local orders to Firebase if they are missing from server
+                if (_db && !filterEmail) {
+                    lsOrders.forEach(lo => {
+                        if (lo && lo.id && !fbOrders.find(fo => fo.id === lo.id)) {
+                            console.log('🔄 BaqdDB: Healing missing order', lo.id);
+                            BaqdDB.addOrder(lo); // Re-add to push to Firebase
+                        }
+                    });
+                }
 
-                // If fetching all, update local cache
-                if (!filterEmail) _lsSet('baqdouns_orders', orders);
+                // If no Firebase data, use LS as fallback only if we're totally offline
+                if (!snap.exists() && !_dbOnline) return lsOrders;
 
-                return orders;
+                // Merge/Sync: Server is the source of truth, but we keep LS updated
+                if (!filterEmail) _lsSet('baqdouns_orders', fbOrders);
+
+                // Sort by timestamp descending
+                fbOrders.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+
+                return fbOrders;
             } catch (e) {
                 console.error("BaqdDB.getOrders failed:", e);
                 return _ls('baqdouns_orders');
