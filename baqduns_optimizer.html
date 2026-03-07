@@ -4872,6 +4872,11 @@ TIMESTAMP: ${new Date().toISOString()}
                     const isUrgent = notif.type === 'urgent' || notif.type === 'test' || notif.title.includes('🚨') || notif.title.includes('📦');
                     sendNotification(notif.title, notif.body, isUrgent);
                     showAdminToast(`🔔 ${notif.title}`, isUrgent ? "warning" : "info");
+
+                    // ✅ AUTO REFRESH orders list on notification
+                    if (typeof loadOrders === 'function') {
+                        loadOrders();
+                    }
                 });
             });
         }

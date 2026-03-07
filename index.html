@@ -293,11 +293,7 @@
             <p>استراتيجيات نمو مميزة لعلامتك التجارية.</p>
             <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; margin-top: 1.5rem;">
                 <a href="index.html#instagram-packages" class="btn-primary">تصفح الباقات</a>
-                <button id="pwa-install-btn" class="btn-secondary"
-                    style="background: rgba(255,255,255,0.15); backdrop-filter: blur(5px); border: 1px solid rgba(255,255,255,0.4); display: none;">
-                    <ion-icon name="add-circle-outline" style="font-size: 1.2rem;"></ion-icon>
-                    تثبيت التطبيق 📱
-                </button>
+                <a href="index.html#instagram-packages" class="btn-primary">جميع الخدمات</a>
             </div>
         </div>
     </section>
@@ -606,8 +602,8 @@
             </div>
 
             <div class="orders-container"
-                style="max-width: 900px; margin: 0 auto; background: white; border-radius: 12px; overflow: hidden; color: #333; box-shadow: 0 10px 30px rgba(0,0,0,0.3);">
-                <table style="width: 100%; border-collapse: collapse;">
+                style="max-width: 900px; margin: 0 auto; background: white; border-radius: 12px; overflow-x: auto; color: #333; box-shadow: 0 10px 30px rgba(0,0,0,0.3);">
+                <table style="width: 100%; border-collapse: collapse; min-width: 600px;">
                     <thead style="background: #f8f9fa; border-bottom: 2px solid #eee;">
                         <tr>
                             <th style="padding: 1.2rem; text-align: left; font-weight: bold; color: var(--color-navy);">
@@ -725,157 +721,15 @@
 
     <!-- 📱 APP INSTALLATION WIDGETS & MODALS -->
 
-    <!-- Floating QR Code (Desktop Only) -->
-    <div id="desktop-qr-widget"
-        style="position: fixed; bottom: 120px; left: 20px; z-index: 999; display: none; background: white; padding: 15px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); text-align: center; border: 2px solid var(--color-gold); transition: 0.3s; width: 150px;">
-        <button onclick="document.getElementById('desktop-qr-widget').style.display='none'"
-            style="position: absolute; top: -10px; right: -10px; background: red; color: white; border: none; border-radius: 50%; width: 25px; height: 25px; cursor: pointer;">&times;</button>
-        <p style="font-size: 0.7rem; font-weight: bold; color: var(--color-navy); margin-bottom: 8px;">حمل التطبيق 📱
-        </p>
-        <div id="qr-container" style="background: #f9f9f9; padding: 5px; border-radius: 10px;">
-            <!-- QR code will be generated here -->
-            <img id="store-qr-img" style="width: 100%; height: auto;" src="" alt="Scan to install">
-        </div>
-        <p style="font-size: 0.6rem; color: #666; margin-top: 8px;">امسح الكود للتثبيت</p>
-    </div>
 
-    <!-- PWA Installation Modal (iOS/Instructions) -->
-    <div id="pwa-modal" onclick="if(event.target === this) closePWAModal()"
-        style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 10000; display: none; align-items: center; justify-content: center; backdrop-filter: blur(8px); padding: 20px;">
-        <div
-            style="background: white; border-radius: 30px; width: 100%; max-width: 400px; padding: 30px; text-align: center; position: relative; animation: pwaSlideUp 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);">
-            <button onclick="closePWAModal()"
-                style="position: absolute; top: 15px; right: 15px; background: #f0f0f0; border: none; border-radius: 50%; width: 40px; height: 40px; cursor: pointer; font-size: 1.5rem; z-index: 99999; display: flex; align-items: center; justify-content: center; touch-action: manipulation;">&times;</button>
 
-            <div style="margin-bottom: 20px; scale: 1.2;">
-                <img src="visitor-logo.png" width="80" height="80" alt="Baqduns Logo">
-            </div>
 
-            <h2 id="pwa-modal-title" style="color: var(--color-navy); margin-bottom: 10px; font-size: 1.8rem;">ثبّت
-                تطبيق بقدونس 🌿</h2>
-            <p id="pwa-modal-desc" style="color: #666; margin-bottom: 20px; line-height: 1.5;">استمتع بتجربة أسرع، عروض
-                حصرية، وتنبيهات فورية على هاتفك!</p>
 
-            <!-- Android/Chrome Install Button -->
-            <button id="pwa-modal-btn" class="btn-primary"
-                style="width: 100%; padding: 15px; font-size: 1.1rem; border-radius: 15px; margin-bottom: 15px; display: none;">
-                تثبيت التطبيق الآن
-            </button>
 
-            <!-- iOS Instructions (Hidden by default) -->
-            <div id="pwa-ios-instructions"
-                style="display: none; background: #f8f9fa; padding: 20px; border-radius: 20px; text-align: right; border: 1px dashed #C5A059;">
-                <p style="font-weight: bold; margin-bottom: 10px; color: var(--color-navy);">لمستخدمي الايفون (Safari):
-                </p>
-                <ol style="padding-right: 20px; color: #444; font-size: 0.95rem;">
-                    <li style="margin-bottom: 8px;">اضغط على زر المشاركة <ion-icon name="share-outline"
-                            style="vertical-align: middle; color: #007aff;"></ion-icon> بالأسفل</li>
-                    <li style="margin-bottom: 8px;">اختر "إضافة إلى الشاشة الرئيسية" <ion-icon name="add-circle-outline"
-                            style="vertical-align: middle;"></ion-icon></li>
-                    <li>اضغط على "إضافة" بالأعلى</li>
-                </ol>
-            </div>
 
-            <p style="margin-top: 20px; font-size: 0.8rem; color: #999;">تطبيق خفيف وآمن ولا يتطلب مساحة تخزين كبيرة ✨
-            </p>
-        </div>
-    </div>
 
-    <!-- 📲 INSTALL APP BANNER (All Devices) -->
-    <div id="install-app-banner" style="display:none; position:fixed; bottom:0; left:0; right:0; z-index:9990;
-               background: linear-gradient(135deg, #041E42 0%, #0b3165 100%);
-               color:white; padding:14px 20px;
-               box-shadow: 0 -4px 20px rgba(0,0,0,0.35);
-               align-items:center; justify-content:space-between; gap:12px;
-               border-top: 2px solid #C5A059;">
-        <div style="display:flex; align-items:center; gap:12px; flex:1;">
-            <img src="visitor-logo.png" width="40" height="40" style="border-radius:10px; flex-shrink:0;">
-            <div>
-                <div style="font-weight:bold; font-size:0.95rem;">📱 حمّل تطبيق بقدونس!</div>
-                <div style="font-size:0.8rem; opacity:0.85;">اضغط على الزر لتثبيته على شاشتك مجاناً</div>
-            </div>
-        </div>
-        <div style="display:flex; gap:8px; flex-shrink:0;">
-            <button onclick="showPWAModal(); document.getElementById('install-app-banner').style.display='none';" style="background:#C5A059; color:#041E42; border:none; border-radius:20px;
-                       padding:9px 18px; font-weight:bold; cursor:pointer; font-size:0.9rem;
-                       animation: bannerPulse 2s infinite;">
-                ⬇️ تثبيت
-            </button>
-            <button
-                onclick="document.getElementById('install-app-banner').style.display='none'; localStorage.setItem('banner_dismissed','1');"
-                style="background:rgba(255,255,255,0.15); color:white; border:1px solid rgba(255,255,255,0.3);
-                       border-radius:20px; padding:9px 14px; cursor:pointer; font-size:0.85rem;">✕</button>
-        </div>
-    </div>
 
-    <script>
-        // Show banner to all users (phone + desktop) if not dismissed and not installed
-        (function () {
-            const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
-            const dismissed = localStorage.getItem('banner_dismissed') === '1';
-            if (!isStandalone && !dismissed) {
-                setTimeout(() => {
-                    const banner = document.getElementById('install-app-banner');
-                    if (banner) banner.style.display = 'flex';
-                }, 2500);
-            }
-        })();
 
-        // Fallback in case showPWAModal is called before script.js loads
-        if (!window.showPWAModal) {
-            window.showPWAModal = function () {
-                const m = document.getElementById('pwa-modal');
-                if (m) m.style.display = 'flex';
-            };
-        }
-    </script>
-
-    <style>
-        @keyframes pwaSlideUp {
-            from {
-                transform: translateY(100px);
-                opacity: 0;
-            }
-
-            to {
-                transform: translateY(0);
-                opacity: 1;
-            }
-        }
-
-        @keyframes pwaGlow {
-            0% {
-                box-shadow: 0 0 5px rgba(197, 160, 89, 0.4);
-            }
-
-            50% {
-                box-shadow: 0 0 20px rgba(197, 160, 89, 0.8);
-            }
-
-            100% {
-                box-shadow: 0 0 5px rgba(197, 160, 89, 0.4);
-            }
-        }
-
-        .btn-secondary:hover {
-            background: white !important;
-            color: var(--color-navy) !important;
-        }
-
-        @keyframes bannerPulse {
-
-            0%,
-            100% {
-                transform: scale(1);
-                box-shadow: 0 0 0 0 rgba(197, 160, 89, 0.5);
-            }
-
-            50% {
-                transform: scale(1.04);
-                box-shadow: 0 0 10px 4px rgba(197, 160, 89, 0.4);
-            }
-        }
-    </style>
 
     <script src="script.js"></script>
 

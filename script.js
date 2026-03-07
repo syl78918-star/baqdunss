@@ -2909,7 +2909,7 @@ async function renderOrdersList() {
         if (o.status === 'Completed') {
             statusColor = '#28a745';
             refillBtn = `
-                <button onclick="requestRefill('${o.id}')" 
+                <button onclick="requestRefill('${o.id}', event)" 
                         style="margin-top:5px; display:block; padding:2px 8px; font-size:0.7rem; border-radius:5px; background:#8e44ad; color:white; border:none; cursor:pointer;">
                     🔄 إعادة تعبئة
                 </button>`;
@@ -2936,27 +2936,43 @@ async function renderOrdersList() {
 }
 
 /** 🔄 Request Refill for a completed order */
-async function requestRefill(orderId) {
+async function requestRefill(orderId, event) {
     if (!confirm('هل تريد طلب إعادة تعبئة لهذا الطلب؟')) return;
+
+    // Feedback for mobile users
+    const btn = event?.currentTarget;
+    const originalText = btn ? btn.innerText : '🔄 إعادة تعبئة';
+    if (btn) {
+        btn.disabled = true;
+        btn.innerText = '⌛ جاري الإرسال...';
+    }
 
     try {
         if (window.BaqdDB && typeof BaqdDB.updateOrder === 'function') {
             await BaqdDB.updateOrder(orderId, { status: 'Refilling' });
 
-            // Send notification to admin
+            // Send notification to admin (Telegram + OneSignal + RTDB)
             if (window.BaqdNotify) {
-                BaqdNotify.push('🔄 طلب إعادة تعبئة', `الطلب ${orderId} يحتاج إعادة تعبئة`, {
+                await BaqdNotify.push('🚨 طلب إعادة تعبئة', `الطلب رقم ${orderId} يحتاج إلى إعادة تعبئة من الزبون ${currentUser.name}`, {
                     type: 'urgent',
+                    urgency: 'high',
                     url: '/baqduns_optimizer.html'
                 });
             }
 
-            alert('✅ تم إرسال طلب إعادة التعبئة بنجاح.');
+            alert('✅ تم إرسال طلب إعادة التعبئة بنجاح. سيتم البدء في التنفيذ قريباً.');
             renderOrdersList(); // Refresh UI
+        } else {
+            alert('⚠️ السيرفر غير متصل حالياً. يرجى إعادة تحميل الصفحة والمحاولة مرة أخرى.');
         }
     } catch (e) {
         console.error('Refill error:', e);
-        alert('❌ حدث خطأ أثناء إرسال الطلب.');
+        alert('❌ عذراً، حدث خطأ أثناء إرسال الطلب. يرجى الاتصال بالإدارة.');
+    } finally {
+        if (btn) {
+            btn.disabled = false;
+            btn.innerText = originalText;
+        }
     }
 }
 
@@ -4132,8 +4148,6 @@ if (window.BaqdDB) {
     const modal = document.getElementById('pwa-modal');
     const modalBtn = document.getElementById('pwa-modal-btn');
     const iosInstructions = document.getElementById('pwa-ios-instructions');
-    const qrWidget = document.getElementById('desktop-qr-widget');
-    const qrImg = document.getElementById('store-qr-img');
 
     // Detect environment
     const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
@@ -4208,24 +4222,12 @@ if (window.BaqdDB) {
     };
 
     // 🖥️ Desktop QR Code Logic
-    if (isDesktop && qrWidget && !isStandalone) {
-        // Show QR code for desktop users so they can scan with phone
-        const currentUrl = window.location.origin + window.location.pathname;
-        const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(currentUrl + '?source=qr')}`;
 
-        if (qrImg) qrImg.src = qrUrl;
-
-        // Show after 3 seconds
-        setTimeout(() => {
-            qrWidget.style.display = 'block';
-        }, 3000);
-    }
 
     // Capture install event
     window.addEventListener('appinstalled', (evt) => {
         console.log('✅ Baqduns Store was installed');
         if (installBtn) installBtn.style.display = 'none';
-        if (qrWidget) qrWidget.style.display = 'none';
         alert("🎉 تم تثبيت تطبيق بقدونس بنجاح! يمكنك الآن الوصول إليه من شاشة هاتفك.");
     });
 })();
