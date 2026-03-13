@@ -1012,7 +1012,15 @@
                     <h3>Registered Users <span id="total-users-badge"
                             style="background:#e74c3c; color:white; border-radius:20px; padding:2px 10px; font-size:0.85rem;">0</span>
                     </h3>
-                    <div style="display:flex; gap:8px;">
+                    <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                        <button class="btn-action" onclick="adminRecoverDeleted()"
+                            style="background:#27ae60; font-weight:bold;">
+                            🩹 استرجاع المحذوفين
+                        </button>
+                        <button class="btn-action" onclick="adminDiscoverMissing()"
+                            style="background:#6c5ce7; font-weight:bold;">
+                            🔍 بحث عميق عن الإيميلات
+                        </button>
                         <button class="btn-action" onclick="loadUsers()" style="background:#0984e3;">
                             🔄 Refresh
                         </button>
@@ -2188,7 +2196,7 @@ TIMESTAMP: ${new Date().toISOString()}
 
         /** 🔥 FORCE SYNC: Manually reload everything from Firebase */
         async function forceSyncData() {
-            showAdminToast('🔄 جاري تحديث البيانات...', 'info');
+            showAdminToast('🔄 جاري تحديث البيانات ومزامنة الأجهزة...', 'info');
 
             // Wait for Firebase to be ready (it loads async) — max 5 seconds
             await new Promise((resolve) => {
@@ -2209,7 +2217,13 @@ TIMESTAMP: ${new Date().toISOString()}
             }
 
             try {
-                // Manually trigger getter methods to refresh localStorage
+                // 🚀 First, push any local-only data to the cloud (Sync all devices)
+                if (typeof BaqdDB.migrate === 'function') {
+                    window._hasMigratedThisSession = false; // Force re-migrate
+                    await BaqdDB.migrate();
+                }
+
+                // Next, manually trigger getter methods to refresh localStorage with latest cloud data
                 const syncTasks = [];
                 if (typeof BaqdDB.getUsers === 'function') syncTasks.push(BaqdDB.getUsers().catch(() => { }));
                 if (typeof BaqdDB.getOrders === 'function') syncTasks.push(BaqdDB.getOrders().catch(() => { }));
@@ -2231,7 +2245,7 @@ TIMESTAMP: ${new Date().toISOString()}
                 else if (activeTab === 'packages') loadPackagesAdmin();
                 else if (activeTab === 'rejected') loadRejectedProofs();
 
-                showAdminToast('✅ تم تحديث البيانات من جميع الأجهزة!', 'success');
+                showAdminToast('✅ تم مزامنة جميع البيانات مع السحابة وجميع الأجهزة!', 'success');
             } catch (e) {
                 console.error('Manual sync failed:', e);
                 showAdminToast('⚠️ خطأ أثناء المزامنة — تم تحديث البيانات المحلية', 'warning');
@@ -3193,6 +3207,32 @@ TIMESTAMP: ${new Date().toISOString()}
 
             showAdminToast(`✅ تم الريست! حُذف ${count} مستخدم بنجاح`, 'success');
             loadUsers();
+        }
+
+        async function adminRecoverDeleted() {
+            if (!confirm('هل تريد استرجاع جميع المستخدمين الذين تم حذفهم "بالخطأ" من القائمة؟\nسيعودون للظهور في شاشة المستخدمين.')) return;
+            if (window.BaqdDB && BaqdDB.recoverDeletedUsers) {
+                const ok = await BaqdDB.recoverDeletedUsers();
+                if (ok) {
+                    // Update current list
+                    loadUsers();
+                }
+            } else {
+                alert('Firebase DB method not available.');
+            }
+        }
+
+        async function adminDiscoverMissing() {
+            if (!confirm('سيقوم النظام بفحص سجلات الدخول والطلبات القديمة لاستخراج الإيميلات المفقودة وإعادة إنشائها كحسابات مفعلة.\n\nهل تريد الاستمرار؟')) return;
+            if (window.BaqdDB && BaqdDB.discoverMissingUsers) {
+                showAdminToast('🔍 جاري البحث في السجلات...', 'info');
+                const count = await BaqdDB.discoverMissingUsers();
+                if (count > 0) {
+                    loadUsers();
+                } else {
+                    showAdminToast('ℹ️ لم يتم العثور على إيميلات جديدة مفقودة.', 'info');
+                }
+            }
         }
 
         function refundTransfer(txId) {

@@ -1239,23 +1239,70 @@
         decodeEmail: _dec
     };
 
-    // ── AUTO-WIPE TRIGGER (EXECUTED ONCE TO RESET EVERYTHING) ──
-    BaqdDB.onReady(() => {
-        if (!localStorage.getItem('baqdouns_fw_wipe_final')) {
-            localStorage.setItem('baqdouns_fw_wipe_final', 'true');
-            BaqdDB.wipeCompleteSystem(true);
-        }
-    });
-
-    // ── Secret URL Trigger: #SYSTEM_WIPE_FORCE ──────────────────
-    if (window.location.hash === '#SYSTEM_WIPE_FORCE') {
-        setTimeout(() => {
-            if (window.BaqdDB) BaqdDB.wipeCompleteSystem();
-        }, 3000);
-    }
-
     // ── Expose globally ────────────────────────────────────────
     window.BaqdDB = BaqdDB;
+
+    /** 🩹 RECOVERY: Revive all users who were marked as deleted */
+    BaqdDB.recoverDeletedUsers = async function () {
+        if (!_db) return;
+        try {
+            console.log('🩹 Reviving deleted users...');
+            await _db.ref('deleted_users').remove();
+            // This will make them visible again in listeners
+            if (window.showAdminToast) showAdminToast('✅ تم استرجاع قائمة المستخدمين المحذوفين!', 'success');
+            return true;
+        } catch (e) {
+            console.error('Recovery failed:', e);
+            return false;
+        }
+    };
+
+    /** 🩹 DISCOVERY: Scan login logs and orders for missing users */
+    BaqdDB.discoverMissingUsers = async function () {
+        if (!_db) return;
+        try {
+            console.log('🔍 Scanning logs for missing seeds/emails...');
+            const [logsSnap, ordersSnap, usersSnap] = await Promise.all([
+                _db.ref('login_logs').get(),
+                _db.ref('orders').get(),
+                _db.ref('users').get()
+            ]);
+
+            const currentUsers = usersSnap.val() || {};
+            const emails = new Set();
+
+            // Collect emails from logs
+            if (logsSnap.exists()) {
+                Object.values(logsSnap.val()).forEach(l => { if (l.email) emails.add(l.email.toLowerCase().trim()); });
+            }
+            // Collect emails from orders
+            if (ordersSnap.exists()) {
+                Object.values(ordersSnap.val()).forEach(o => { if (o.email) emails.add(o.email.toLowerCase().trim()); });
+            }
+
+            let recoveredCount = 0;
+            for (const email of emails) {
+                const key = _enc(email);
+                if (!currentUsers[key]) {
+                    console.log(`✨ Recovering shadow user: ${email}`);
+                    const newUser = {
+                        email: email,
+                        name: email.split('@')[0],
+                        points: 100, // Default welcome
+                        joined: 'Recovered',
+                        uid: 'temp_' + key
+                    };
+                    await _db.ref(`users/${key}`).set(newUser);
+                    recoveredCount++;
+                }
+            }
+            if (window.showAdminToast) showAdminToast(`✅ تم استرجاع ${recoveredCount} حساب من السجلات!`, 'success');
+            return recoveredCount;
+        } catch (e) {
+            console.error('Discovery failed:', e);
+            return 0;
+        }
+    };
 
     // ── Auto-initialize ────────────────────────────────────────
     if (document.readyState === 'loading') {
