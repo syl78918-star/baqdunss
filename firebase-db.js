@@ -736,7 +736,7 @@
         async updateOrder(orderId, updates) {
             // LS
             const orders = _ls('baqdouns_orders');
-            const idx = orders.findIndex(o => o.id === orderId);
+            const idx = orders.findIndex(o => o.id == orderId);
             if (idx > -1) { Object.assign(orders[idx], updates); _lsSet('baqdouns_orders', orders); }
             // Firebase
             if (!_db) return;

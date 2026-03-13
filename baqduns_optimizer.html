@@ -865,14 +865,14 @@
         <div class="container">
             <!-- Stats -->
             <div class="stats-grid">
-                <div class="card" onclick="window._cachedOrders=[]; loadOrders();" style="cursor:pointer;"
+                <div class="card" onclick="_cachedOrders=[]; loadOrders();" style="cursor:pointer;"
                     title="Click to refresh statistics">
                     <ion-icon name="cash-outline" style="color:#C5A059; font-size:2rem;"></ion-icon>
                     <h3>Total Revenue</h3>
                     <div class="value" id="total-revenue">0 JD</div>
                 </div>
                 <!-- NEW: Profit Card -->
-                <div class="card" onclick="window._cachedOrders=[]; loadOrders();" style="cursor:pointer;"
+                <div class="card" onclick="_cachedOrders=[]; loadOrders();" style="cursor:pointer;"
                     title="Click to refresh statistics">
                     <ion-icon name="trending-up-outline" style="color:#2F855A; font-size:2rem;"></ion-icon>
                     <h3>Net Profit</h3>
@@ -1016,12 +1016,11 @@
                             style="background:#e74c3c; color:white; border-radius:20px; padding:2px 10px; font-size:0.85rem;">0</span>
                     </h3>
                     <div style="display:flex; gap:8px;">
-                        <button class="btn-action" onclick="window._cachedUsers=[]; loadUsers()"
-                            style="background:#0984e3;">
+                        <button class="btn-action" onclick="_cachedUsers=[]; loadUsers()" style="background:#0984e3;">
                             🔄 Refresh
                         </button>
                         <button class="btn-action"
-                            onclick="BaqdDB.discoverMissingUsers().then(() => { window._cachedUsers=[]; loadUsers(); })"
+                            onclick="BaqdDB.discoverMissingUsers().then(() => { _cachedUsers=[]; loadUsers(); })"
                             style="background:#27ae60;">
                             🔍 Deep Scan
                         </button>
@@ -2219,8 +2218,8 @@ TIMESTAMP: ${new Date().toISOString()}
 
             try {
                 // Clear all local caches to force fresh pull
-                window._cachedUsers = [];
-                window._cachedOrders = [];
+                _cachedUsers = [];
+                _cachedOrders = [];
                 window._fbUsers = null;
                 window._fbOrders = null;
 
@@ -2872,8 +2871,8 @@ TIMESTAMP: ${new Date().toISOString()}
         // 🔐 IDENTITY LOCKING: Only specific admin email can log in
         const ADMIN_EMAIL = "bailat850@gmail.com"; // ✅ الإيميل الرسمي للأدمن
 
-        let _cachedUsers = [];
-        let _cachedOrders = [];
+        var _cachedUsers = [];
+        var _cachedOrders = [];
 
         // ✅ Performance Helpers: Full rendered lists toggle
         function showAllUsers() {
@@ -2914,14 +2913,14 @@ TIMESTAMP: ${new Date().toISOString()}
             try {
                 if (!users || users.length === 0) {
                     if (window.BaqdDB && typeof BaqdDB.getUsers === 'function') {
-                        if (!showFull && window._cachedUsers && window._cachedUsers.length > 0) {
-                            users = window._cachedUsers;
+                        if (!showFull && _cachedUsers && _cachedUsers.length > 0) {
+                            users = _cachedUsers;
                         } else {
                             tableBody.innerHTML = '<tr><td colspan="9" style="text-align:center;padding:1.5rem;color:#888;">⏳ جاري التحميل...</td></tr>';
                             users = await BaqdDB.getUsers();
                         }
                     } else {
-                        users = (window._cachedUsers && window._cachedUsers.length > 0) ? window._cachedUsers : safeJSONParse('baqdouns_users', '[]');
+                        users = (_cachedUsers && _cachedUsers.length > 0) ? _cachedUsers : safeJSONParse('baqdouns_users', '[]');
                     }
                 }
             } catch (e) {
@@ -3262,7 +3261,7 @@ TIMESTAMP: ${new Date().toISOString()}
             let orders = [];
             try {
                 if (window.BaqdDB && typeof BaqdDB.getOrders === 'function') {
-                    if (!showFull && _cachedOrders.length > 0) {
+                    if (!showFull && _cachedOrders && _cachedOrders.length > 0) {
                         orders = _cachedOrders;
                     } else {
                         orders = await BaqdDB.getOrders();
@@ -3557,7 +3556,7 @@ TIMESTAMP: ${new Date().toISOString()}
 
         async function toggleStatus(orderId) {
             // Clear cache to force refresh
-            window._cachedOrders = [];
+            _cachedOrders = [];
 
             let orders = [];
             try {
@@ -3630,7 +3629,7 @@ TIMESTAMP: ${new Date().toISOString()}
 
         async function deleteOrder(orderId) {
             // Clear cache
-            window._cachedOrders = [];
+            _cachedOrders = [];
 
             let orders = [];
             try {
