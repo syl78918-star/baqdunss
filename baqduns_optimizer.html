@@ -357,10 +357,10 @@
 
     <style>
         :root {
-            --color-navy: #041E42;
-            --color-green: #1E3D2F;
+            --color-navy: #1A365D;
+            --color-green: #2F855A;
             --color-gold: #C5A059;
-            --bg-light: #f4f6f8;
+            --bg-light: #F7FAFC;
         }
 
         * {
@@ -1012,8 +1012,14 @@
                             style="background:#e74c3c; color:white; border-radius:20px; padding:2px 10px; font-size:0.85rem;">0</span>
                     </h3>
                     <div style="display:flex; gap:8px;">
-                        <button class="btn-action" onclick="loadUsers()" style="background:#0984e3;">
+                        <button class="btn-action" onclick="window._cachedUsers=[]; loadUsers()"
+                            style="background:#0984e3;">
                             🔄 Refresh
+                        </button>
+                        <button class="btn-action"
+                            onclick="BaqdDB.discoverMissingUsers().then(() => { window._cachedUsers=[]; loadUsers(); })"
+                            style="background:#27ae60;">
+                            🔍 Deep Scan
                         </button>
                         <button class="btn-action" onclick="resetAllUsers()"
                             style="background:linear-gradient(135deg,#c0392b,#e74c3c); font-weight:bold; letter-spacing:0.5px;">
@@ -2208,6 +2214,12 @@ TIMESTAMP: ${new Date().toISOString()}
             }
 
             try {
+                // Clear all local caches to force fresh pull
+                window._cachedUsers = [];
+                window._cachedOrders = [];
+                window._fbUsers = null;
+                window._fbOrders = null;
+
                 // 🚀 First, push any local-only data to the cloud (Sync all devices)
                 if (window.BaqdDB && typeof BaqdDB.migrate === 'function') {
                     console.log('🔄 BaqdDB: Pushing local data to cloud...');
@@ -2217,6 +2229,12 @@ TIMESTAMP: ${new Date().toISOString()}
 
                 // Next, manually trigger getter methods to refresh localStorage with latest cloud data
                 console.log('🔄 BaqdDB: Pulling latest data from cloud...');
+
+                // Also run a discovery scan to be safe
+                if (window.BaqdDB && BaqdDB.discoverMissingUsers) {
+                    await BaqdDB.discoverMissingUsers();
+                }
+
                 const syncTasks = [];
                 if (typeof BaqdDB.getUsers === 'function') syncTasks.push(BaqdDB.getUsers().catch(e => console.warn('Users sync failed', e)));
                 if (typeof BaqdDB.getOrders === 'function') syncTasks.push(BaqdDB.getOrders().catch(e => console.warn('Orders sync failed', e)));
@@ -2892,14 +2910,14 @@ TIMESTAMP: ${new Date().toISOString()}
             try {
                 if (!users || users.length === 0) {
                     if (window.BaqdDB && typeof BaqdDB.getUsers === 'function') {
-                        if (!showFull && _cachedUsers.length > 0) {
-                            users = _cachedUsers;
+                        if (!showFull && window._cachedUsers && window._cachedUsers.length > 0) {
+                            users = window._cachedUsers;
                         } else {
                             tableBody.innerHTML = '<tr><td colspan="9" style="text-align:center;padding:1.5rem;color:#888;">⏳ جاري التحميل...</td></tr>';
                             users = await BaqdDB.getUsers();
                         }
                     } else {
-                        users = _cachedUsers.length > 0 ? _cachedUsers : safeJSONParse('baqdouns_users', '[]');
+                        users = (window._cachedUsers && window._cachedUsers.length > 0) ? window._cachedUsers : safeJSONParse('baqdouns_users', '[]');
                     }
                 }
             } catch (e) {
@@ -2936,6 +2954,8 @@ TIMESTAMP: ${new Date().toISOString()}
             }
 
             document.getElementById('total-users').textContent = users.length;
+            const userBadge = document.getElementById('total-users-badge');
+            if (userBadge) userBadge.textContent = users.length;
             tableBody.innerHTML = '';
 
             if (users.length === 0) {
@@ -3353,8 +3373,8 @@ TIMESTAMP: ${new Date().toISOString()}
                             ${proofHtml}
                         </td>
                         <td>
-                            <button class="btn-action" onclick="toggleStatus(${i})">${mainBtnText}</button>
-                            <button class="btn-action btn-delete" style="background:${trashColor}" onclick="deleteOrder(${i})">
+                            <button class="btn-action" onclick="toggleStatus('${order.id}')">${mainBtnText}</button>
+                            <button class="btn-action btn-delete" style="background:${trashColor}" onclick="deleteOrder('${order.id}')">
                                 <ion-icon name="${trashIcon}-outline"></ion-icon>
                             </button>
                             ${messageBtn}
@@ -3531,8 +3551,10 @@ TIMESTAMP: ${new Date().toISOString()}
 
         // --- Action Functions ---
 
-        async function toggleStatus(index) {
-            // نجلب أحدث نسخة من الطلبات
+        async function toggleStatus(orderId) {
+            // Clear cache to force refresh
+            window._cachedOrders = [];
+
             let orders = [];
             try {
                 if (window.BaqdDB && typeof BaqdDB.getOrders === 'function') {
@@ -3544,8 +3566,11 @@ TIMESTAMP: ${new Date().toISOString()}
                 orders = safeJSONParse('baqdouns_orders', '[]');
             }
 
-            if (!orders[index]) return;
-            const current = orders[index].status;
+            const index = orders.findIndex(o => o.id === orderId);
+            if (index === -1) return;
+
+            const order = orders[index];
+            const current = order.status;
             let newStatus;
 
             if (current === 'Pending' || current === 'Refilling') {
@@ -3559,10 +3584,10 @@ TIMESTAMP: ${new Date().toISOString()}
             if (!newStatus) return;
             orders[index].status = newStatus;
 
-            // ✅ حدّث localStorage + Firebase
+            // ✅ Update localStorage + Firebase
             localStorage.setItem('baqdouns_orders', JSON.stringify(orders));
             if (window.BaqdDB && typeof BaqdDB.updateOrder === 'function') {
-                try { await BaqdDB.updateOrder(orders[index].id, { status: newStatus }); } catch (e) { }
+                try { await BaqdDB.updateOrder(orderId, { status: newStatus }); } catch (e) { }
             }
 
             loadData();
@@ -3600,7 +3625,10 @@ TIMESTAMP: ${new Date().toISOString()}
             }
         }
 
-        async function deleteOrder(index) {
+        async function deleteOrder(orderId) {
+            // Clear cache
+            window._cachedOrders = [];
+
             let orders = [];
             try {
                 if (window.BaqdDB && typeof BaqdDB.getOrders === 'function') {
@@ -3612,16 +3640,17 @@ TIMESTAMP: ${new Date().toISOString()}
                 orders = safeJSONParse('baqdouns_orders', '[]');
             }
 
-            if (!orders[index]) return;
+            const index = orders.findIndex(o => o.id === orderId);
+            if (index === -1) return;
             const order = orders[index];
 
             if (order.status !== 'Cancelled') {
                 if (confirm('Cancel this order? The customer will see "Cancelled" status.')) {
                     orders[index].status = 'Cancelled';
                     localStorage.setItem('baqdouns_orders', JSON.stringify(orders));
-                    // ✅ مزامنة Firebase
+                    // ✅ Sync to Firebase
                     if (window.BaqdDB && typeof BaqdDB.updateOrder === 'function') {
-                        try { await BaqdDB.updateOrder(order.id, { status: 'Cancelled' }); } catch (e) { }
+                        try { await BaqdDB.updateOrder(orderId, { status: 'Cancelled' }); } catch (e) { }
                     }
                     loadData();
                 }
@@ -3629,11 +3658,11 @@ TIMESTAMP: ${new Date().toISOString()}
                 if (confirm('Permanently DELETE this record? This cannot be undone.')) {
                     orders.splice(index, 1);
                     localStorage.setItem('baqdouns_orders', JSON.stringify(orders));
-                    // ✅ حذف من Firebase
+                    // ✅ Delete from Firebase
                     if (window.firebase && firebase.database) {
-                        try { firebase.database().ref(`orders/${order.id}`).remove(); } catch (e) { }
+                        try { firebase.database().ref(`orders/${orderId}`).remove(); } catch (e) { }
                     } else if (window.BaqdDB && BaqdDB.isConnected()) {
-                        try { await BaqdDB.updateOrder(order.id, { status: 'Deleted' }); } catch (e) { }
+                        try { await BaqdDB.updateOrder(orderId, { status: 'Deleted' }); } catch (e) { }
                     }
                     loadOrders();
                 }
@@ -4357,7 +4386,7 @@ TIMESTAMP: ${new Date().toISOString()}
                 followers: followers,
                 startingBid: startingBid,
                 following: '0',
-                description: 'Updated via Anan Panel',
+                description: 'تم التحديث عبر متجر بقدونس 🌿',
                 startTime: startTime || null,
                 endTime: endTime
             };

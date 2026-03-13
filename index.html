@@ -540,54 +540,29 @@
                         <div class="name">Ultimate</div>
                     </div>
                 </div>
-                <!-- Card 4 -->
-                <div class="fifa-card platinum" onclick="purchaseSeeds(4000, 4)"
-                    style="border: 2px solid #e5e4e2; box-shadow: 0 0 15px #e5e4e2;">
-                    <div class="card-top">
-                        <div class="rating" style="color: #e5e4e2;">4K</div>
-                        <div class="position" style="color: #e5e4e2;">SEEDS</div>
-                    </div>
-                    <div class="card-image"><ion-icon name="diamond" style="color: #e5e4e2;"></ion-icon></div>
-                    <div class="card-info">
-                        <div class="price" style="font-size: 1.4rem; color: #e5e4e2; margin-bottom: 5px;">4.00 JOD</div>
-                        <div class="name" style="color: #e5e4e2;">Elite</div>
-                    </div>
-                </div>
-                <!-- Card 5 -->
-                <div class="fifa-card diamond" onclick="purchaseSeeds(5000, 5)"
-                    style="border: 2px solid #b9f2ff; box-shadow: 0 0 15px #b9f2ff;">
-                    <div class="card-top">
-                        <div class="rating" style="color: #b9f2ff;">5K</div>
-                        <div class="position" style="color: #b9f2ff;">SEEDS</div>
-                    </div>
-                    <div class="card-image"><ion-icon name="prism" style="color: #b9f2ff;"></ion-icon></div>
-                    <div class="card-info">
-                        <div class="price" style="font-size: 1.4rem; color: #b9f2ff; margin-bottom: 5px;">5.00 JOD</div>
-                        <div class="name" style="color: #b9f2ff;">Legend</div>
-                    </div>
-                </div>
             </div>
+        </div>
 
-            <!-- Custom Amount Section -->
-            <div class="custom-seed-purchase"
-                style="background: rgba(0,0,0,0.6); padding: 1.5rem; border-radius: 12px; margin-top: 2rem; color: white; text-align: center; border: 1px solid rgba(197, 160, 89, 0.3);">
-                <h3 style="margin-top: 0; color: var(--color-gold);">Custom Amount</h3>
-                <p style="font-size: 0.9rem; margin-bottom: 1rem;">Enter custom amount (min 500 seeds)</p>
-                <div
-                    style="display: flex; gap: 10px; justify-content: center; align-items: center; margin-bottom: 1rem; flex-wrap: wrap;">
-                    <input type="number" id="custom-seed-amount-hp" min="500" value="500" placeholder="500"
-                        style="padding: 12px; border-radius: 8px; border: 1px solid var(--color-gold); width: 150px; text-align: center; font-size: 1.1rem; background: rgba(255,255,255,0.9); color: #333;"
-                        oninput="calculateCustomPriceHP()">
-                    <span style="font-weight: bold;">Seeds</span>
-                </div>
-                <div id="custom-price-display-hp"
-                    style="font-size: 1.4rem; font-weight: bold; margin-bottom: 1.5rem; color: var(--color-green);">
-                    Price: 0.50 JOD</div>
-                <button onclick="purchaseCustomSeedsHP()" class="btn-primary"
-                    style="background: var(--color-gold); color: var(--color-navy); padding: 12px 30px; font-weight: bold; border: none; cursor: pointer;">
-                    Buy Custom Package
-                </button>
+        <!-- Custom Amount Section -->
+        <div class="custom-seed-purchase"
+            style="background: rgba(0,0,0,0.6); padding: 1.5rem; border-radius: 12px; margin-top: 2rem; color: white; text-align: center; border: 1px solid rgba(197, 160, 89, 0.3);">
+            <h3 style="margin-top: 0; color: var(--color-gold);">Custom Amount</h3>
+            <p style="font-size: 0.9rem; margin-bottom: 1rem;">Enter custom amount (min 500 seeds)</p>
+            <div
+                style="display: flex; gap: 10px; justify-content: center; align-items: center; margin-bottom: 1rem; flex-wrap: wrap;">
+                <input type="number" id="custom-seed-amount-hp" min="500" value="500" placeholder="500"
+                    style="padding: 12px; border-radius: 8px; border: 1px solid var(--color-gold); width: 150px; text-align: center; font-size: 1.1rem; background: rgba(255,255,255,0.9); color: #333;"
+                    oninput="calculateCustomPriceHP()">
+                <span style="font-weight: bold;">Seeds</span>
             </div>
+            <div id="custom-price-display-hp"
+                style="font-size: 1.4rem; font-weight: bold; margin-bottom: 1.5rem; color: var(--color-green);">
+                Price: 0.50 JOD</div>
+            <button onclick="purchaseCustomSeedsHP()" class="btn-primary"
+                style="background: var(--color-gold); color: var(--color-navy); padding: 12px 30px; font-weight: bold; border: none; cursor: pointer;">
+                Buy Custom Package
+            </button>
+        </div>
         </div>
     </section>
 
