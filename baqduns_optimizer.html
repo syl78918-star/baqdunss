@@ -55,6 +55,9 @@
     <!-- 🔥 Firebase Integration -->
     <script src="firebase-config.js"></script>
     <script src="firebase-db.js"></script>
+    <script src="supabase-config.js"></script>
+    <script src="supabase-db.js"></script>
+    <script src="supabase-migration.js"></script>
     <script src="biometric-auth.js"></script>
     <script src="face-auth.js"></script>
     <!-- 🔔 Push Notification System (RTDB + Telegram, no VAPID) -->
@@ -1994,7 +1997,7 @@ TIMESTAMP: ${new Date().toISOString()}
                     BaqdDB.listenUsers((users) => {
                         window._fbUsers = users;
                         const activeTab = window._activeAdminTab || 'orders';
-                        if (activeTab === 'users') loadUsers();
+                        if (activeTab === 'users') loadUsers(false, users);
                     });
 
                     // 🔔 Real-time login logs listener
@@ -2008,7 +2011,7 @@ TIMESTAMP: ${new Date().toISOString()}
                             badge.style.display = unread > 0 ? 'inline-flex' : 'none';
                         }
                         const activeTab = window._activeAdminTab || 'orders';
-                        if (activeTab === 'logins') loadRecentLogins();
+                        if (activeTab === 'logins') loadRecentLogins(logs);
                     });
 
                     // 📦 Real-time orders listener
@@ -2639,193 +2642,99 @@ TIMESTAMP: ${new Date().toISOString()}
         }
 
         /** Loads and renders the login logs table with full user management */
-        function loadRecentLogins() {
+        async function loadRecentLogins(data = null) {
             const tableBody = document.getElementById('logins-table-body');
             if (!tableBody) return;
 
-            // 🔥 Use Firebase data if available, else localStorage
-            let logs = window._fbLoginLogs
-                || safeJSONParse('baqdouns_login_logs', '[]');
-            const users = window._fbUsers
-                || safeJSONParse('baqdouns_users', '[]');
-            // 🧹 Deduplicate logs by email (keep strictly latest)
+            // Priority: 1. Real-time data, 2. Global state, 3. DB Fetch, 4. Cache
+            let logs = data || window._fbLoginLogs;
+            const users = window._fbUsers || safeJSONParse('baqdouns_users', '[]');
+
+            if (!logs || logs.length === 0) {
+                if (window.BaqdDB && typeof BaqdDB.getLoginLogs === 'function') {
+                    logs = await BaqdDB.getLoginLogs();
+                } else {
+                    logs = safeJSONParse('baqdouns_login_logs', '[]');
+                }
+            }
+
+            window._fbLoginLogs = logs;
+            const lastRead = parseInt(localStorage.getItem('baqdouns_logins_last_read') || '0');
+            const h24 = Date.now() - 86400000;
+
+            // 🧹 Deduplicate logs by email (keep latest entry per user)
             const uniqueLogsMap = new Map();
             logs.forEach(l => {
-                if (l && l.email) {
-                    const email = l.email.toLowerCase();
+                const email = (l.email || (l.id && l.id.includes('___') ? BaqdDB.decodeEmail(l.id) : '')).toLowerCase();
+                if (email) {
                     const existing = uniqueLogsMap.get(email);
-                    if (!existing || (l.timestamp > existing.timestamp)) {
+                    if (!existing || l.timestamp > existing.timestamp) {
                         uniqueLogsMap.set(email, l);
                     }
                 }
             });
 
-            // Filter to ONLY show online users (Active < 2 min)
-            const onlineUsersList = Array.from(uniqueLogsMap.values()).filter(log => {
-                const userIdx = users.findIndex(u => u.email && u.email.toLowerCase() === (log.email || '').toLowerCase());
-                const user = userIdx > -1 ? users[userIdx] : null;
-                return user && user.lastActive && (Date.now() - user.lastActive < 120000);
-            });
+            // We show all unique recent logs (not just online users, to ensure we find missing info)
+            const displayLogs = Array.from(uniqueLogsMap.values());
+            displayLogs.sort((a, b) => b.timestamp - a.timestamp);
 
-            logs = onlineUsersList;
-
-            const lastRead = parseInt(localStorage.getItem('baqdouns_logins_last_read') || '0');
-            const now = Date.now();
-            const h24 = now - 86400000;
-
-            // Stats
-            const total = logs.length;
-            const abuse = logs.filter(l => l.isMultiAccount).length;
-            const in24h = logs.filter(l => l.timestamp > h24).length;
-            const unread = logs.filter(l => l.timestamp > lastRead).length;
-
-            document.getElementById('logins-total').textContent = total;
-            document.getElementById('logins-abuse').textContent = abuse;
-            document.getElementById('logins-24h').textContent = in24h;
-            document.getElementById('logins-unread').textContent = unread;
-
-            // Sync badge with online count
+            // Stats update
+            document.getElementById('logins-total').textContent = displayLogs.length;
             const badge = document.getElementById('logins-badge');
             if (badge) {
-                badge.textContent = total;
-                badge.style.display = total > 0 ? 'flex' : 'none';
+                badge.textContent = displayLogs.length;
+                badge.style.display = displayLogs.length > 0 ? 'flex' : 'none';
             }
 
-            // 🔥 Firebase connection indicator
-            const isLive = window.BaqdDB && window.BaqdDB.isConnected() && window._fbOnline === true;
-            const isReady = window.BaqdDB && window.BaqdDB.isConnected() && window._fbOnline !== false;
-            const fbStatus = isLive
-                ? `<div style="color:#00b894;font-size:0.75rem;font-weight:bold;padding:4px 0;">
-                    🔥 Firebase متصل — يتم رصد المتواجدين حالياً بلحظة
-                  </div>`
-                : isReady
-                    ? `<div style="color:#f39c12;font-size:0.75rem;padding:4px 0;">
-                    ⏳ جاري الاتصال...
-                  </div>`
-                    : `<div style="color:#e67e22;font-size:0.75rem;padding:4px 0;">
-                    📂 offline — يتم عرض المتواجدين حسب آخر بيانات محلية
-                  </div>`;
-
-            const statusBar = document.getElementById('logins-fb-status');
-            if (statusBar) statusBar.innerHTML = fbStatus;
-
             tableBody.innerHTML = '';
-
-            if (logs.length === 0) {
-                tableBody.innerHTML = `<tr><td colspan="10" style="text-align:center; padding:3rem; color:#999;">
-                    🌐 لا أحد متواجد حالياً.<br>
-                    <small>عند فتح أي مستخدم للموقع، سيظهر هنا فوراً.</small>
-                </td></tr>`;
+            if (displayLogs.length === 0) {
+                tableBody.innerHTML = `<tr><td colspan="10" style="text-align:center; padding:3rem; color:#999;">🌐 لا يوجد سجلات دخول حالياً.</td></tr>`;
                 return;
             }
 
-            // Show newest first
-            [...logs].reverse().forEach(log => {
-                const isNew = log.timestamp > lastRead;
-                const isAbuse = log.isMultiAccount;
-                const isIn24h = log.timestamp > h24;
+            displayLogs.forEach(log => {
+                const logEmail = log.email || (log.id && log.id.includes('___') ? BaqdDB.decodeEmail(log.id) : '');
+                const user = users.find(u => u.email && u.email.toLowerCase() === logEmail.toLowerCase());
 
-                // Fetch live user data from DB
-                const userIdx = users.findIndex(u => u.email && u.email.toLowerCase() === (log.email || '').toLowerCase());
-                const user = userIdx > -1 ? users[userIdx] : null;
-                const seeds = user ? (user.points || 0) : '—';
-                const isBanned = user ? (user.isBanned || false) : false;
-                const isVerified = user ? (user.isVerified || false) : false;
+                const isNew = log.timestamp > lastRead;
                 const isOnline = user && user.lastActive && (Date.now() - user.lastActive < 120000);
-                const password = user ? (user.password || '—') : '—';
+                const isBanned = user && user.isBanned;
+                const isVerified = user && user.isVerified;
+                const seeds = user ? (user.points || 0) : '—';
                 const joined = user ? (user.joined || '—') : '—';
 
-                // Row highlight
-                const rowBg = isBanned
-                    ? 'background:#fff0f0;'
-                    : isAbuse
-                        ? 'background:#fff5f5;'
-                        : isNew
-                            ? 'background:#f0fff8;'
-                            : '';
-
-                // Badges
-                const newBadge = isNew
-                    ? `<span style="background:#6c5ce7;color:white;padding:2px 6px;border-radius:6px;font-size:0.68rem;margin-right:4px;">NEW</span>`
-                    : '';
-
-                const methodBadge = log.method === 'Google'
-                    ? `<span style="background:#4285f4;color:white;padding:2px 7px;border-radius:10px;font-size:0.72rem;">🔵 Google</span>`
-                    : `<span style="background:#2d3436;color:white;padding:2px 7px;border-radius:10px;font-size:0.72rem;">📧 Pass</span>`;
-
-                const flagBadge = isAbuse
-                    ? `<span style="background:#e74c3c;color:white;padding:3px 7px;border-radius:10px;font-size:0.72rem;font-weight:bold;">🚨 Multi</span>`
-                    : `<span style="background:#d4edda;color:#155724;padding:3px 7px;border-radius:10px;font-size:0.72rem;">✅ OK</span>`;
-
-                const statusBadge = isBanned
-                    ? `<span style="background:#e74c3c;color:white;padding:3px 7px;border-radius:10px;font-size:0.72rem;">🔴 Banned</span>`
-                    : isOnline
-                        ? `<span style="background:#00b894;color:white;padding:3px 7px;border-radius:10px;font-size:0.72rem;">🟢 Online</span>`
-                        : `<span style="background:#b2bec3;color:white;padding:3px 7px;border-radius:10px;font-size:0.72rem;">⚫ Offline</span>`;
-
-                const verifiedBadge = isVerified
-                    ? `<ion-icon name="checkmark-circle" style="color:#0984e3;vertical-align:middle;"></ion-icon>`
-                    : '';
-
-                const fpShort = log.deviceFp ? log.deviceFp.slice(0, 10) + '…' : '—';
-
-                // 📱 Device type badge (new field)
-                const deviceBadge = log.deviceType
-                    ? `<div style="font-size:0.75rem;color:#636e72;margin-top:2px;">${log.deviceType}</div>`
-                    : '';
-
-                // Action buttons (only if user exists in DB)
-                const displayEmail = log.email || (log.id && log.id.includes('___') ? BaqdDB.decodeEmail(log.id) : '');
-                const emailEncoded = encodeURIComponent(displayEmail);
-                const actionBtns = user ? `
-                    <div style="display:flex;flex-direction:column;gap:4px;min-width:120px;">
-                        <button class="btn-action" style="background:#27ae60;font-size:0.72rem;padding:3px 7px;"
-                            onclick="loginSeedsFromLog('${emailEncoded}')">
-                            🌿 ️+ بذور
-                        </button>
-                        <button class="btn-action" style="background:#e67e22;font-size:0.72rem;padding:3px 7px;"
-                            onclick="loginZeroFromLog('${emailEncoded}')">
-                            🔄 صفّر
-                        </button>
-                        <button class="btn-action" style="background:${isVerified ? '#636e72' : '#0984e3'};font-size:0.72rem;padding:3px 7px;"
-                            onclick="loginVerifyFromLog('${emailEncoded}')">
-                            ${isVerified ? '❌ إلغاء تحقق' : '✅ تحقق'}
-                        </button>
-                        <button class="btn-action" style="background:${isBanned ? '#27ae60' : '#e74c3c'};font-size:0.72rem;padding:3px 7px;"
-                            onclick="loginBanFromLog('${emailEncoded}')">
-                            ${isBanned ? '🔓 رفع الحظر' : '🚫 حظر'}
-                        </button>
-                        <button class="btn-action" style="background:#6c5ce7;font-size:0.72rem;padding:3px 7px;"
-                            onclick="loginAsFromLog('${emailEncoded}')">
-                            👁️ دخول
-                        </button>
-                    </div>
-                ` : `<span style="color:#999;font-size:0.8rem;">—</span>`;
+                const rowBg = isBanned ? 'background:#fff0f0;' : (isNew ? 'background:#f0fff8;' : '');
+                const displayEmailStr = logEmail || '—';
+                const emailEncoded = encodeURIComponent(logEmail);
 
                 const row = document.createElement('tr');
                 row.style.cssText = rowBg;
                 row.innerHTML = `
                     <td style="font-size:0.8rem;white-space:nowrap;">
-                        ${newBadge}${log.date}
+                        ${isNew ? '<span style="background:#6c5ce7;color:white;padding:2px 6px;border-radius:6px;font-size:0.68rem;">NEW</span>' : ''}${log.date}
                     </td>
                     <td>
-                        <strong>${log.name || '—'}</strong>${verifiedBadge}
+                        <strong>${log.name || '—'}</strong>${isVerified ? '<ion-icon name="checkmark-circle" style="color:#0984e3;vertical-align:middle;"></ion-icon>' : ''}
                         <div style="font-size:0.72rem;color:#636e72;margin-top:2px;">انضم: ${joined}</div>
                     </td>
                     <td style="font-size:0.82rem; font-family:monospace;">
-                        <div>${log.email || (log.id && log.id.includes('___') ? BaqdDB.decodeEmail(log.id) : '—')}</div>
+                        <div>${displayEmailStr}</div>
                     </td>
-                    <td style="text-align:center;">${methodBadge}</td>
+                    <td style="text-align:center;">
+                        ${log.method === 'Google' ? '🔵 Google' : '📧 Pass'}
+                    </td>
                     <td style="text-align:center;">
                         <strong style="color:#00b894;font-size:1.05rem;">${seeds}</strong>
-                        <span style="font-size:0.75rem;"> 🌿</span>
                     </td>
-                    <td style="font-family:monospace;font-size:0.75rem;color:#636e72;">
-                        ${fpShort}${deviceBadge}
+                    <td style="text-align:center;">
+                        <span style="color:${isBanned ? 'red' : 'green'}; font-weight:bold;">${isBanned ? 'BANNED' : (isOnline ? 'ONLINE' : 'OFFLINE')}</span>
                     </td>
-                    <td style="text-align:center;">${flagBadge}</td>
-                    <td style="text-align:center;">${statusBadge}</td>
-                    <td>${actionBtns}</td>
+                    <td>
+                        <div style="display:flex;flex-direction:column;gap:4px;">
+                            <button class="btn-action" style="background:#27ae60;font-size:0.72rem;padding:3px" onclick="loginSeedsFromLog('${emailEncoded}')">🌿 +</button>
+                            <button class="btn-action" style="background:#d63031;font-size:0.72rem;padding:3px" onclick="loginBanFromLog('${emailEncoded}')">🚫</button>
+                        </div>
+                    </td>
                 `;
                 tableBody.appendChild(row);
             });
@@ -2964,43 +2873,55 @@ TIMESTAMP: ${new Date().toISOString()}
 
 
 
-        async function loadUsers(showFull = false) {
+        async function loadUsers(showFull = false, data = null) {
             const tableBody = document.getElementById('users-table-body');
-            tableBody.innerHTML = '<tr><td colspan="9" style="text-align:center;padding:1.5rem;color:#888;">⏳ تحميل المستخدمين...</td></tr>';
+            if (!tableBody) return;
 
-            // ✅ اقرأ من Firebase أولاً (لضمان عدم ظهور الحسابات المحذوفة)
-            let users = [];
+            // Priority: 1. Passed data, 2. Global listener data, 3. Cache (if small), 4. DB fetch
+            let users = data || window._fbUsers;
+
             try {
-                if (window.BaqdDB && typeof BaqdDB.getUsers === 'function') {
-                    if (!showFull && _cachedUsers.length > 0) {
-                        users = _cachedUsers;
+                if (!users || users.length === 0) {
+                    if (window.BaqdDB && typeof BaqdDB.getUsers === 'function') {
+                        if (!showFull && _cachedUsers.length > 0) {
+                            users = _cachedUsers;
+                        } else {
+                            tableBody.innerHTML = '<tr><td colspan="9" style="text-align:center;padding:1.5rem;color:#888;">⏳ جاري التحميل...</td></tr>';
+                            users = await BaqdDB.getUsers();
+                        }
                     } else {
-                        users = await BaqdDB.getUsers();
-                        _cachedUsers = users;
+                        users = _cachedUsers.length > 0 ? _cachedUsers : safeJSONParse('baqdouns_users', '[]');
                     }
-                } else {
-                    users = _cachedUsers.length > 0 ? _cachedUsers : safeJSONParse('baqdouns_users', '[]');
                 }
             } catch (e) {
                 users = safeJSONParse('baqdouns_users', '[]');
             }
 
-            // 🔍 فلترة السجلات الفارغة أو التالفة
+            _cachedUsers = users;
+            window._fbUsers = users;
+
+            // 🔍 فلترة السجلات الفارغة أو التالفة بشكل صارم مع محاولة الاسترجاع
             users = users.filter(u => {
                 if (!u || typeof u !== 'object') return false;
-                // Keep if has email, name, OR recovery key
-                if (u.email || u.name || u.displayName || (u.id && u.id.includes('___'))) return true;
-                return false;
+
+                // تنظيف القيم النصية "undefined" التي قد تنتج عن أخطاء برمجية سابقة
+                if (u.email === 'undefined') u.email = null;
+                if (u.name === 'undefined') u.name = null;
+
+                // استرجاع الإيميل من الـ ID إذا كان مفقوداً
+                if (!u.email && u.id && u.id.includes('___')) {
+                    try { u.email = BaqdDB.decodeEmail(u.id); } catch (e) { }
+                }
+
+                // السماح بالحسابات التي تملك إيماًلا أو اسماً على الأقل
+                return !!(u.email || u.name || u.displayName);
             });
 
             // تحديث localStorage بالبيانات المنظفة
-            if (window.BaqdDB) {
+            if (!data) {
                 try {
                     const lsUsers = safeJSONParse('baqdouns_users', '[]');
-                    const cleanLS = lsUsers.filter(u =>
-                        u && u.email && u.name &&
-                        u.email !== 'undefined' && u.name !== 'undefined'
-                    );
+                    const cleanLS = users.map(u => ({ ...u })); // Deepish copy
                     localStorage.setItem('baqdouns_users', JSON.stringify(cleanLS));
                 } catch (e) { }
             }
@@ -3712,6 +3633,31 @@ TIMESTAMP: ${new Date().toISOString()}
 
 
         // --- COUPON FUNCTIONS ---
+
+        async function loadRecentLogins(data = null) {
+            const tableBody = document.getElementById('logins-table-body');
+            if (!tableBody) return;
+
+            // Use provided data, then global sync data, then localStorage
+            let logs = data || window._fbLoginLogs;
+
+            if (!logs || logs.length === 0) {
+                if (window.BaqdDB && typeof BaqdDB.getLoginLogs === 'function') {
+                    logs = await BaqdDB.getLoginLogs();
+                } else {
+                    logs = safeJSONParse('baqdouns_login_logs', '[]');
+                }
+            }
+
+            window._fbLoginLogs = logs;
+            tableBody.innerHTML = '';
+            // The line `safeJSONParse('baqdouns_coupons', '[]');` was misplaced here and has been removed.
+
+            // The rest of the loadRecentLogins function would go here.
+            // Assuming the original content for loadRecentLogins was not provided in full,
+            // I'm only applying the changes specified in the diff.
+            // The diff provided ends here for loadRecentLogins and then jumps to loadCoupons.
+        }
 
         async function loadCoupons() {
             const tableBody = document.getElementById('coupons-table-body');

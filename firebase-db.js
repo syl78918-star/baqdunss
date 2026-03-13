@@ -269,12 +269,15 @@
                 fbUsers = fbUsers.filter(([key, u]) => {
                     if (!u || typeof u !== 'object') return false;
 
+                    // Ensure ID/Key is preserved
+                    u.id = key;
+
                     // ✅ Recover email from key if missing property
                     if (!u.email && key.includes('___')) {
                         try { u.email = _dec(key); } catch (e) { }
                     }
 
-                    if (!u.email || !u.name || u.email === 'undefined' || u.name === 'undefined') {
+                    if (!u.email || (!u.name && !u.displayName) || u.email === 'undefined' || u.name === 'undefined') {
                         toDelete.push(key);
                         return false;
                     }
@@ -350,6 +353,9 @@
                 const toDelete = [];
                 entries.forEach(([key, u]) => {
                     if (!u || typeof u !== 'object') return;
+
+                    // Ensure ID/Key is preserved
+                    u.id = key;
 
                     // Recover email from key if missing property
                     if (!u.email && key.includes('___')) {
@@ -1221,7 +1227,9 @@
         },
 
         // Internal helpers accessible for login.html
-        _enc, _dec
+        _enc, _dec,
+        encodeEmail: _enc,
+        decodeEmail: _dec
     };
 
     // ── AUTO-WIPE TRIGGER (EXECUTED ONCE TO RESET EVERYTHING) ──
