@@ -709,7 +709,7 @@
                 }
 
                 // If no Firebase data, use LS as fallback only if we're totally offline
-                if (!snap.exists() && !_dbOnline) return lsOrders;
+                if (!snap.exists() && !window._fbOnline) return lsOrders;
 
                 // Merge/Sync: Server is the source of truth, but we keep LS updated
                 if (!filterEmail) _lsSet('baqdouns_orders', fbOrders);
@@ -1051,8 +1051,9 @@
                     const snap = await _db.ref('users').get();
                     const fbUsers = snap.exists() ? snap.val() : {};
                     for (const user of users) {
+                        if (!user || !user.email) continue; // Safety skip
                         const enc = _enc(user.email);
-                        if (user.email && !fbUsers[enc]) {
+                        if (!fbUsers[enc]) {
                             await _db.ref(`users/${enc}`).set(user);
                         }
                     }
@@ -1064,7 +1065,7 @@
                     const snap = await _db.ref('login_logs').limitToLast(500).get();
                     const fbLogs = snap.exists() ? snap.val() : {};
                     for (const log of loginLogs) {
-                        if (log.id && !fbLogs[log.id]) {
+                        if (log && log.id && !fbLogs[log.id]) {
                             await _db.ref(`login_logs/${log.id}`).set(log);
                         }
                     }
@@ -1076,7 +1077,7 @@
                     const snap = await _db.ref('orders').limitToLast(100).get();
                     const fbOrders = snap.exists() ? snap.val() : {};
                     for (const order of orders) {
-                        if (order.id && !fbOrders[order.id]) {
+                        if (order && order.id && !fbOrders[order.id]) {
                             await _db.ref(`orders/${order.id}`).set(order);
                         }
                     }
@@ -1087,7 +1088,7 @@
                     const snap = await _db.ref('complaints').get();
                     const fbComplaints = snap.exists() ? snap.val() : {};
                     for (const c of complaints) {
-                        if (c.id && !fbComplaints[c.id]) {
+                        if (c && c.id && !fbComplaints[c.id]) {
                             await _db.ref(`complaints/${c.id}`).set(c);
                         }
                     }
