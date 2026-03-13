@@ -2811,8 +2811,8 @@ TIMESTAMP: ${new Date().toISOString()}
                         <strong>${log.name || '—'}</strong>${verifiedBadge}
                         <div style="font-size:0.72rem;color:#636e72;margin-top:2px;">انضم: ${joined}</div>
                     </td>
-                    <td style="font-size:0.82rem;">
-                        <div>${log.email}</div>
+                    <td style="font-size:0.82rem; font-family:monospace;">
+                        <div>${log.email || '—'}</div>
                     </td>
                     <td style="text-align:center;">${methodBadge}</td>
                     <td style="text-align:center;">
@@ -2931,6 +2931,18 @@ TIMESTAMP: ${new Date().toISOString()}
         // 🔐 IDENTITY LOCKING: Only specific admin email can log in
         const ADMIN_EMAIL = "bailat850@gmail.com"; // ✅ الإيميل الرسمي للأدمن
 
+        let _cachedUsers = [];
+        let _cachedOrders = [];
+
+        // ✅ Performance Helpers: Full rendered lists toggle
+        function showAllUsers() {
+            // Re-render without limit
+            loadUsers(true);
+        }
+        function showAllOrders() {
+            loadOrders(true);
+        }
+
         async function handleAdminLogin() {
             if (confirm('Are you sure you want to clear all login logs?\nهل تريد حذف جميع سجلات الدخول من Firebase وlocalStorage؟')) {
                 if (window.BaqdDB) {
@@ -2951,25 +2963,25 @@ TIMESTAMP: ${new Date().toISOString()}
 
 
 
-        async function loadUsers() {
+        async function loadUsers(showFull = false) {
             const tableBody = document.getElementById('users-table-body');
+            tableBody.innerHTML = '<tr><td colspan="9" style="text-align:center;padding:1.5rem;color:#888;">⏳ تحميل المستخدمين...</td></tr>';
 
-            // ✅ Read from real-time listener first, then fallback to Firebase `.get()`, then LS
+            // ✅ اقرأ من Firebase أولاً (لضمان عدم ظهور الحسابات المحذوفة)
             let users = [];
-
-            if (window._fbUsers && window._fbUsers.length > 0) {
-                users = window._fbUsers;
-            } else {
-                tableBody.innerHTML = '<tr><td colspan="9" style="text-align:center;padding:1.5rem;color:#888;">⏳ تحميل...</td></tr>';
-                try {
-                    if (window.BaqdDB && typeof BaqdDB.getUsers === 'function') {
-                        users = await BaqdDB.getUsers();
+            try {
+                if (window.BaqdDB && typeof BaqdDB.getUsers === 'function') {
+                    if (!showFull && _cachedUsers.length > 0) {
+                        users = _cachedUsers;
                     } else {
-                        users = safeJSONParse('baqdouns_users', '[]');
+                        users = await BaqdDB.getUsers();
+                        _cachedUsers = users;
                     }
-                } catch (e) {
-                    users = safeJSONParse('baqdouns_users', '[]');
+                } else {
+                    users = _cachedUsers.length > 0 ? _cachedUsers : safeJSONParse('baqdouns_users', '[]');
                 }
+            } catch (e) {
+                users = safeJSONParse('baqdouns_users', '[]');
             }
 
             // 🔍 فلترة السجلات الفارغة أو التالفة (بيانات قديمة من مسار uid)
@@ -3001,24 +3013,30 @@ TIMESTAMP: ${new Date().toISOString()}
                 return;
             }
 
-            users.forEach((user, index) => {
+            // ✅ Optimized Batch Rendering
+            const fragment = document.createDocumentFragment();
+            // Show only first 100 users initially for speed, rest can be loaded or searched
+            const limit = showFull ? users.length : Math.min(users.length, 100);
+
+            for (let i = 0; i < limit; i++) {
+                const user = users[i];
                 const row = document.createElement('tr');
                 const isBanned = user.isBanned || false;
                 const isVerified = user.isVerified || false;
                 const displayName = user.name || user.displayName || '—';
-                const displayEmail = user.email || '—';
+                const displayEmail = user.email || (user.id && user.id.includes('___') ? BaqdDB.decodeEmail(user.id) : '—');
                 const displayPoints = user.points !== undefined && user.points !== null ? user.points : 0;
                 const displayJoined = user.joined || user.createdAt || '-';
 
                 row.innerHTML = `
                     <td>${displayJoined}</td>
                     <td><strong>${displayName}</strong> ${isVerified ? '<ion-icon name="checkmark-circle" style="color:#0984e3;"></ion-icon>' : ''}</td>
-                    <td>${displayEmail}</td>
+                    <td style="font-family:monospace; font-size:0.85rem;">${displayEmail}</td>
                     <td style="color: var(--color-green); font-weight: bold;">
                         ${displayPoints} 🌿 
                     </td>
                     <td>
-                        <button class="btn-action" style="background:${isVerified ? '#2d3436' : '#0984e3'};" onclick="toggleVerify(${index})">
+                        <button class="btn-action" style="background:${isVerified ? '#2d3436' : '#0984e3'};" onclick="toggleVerify(${i})">
                             ${isVerified ? 'Unverify' : 'Verify'}
                         </button>
                     </td>
@@ -3035,23 +3053,30 @@ TIMESTAMP: ${new Date().toISOString()}
                     })()}
                     </td>
                     <td>
-                        <button class="btn-action" style="background:var(--color-navy);" onclick="editPoints(${index})">Points</button>
-                        <button class="btn-action" style="background:#e67e22;" onclick="zeroPoints(${index})">Zero</button>
-                        <button class="btn-action" style="background:#d63031;" onclick="toggleBan(${index})">
+                        <button class="btn-action" style="background:var(--color-navy);" onclick="editPoints(${i})">Points</button>
+                        <button class="btn-action" style="background:#e67e22;" onclick="zeroPoints(${i})">Zero</button>
+                        <button class="btn-action" style="background:#d63031;" onclick="toggleBan(${i})">
                             ${isBanned ? 'Unban' : 'Ban'}
                         </button>
-                        <button class="btn-action" style="background:#0984e3;" onclick="loginAsUser(${index})">Login</button>
+                        <button class="btn-action" style="background:#0984e3;" onclick="loginAsUser(${i})">Login</button>
                     </td>
                     <td>
-                        <button class="btn-action btn-delete" onclick="deleteUser(${index})" 
+                        <button class="btn-action btn-delete" onclick="deleteUser(${i})" 
                             style="background:linear-gradient(135deg,#c0392b,#e74c3c); font-weight:bold; min-width:70px;"
                             title="حذف المستخدم نهائياً">
                             🗑️ Delete
                         </button>
                     </td>
                 `;
-                tableBody.appendChild(row);
-            });
+                fragment.appendChild(row);
+            }
+            tableBody.appendChild(fragment);
+
+            if (users.length > 100) {
+                const moreRow = document.createElement('tr');
+                moreRow.innerHTML = `<td colspan="9" style="text-align:center; padding:1rem;"><button class="btn-action" style="background:#888" onclick="showAllUsers()">+ Load Full List (${users.length - 100} more)</button></td>`;
+                tableBody.appendChild(moreRow);
+            }
 
             // Update badge count
             const badge = document.getElementById('total-users-badge');
@@ -3276,14 +3301,19 @@ TIMESTAMP: ${new Date().toISOString()}
 
         // --- ORDER FUNCTIONS ---
 
-        async function loadOrders() {
+        async function loadOrders(showFull = false) {
             const tableBody = document.getElementById('orders-table-body');
             tableBody.innerHTML = '<tr><td colspan="9" style="text-align:center;padding:1.5rem;color:#888;">⏳ تحميل الطلبات...</td></tr>';
 
             let orders = [];
             try {
                 if (window.BaqdDB && typeof BaqdDB.getOrders === 'function') {
-                    orders = await BaqdDB.getOrders();
+                    if (!showFull && _cachedOrders.length > 0) {
+                        orders = _cachedOrders;
+                    } else {
+                        orders = await BaqdDB.getOrders();
+                        _cachedOrders = orders;
+                    }
                 } else {
                     orders = safeJSONParse('baqdouns_orders', '[]');
                 }
@@ -3308,20 +3338,21 @@ TIMESTAMP: ${new Date().toISOString()}
                 return;
             }
 
-            orders.forEach((order, index) => {
-                try {
-                    // Safety check for basic fields
-                    if (!order || !order.id) return;
+            // ✅ Optimized Batch Rendering
+            const fragment = document.createDocumentFragment();
+            const limit = showFull ? orders.length : Math.min(orders.length, 100);
 
-                    // Revenue Safety
+            for (let i = 0; i < limit; i++) {
+                const order = orders[i];
+                try {
+                    if (!order || !order.id) continue;
+
                     const rawTotal = order.total || "0 JD";
                     const revenue = parseFloat(typeof rawTotal === 'string' ? rawTotal.replace(' JD', '') : rawTotal) || 0;
 
-                    // Exclude Cancelled from totals
                     if (!isNaN(revenue) && order.status !== 'Cancelled') totalRevenue += revenue;
                     if (order.status === 'Pending') pending++;
 
-                    // Calculate Cost Safety
                     let orderCost = 0;
                     const items = order.items || [];
                     if (order.status !== 'Cancelled') {
@@ -3331,30 +3362,23 @@ TIMESTAMP: ${new Date().toISOString()}
                         totalCost += orderCost;
                     }
 
-                    // Profit
                     const profit = (order.status !== 'Cancelled') ? (revenue - orderCost) : 0;
-
-                    // Format Items
                     const itemsList = items.map(i => i ? i.name : '').filter(n => n).join(', ') || 'No Items';
 
-                    // Status Badge Color
-                    let badgeStyle = 'background:#fff3cd; color:#856404;'; // Pending
+                    let badgeStyle = 'background:#fff3cd; color:#856404;';
                     const status = order.status || 'Pending';
                     if (status === 'Completed') badgeStyle = 'background:#d4edda; color:#155724;';
                     else if (status === 'Refilling') badgeStyle = 'background:#ede7f6; color:#512da8;';
                     else if (status === 'Cancelled') badgeStyle = 'background:#f8d7da; color:#721c24;';
 
-                    // Action Button Text
                     let mainBtnText = 'Complete';
                     if (status === 'Completed') mainBtnText = 'Revert';
                     else if (status === 'Refilling') mainBtnText = 'Re-Complete';
                     if (status === 'Cancelled') mainBtnText = 'Restore';
 
-                    // Delete Button Icon
                     const trashIcon = (status === 'Cancelled') ? 'close-circle' : 'trash';
                     const trashColor = (status === 'Cancelled') ? '#c0392b' : '#dc3545';
 
-                    // Screenshot Link
                     let proofHtml = '';
                     if (order.screenshotData) {
                         proofHtml = `<div style="margin-top:5px;">
@@ -3362,23 +3386,18 @@ TIMESTAMP: ${new Date().toISOString()}
                                 <ion-icon name="eye-outline"></ion-icon> View Proof
                             </button>
                         </div>`;
-                        if (order.rejectionReason) {
-                            proofHtml += `<div style="font-size:0.7rem; color:#d63031; margin-top:3px;"><strong>Reason:</strong> ${order.rejectionReason}</div>`;
-                        }
                     }
 
-                    // Payment Method Badge
                     let paymentBadge = '';
                     const payMethod = order.paymentMethod || 'Other';
                     if (payMethod === 'CliQ') paymentBadge = '<span style="font-size:0.7rem; background:#6c5ce7; color:white; padding:2px 4px; border-radius:4px;">CliQ</span>';
                     else if (payMethod === 'Zain Cash') paymentBadge = '<span style="font-size:0.7rem; background:#e17055; color:white; padding:2px 4px; border-radius:4px;">Zain</span>';
                     else paymentBadge = `<span style="font-size:0.7rem; background:#00cec9; color:white; padding:2px 4px; border-radius:4px;">${payMethod}</span>`;
 
-                    // Add messaging button for auction orders
                     let messageBtn = '';
                     if (order.type === 'Auction Win') {
-                        messageBtn = `<button class="btn-action" style="background:#2ecc71; margin-top:5px; width:100%;" onclick="openAuctionMessaging(${index})">
-                                <ion-icon name="chatbubbles-outline"></ion-icon> Message Winner
+                        messageBtn = `<button class="btn-action" style="background:#2ecc71; margin-top:5px; width:100%;" onclick="openAuctionMessaging(${i})">
+                                <ion-icon name="chatbubbles-outline"></ion-icon> Message
                             </button>`;
                     }
 
@@ -3400,26 +3419,27 @@ TIMESTAMP: ${new Date().toISOString()}
                         <td style="color: #041E42;">${revenue.toFixed(2)} JD<br>${paymentBadge}</td>
                         <td style="color: #1E3D2F; font-weight: bold;">+${profit.toFixed(2)} JD</td>
                         <td>
-                            <span class="status-badge" style="${badgeStyle}">
-                                ${status}
-                            </span>
+                            <span class="status-badge" style="${badgeStyle}">${status}</span>
                             ${proofHtml}
                         </td>
                         <td>
-                            <button class="btn-action" onclick="toggleStatus(${index})">
-                                ${mainBtnText}
-                            </button>
-                            <button class="btn-action btn-delete" style="background:${trashColor}" onclick="deleteOrder(${index})">
+                            <button class="btn-action" onclick="toggleStatus(${i})">${mainBtnText}</button>
+                            <button class="btn-action btn-delete" style="background:${trashColor}" onclick="deleteOrder(${i})">
                                 <ion-icon name="${trashIcon}-outline"></ion-icon>
                             </button>
                             ${messageBtn}
                         </td>
                     `;
-                    tableBody.appendChild(row);
-                } catch (err) {
-                    console.error("Critical error rendering order:", err, order);
-                }
-            });
+                    fragment.appendChild(row);
+                } catch (err) { console.error(err); }
+            }
+            tableBody.appendChild(fragment);
+
+            if (orders.length > 100) {
+                const moreRow = document.createElement('tr');
+                moreRow.innerHTML = `<td colspan="9" style="text-align:center; padding:1.5rem;"><button class="btn-action" style="background:#555" onclick="showAllOrders()">Show Remaining ${orders.length - 100} Orders</button></td>`;
+                tableBody.appendChild(moreRow);
+            }
 
             // Update Dashboard Revenue
             document.getElementById('total-revenue').textContent = totalRevenue.toFixed(2) + ' JD';

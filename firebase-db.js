@@ -342,7 +342,14 @@
                 const validUsers = [];
                 const toDelete = [];
                 entries.forEach(([key, u]) => {
-                    if (!u || typeof u !== 'object' || !u.email || !u.name || u.email === 'undefined' || u.name === 'undefined') {
+                    if (!u || typeof u !== 'object') return;
+
+                    // Recover email from key if missing property
+                    if (!u.email && key.includes('___')) {
+                        u.email = _dec(key);
+                    }
+
+                    if (!u.email || !u.name || u.email === 'undefined' || u.name === 'undefined') {
                         toDelete.push(key);
                     } else {
                         validUsers.push(u);

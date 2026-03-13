@@ -2578,8 +2578,8 @@ TIMESTAMP: ${new Date().toISOString()}
                         <strong>${log.name || '—'}</strong>${verifiedBadge}
                         <div style="font-size:0.72rem;color:#636e72;margin-top:2px;">انضم: ${joined}</div>
                     </td>
-                    <td style="font-size:0.82rem;">
-                        <div>${log.email}</div>
+                    <td style="font-size:0.82rem; font-family:monospace;">
+                        <div>${log.email || '—'}</div>
                     </td>
                     <td style="text-align:center;">${methodBadge}</td>
                     <td style="text-align:center;">
@@ -2750,7 +2750,7 @@ TIMESTAMP: ${new Date().toISOString()}
                 row.innerHTML = `
                     <td>${user.joined || '-'}</td>
                     <td><strong>${user.name}</strong> ${isVerified ? '<ion-icon name="checkmark-circle" style="color:#0984e3;"></ion-icon>' : ''}</td>
-                    <td>${user.email}</td>
+                    <td style="font-family:monospace; font-size:0.85rem;">${user.email || (user.id && user.id.includes('___') ? BaqdDB.decodeEmail(user.id) : '—')}</td>
                     <td style="color: var(--color-green); font-weight: bold;">
                         ${user.points !== undefined && user.points !== null ? user.points : 0} 🌿 
                     </td>

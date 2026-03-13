@@ -244,11 +244,23 @@ const DeviceFingerprint = {
             return { isMultiAccount: true, originalEmail: registryEmail, reason: 'local_registry_conflict' };
         }
 
-        // ✅ Clean — store fingerprint in this user's record for cross-browser tracking
-        const userIdx = users.findIndex(u => u.email.toLowerCase() === emailLower);
-        if (userIdx > -1 && !users[userIdx].deviceFingerprint) {
-            users[userIdx].deviceFingerprint = fp;
-            localStorage.setItem('baqdouns_users', JSON.stringify(users));
+        // ✅ Optimized: Move heavy registration tasks to idle time to prevent UI hang on startup
+        if ('requestIdleCallback' in window) {
+            window.requestIdleCallback(() => {
+                const userIdx = users.findIndex(u => u.email.toLowerCase() === emailLower);
+                if (userIdx > -1 && !users[userIdx].deviceFingerprint) {
+                    users[userIdx].deviceFingerprint = fp;
+                    localStorage.setItem('baqdouns_users', JSON.stringify(users));
+                }
+            });
+        } else {
+            setTimeout(() => {
+                const userIdx = users.findIndex(u => u.email.toLowerCase() === emailLower);
+                if (userIdx > -1 && !users[userIdx].deviceFingerprint) {
+                    users[userIdx].deviceFingerprint = fp;
+                    localStorage.setItem('baqdouns_users', JSON.stringify(users));
+                }
+            }, 500);
         }
 
         return { isMultiAccount: false, originalEmail: email, reason: 'ok' };
@@ -386,9 +398,15 @@ document.addEventListener('DOMContentLoaded', () => {
     // 4. Back to Top
     const backToTopBtn = document.getElementById('back-to-top');
     if (backToTopBtn) {
+        let scrollTimeout;
         window.addEventListener('scroll', () => {
-            backToTopBtn.classList.toggle('visible', window.scrollY > 300);
-        });
+            // ✅ Throttled scroll event for performance
+            if (scrollTimeout) return;
+            scrollTimeout = setTimeout(() => {
+                backToTopBtn.classList.toggle('visible', window.scrollY > 300);
+                scrollTimeout = null;
+            }, 100);
+        }, { passive: true });
         backToTopBtn.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
     }
 
@@ -402,30 +420,25 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // 6. SELF-DIAGMOSTIC / "Try It Yourself" Proof
-    ensureSystemUser();
-
-    // 7. Dynamic UI Injection
-    ensureDynamicUI();
-
-    // 8. Global Seeds Dropdown Handler
-    document.addEventListener('click', (e) => {
-        const popup = document.getElementById('seeds-options-popup');
-        const trigger = document.getElementById('loyalty-badge');
-        if (popup && popup.classList.contains('active')) {
-            if (!popup.contains(e.target) && !trigger.contains(e.target)) {
-                popup.classList.remove('active');
-            }
-        }
-    });
-
-    // 9. Heartbeat: Track Active Status
-    startHeartbeat();
+    // ✅ Deferred heavy internal checks
+    if ('requestIdleCallback' in window) {
+        window.requestIdleCallback(() => {
+            ensureSystemUser();
+            ensureDynamicUI();
+            startHeartbeat();
+            startRealtimeSessionSync();
+        });
+    } else {
+        setTimeout(() => {
+            ensureSystemUser();
+            ensureDynamicUI();
+            startHeartbeat();
+            startRealtimeSessionSync();
+        }, 1000);
+    }
 
     // 10. Initial Language Setup
     applyLanguage(currentLang);
-
-    // 11. 🛡️ Real-time Session Sync — Fix mismatches across browsers
-    startRealtimeSessionSync();
 });
 
 /** 🔄 Keeps current user data (Seeds, Status) perfectly synced across all open browsers/devices */
@@ -735,12 +748,13 @@ function updateCartUI() {
     if (cartCount) cartCount.textContent = cart.length;
 
     if (container) {
-        container.innerHTML = '';
         if (cart.length === 0) {
             container.innerHTML = '<div class="empty-cart-msg">Your cart is empty.</div>';
         } else {
+            // ✅ Optimized Batch Rendering: build HTML string once
+            let html = '';
             cart.forEach((item, index) => {
-                container.innerHTML += `
+                html += `
                     <div class="cart-item">
                         <div class="item-info">
                             <h4>${item.name}</h4>
@@ -752,6 +766,7 @@ function updateCartUI() {
                     </div>
                 `;
             });
+            container.innerHTML = html;
         }
     }
 
