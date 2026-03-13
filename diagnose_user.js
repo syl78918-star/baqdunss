@@ -3,40 +3,56 @@
     const targetEmail = "wlaeedabutouima@gmail.com";
     const targetKey = "wlaeedabutouima___gmail,com";
 
-    console.log(`🕵️ Diagnostic: Searching for ${targetEmail} / ${targetKey}`);
+    console.log(`🕵️ Target Recovery: Ensuring ${targetEmail} exists...`);
 
-    BaqdDB.onReady(async () => {
-        const db = firebase.database();
+    if (window.BaqdDB) {
+        BaqdDB.onReady(async () => {
+            const db = firebase.database();
 
-        // Check users node directly
-        const userSnap = await db.ref(`users/${targetKey}`).get();
-        if (userSnap.exists()) {
-            console.log("✅ FOUND in users node:", userSnap.val());
-        } else {
-            console.log("❌ NOT FOUND in users node.");
-        }
+            try {
+                // Check users node directly
+                const userSnap = await db.ref(`users/${targetKey}`).get();
+                if (userSnap.exists()) {
+                    console.log("✅ User already exists. No action needed.");
+                } else {
+                    console.log("⚡ Waleed not found. Starting reconstruction...");
 
-        // Check logs node
-        const logsSnap = await db.ref('login_logs').get();
-        if (logsSnap.exists()) {
-            const logs = logsSnap.val();
-            let foundInLogs = false;
-            Object.entries(logs).forEach(([id, log]) => {
-                const logEmail = log.email || (id.includes('___') ? BaqdDB.decodeEmail(id) : null);
-                if (logEmail && logEmail.toLowerCase().includes("wlaeedabutouima")) {
-                    console.log("✅ FOUND in login_logs:", id, log);
-                    foundInLogs = true;
+                    // 1. Try to find his data in logs or just create fresh
+                    const logsSnap = await db.ref('login_logs').get();
+                    let name = "وليد";
+                    if (logsSnap.exists()) {
+                        Object.values(logsSnap.val()).forEach(l => {
+                            if (l.email && l.email.toLowerCase().trim() === targetEmail) {
+                                name = l.name || name;
+                            }
+                        });
+                    }
+
+                    const newUser = {
+                        email: targetEmail,
+                        name: name,
+                        points: 100, // Default seeds
+                        joined: 'Restored (AI Fix)',
+                        isVerified: true,
+                        lastActive: Date.now(),
+                        uid: 'temp_' + targetKey
+                    };
+
+                    // Save to user node
+                    await db.ref(`users/${targetKey}`).set(newUser);
+
+                    // Add to email_to_uid map
+                    await db.ref(`email_to_uid/${targetKey}`).set(targetKey);
+
+                    // Remove from deleted_users just in case
+                    await db.ref(`deleted_users/${targetKey}`).remove();
+
+                    console.log("✨ SUCCESS: Waleed added back to users list!");
+                    if (window.showAdminToast) showAdminToast(`⚡ تم استعادة حساب ${targetEmail} تلقائياً!`, 'success');
                 }
-            });
-            if (!foundInLogs) console.log("❌ NOT FOUND in login_logs.");
-        }
-
-        // Check email_to_uid
-        const mappingSnap = await db.ref(`email_to_uid/${targetKey}`).get();
-        if (mappingSnap.exists()) {
-            console.log("✅ FOUND in email_to_uid mapping:", mappingSnap.val());
-        } else {
-            console.log("❌ NOT FOUND in email_to_uid mapping.");
-        }
-    });
+            } catch (e) {
+                console.error("Target recovery error:", e);
+            }
+        });
+    }
 })();

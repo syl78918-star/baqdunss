@@ -1237,73 +1237,71 @@
         // Internal helpers accessible for login.html
         _enc, _dec,
         encodeEmail: _enc,
-        decodeEmail: _dec
+        decodeEmail: _dec,
+
+        /** 🩹 RECOVERY: Revive all users who were marked as deleted */
+        async recoverDeletedUsers() {
+            if (!_db) return false;
+            try {
+                console.log('🩹 Reviving deleted users...');
+                await _db.ref('deleted_users').remove();
+                if (window.showAdminToast) showAdminToast('✅ تم استرجاع قائمة المستخدمين المحذوفين!', 'success');
+                return true;
+            } catch (e) {
+                console.error('Recovery failed:', e);
+                return false;
+            }
+        },
+
+        /** 🩹 DISCOVERY: Scan login logs and orders for missing users */
+        async discoverMissingUsers() {
+            if (!_db) return 0;
+            try {
+                console.log('🔍 Scanning logs for missing seeds/emails...');
+                const [logsSnap, ordersSnap, usersSnap] = await Promise.all([
+                    _db.ref('login_logs').get(),
+                    _db.ref('orders').get(),
+                    _db.ref('users').get()
+                ]);
+
+                const currentUsers = usersSnap.val() || {};
+                const emails = new Set();
+
+                if (logsSnap.exists()) {
+                    Object.values(logsSnap.val()).forEach(l => { if (l.email) emails.add(l.email.toLowerCase().trim()); });
+                }
+                if (ordersSnap.exists()) {
+                    Object.values(ordersSnap.val()).forEach(o => { if (o.email) emails.add(o.email.toLowerCase().trim()); });
+                }
+
+                let recoveredCount = 0;
+                for (const email of emails) {
+                    const key = _enc(email);
+                    if (!currentUsers[key]) {
+                        console.log(`✨ Recovering shadow user: ${email}`);
+                        const newUser = {
+                            email: email,
+                            name: email.split('@')[0],
+                            points: 100,
+                            joined: 'Recovered',
+                            uid: 'temp_' + key
+                        };
+                        await _db.ref(`users/${key}`).set(newUser);
+                        recoveredCount++;
+                    }
+                }
+                if (window.showAdminToast) showAdminToast(`✅ تم استرجاع ${recoveredCount} حساب من السجلات!`, 'success');
+                return recoveredCount;
+            } catch (e) {
+                console.error('Discovery failed:', e);
+                return 0;
+            }
+        }
     };
 
     // ── Expose globally ────────────────────────────────────────
     window.BaqdDB = BaqdDB;
 
-    /** 🩹 RECOVERY: Revive all users who were marked as deleted */
-    BaqdDB.recoverDeletedUsers = async function () {
-        if (!_db) return;
-        try {
-            console.log('🩹 Reviving deleted users...');
-            await _db.ref('deleted_users').remove();
-            // This will make them visible again in listeners
-            if (window.showAdminToast) showAdminToast('✅ تم استرجاع قائمة المستخدمين المحذوفين!', 'success');
-            return true;
-        } catch (e) {
-            console.error('Recovery failed:', e);
-            return false;
-        }
-    };
-
-    /** 🩹 DISCOVERY: Scan login logs and orders for missing users */
-    BaqdDB.discoverMissingUsers = async function () {
-        if (!_db) return;
-        try {
-            console.log('🔍 Scanning logs for missing seeds/emails...');
-            const [logsSnap, ordersSnap, usersSnap] = await Promise.all([
-                _db.ref('login_logs').get(),
-                _db.ref('orders').get(),
-                _db.ref('users').get()
-            ]);
-
-            const currentUsers = usersSnap.val() || {};
-            const emails = new Set();
-
-            // Collect emails from logs
-            if (logsSnap.exists()) {
-                Object.values(logsSnap.val()).forEach(l => { if (l.email) emails.add(l.email.toLowerCase().trim()); });
-            }
-            // Collect emails from orders
-            if (ordersSnap.exists()) {
-                Object.values(ordersSnap.val()).forEach(o => { if (o.email) emails.add(o.email.toLowerCase().trim()); });
-            }
-
-            let recoveredCount = 0;
-            for (const email of emails) {
-                const key = _enc(email);
-                if (!currentUsers[key]) {
-                    console.log(`✨ Recovering shadow user: ${email}`);
-                    const newUser = {
-                        email: email,
-                        name: email.split('@')[0],
-                        points: 100, // Default welcome
-                        joined: 'Recovered',
-                        uid: 'temp_' + key
-                    };
-                    await _db.ref(`users/${key}`).set(newUser);
-                    recoveredCount++;
-                }
-            }
-            if (window.showAdminToast) showAdminToast(`✅ تم استرجاع ${recoveredCount} حساب من السجلات!`, 'success');
-            return recoveredCount;
-        } catch (e) {
-            console.error('Discovery failed:', e);
-            return 0;
-        }
-    };
 
     // ── Auto-initialize ────────────────────────────────────────
     if (document.readyState === 'loading') {

@@ -3220,77 +3220,91 @@ TIMESTAMP: ${new Date().toISOString()}
             if (!email) email = prompt("أدخل البريد الإلكتروني الذي تريد استرجاعه من السجلات:");
             if (!email) return;
 
+            // ⏳ Wait for Firebase to be ready
+            if (window.BaqdDB && !BaqdDB.isConnected()) {
+                showAdminToast('⏳ جاري الاتصال بقاعدة البيانات...', 'info');
+                await new Promise(r => BaqdDB.onReady(r));
+            }
+
+            if (!window.BaqdDB || !BaqdDB.recoverDeletedUsers) {
+                alert('⚠️ نظام قاعدة البيانات غير جاهز حالياً. يرجى المحاولة بعد قليل.');
+                return;
+            }
+
             showAdminToast(`🔍 جاري البحث عن ${email}...`, 'info');
 
-            if (window.BaqdDB && BaqdDB.discoverMissingUsers) {
-                // We'll use the existing discover logic but filter for this one
-                try {
-                    const db = firebase.database();
-                    const key = BaqdDB.encodeEmail(email);
+            try {
+                const db = firebase.database();
+                const key = BaqdDB.encodeEmail(email);
 
-                    // Check if already exists first
-                    const snap = await db.ref(`users/${key}`).get();
-                    if (snap.exists()) {
-                        showAdminToast('✅ المستخدم موجود بالفعل في القائمة!', 'success');
-                        loadUsers();
-                        return;
-                    }
+                // Check if already exists first
+                const snap = await db.ref(`users/${key}`).get();
+                if (snap.exists()) {
+                    showAdminToast('✅ المستخدم موجود بالفعل في القائمة!', 'success');
+                    loadUsers();
+                    return;
+                }
 
-                    // Scan logs specifically for this email
-                    const logsSnap = await db.ref('login_logs').get();
-                    let foundLog = null;
-                    if (logsSnap.exists()) {
-                        Object.values(logsSnap.val()).forEach(l => {
-                            if (l.email && l.email.toLowerCase().trim() === email.toLowerCase().trim()) {
-                                foundLog = l;
-                            }
-                        });
-                    }
+                // Scan logs specifically for this email
+                const logsSnap = await db.ref('login_logs').get();
+                let foundLog = null;
+                if (logsSnap.exists()) {
+                    Object.values(logsSnap.val()).forEach(l => {
+                        if (l.email && l.email.toLowerCase().trim() === email.toLowerCase().trim()) {
+                            foundLog = l;
+                        }
+                    });
+                }
 
-                    if (foundLog) {
-                        const newUser = {
-                            email: email,
-                            name: foundLog.name || email.split('@')[0],
-                            points: 100,
-                            joined: 'Recovered (Targeted)',
-                            uid: 'temp_' + key
-                        };
-                        await db.ref(`users/${key}`).set(newUser);
-                        showAdminToast(`✨ تم استرجاع حساب ${email} بنجاح!`, 'success');
+                if (foundLog) {
+                    const newUser = {
+                        email: email,
+                        name: foundLog.name || email.split('@')[0],
+                        points: 100,
+                        joined: 'Recovered (Targeted)',
+                        uid: 'temp_' + key
+                    };
+                    await db.ref(`users/${key}`).set(newUser);
+                    showAdminToast(`✨ تم استرجاع حساب ${email} بنجاح!`, 'success');
+                    loadUsers();
+                } else {
+                    // Try recovering from deleted_users
+                    const delSnap = await db.ref(`deleted_users/${key}`).get();
+                    if (delSnap.exists()) {
+                        await db.ref(`deleted_users/${key}`).remove();
+                        const userCheck = await db.ref(`users/${key}`).get();
+                        if (!userCheck.exists()) {
+                            await db.ref(`users/${key}`).set({ email, name: email.split('@')[0], points: 0, joined: 'Revived' });
+                        }
+                        showAdminToast(`✨ تم استرجاع حساب ${email} من قائمة المحذوفات!`, 'success');
                         loadUsers();
                     } else {
-                        // Try recovering from deleted_users
-                        const delSnap = await db.ref(`deleted_users/${key}`).get();
-                        if (delSnap.exists()) {
-                            await db.ref(`deleted_users/${key}`).remove();
-                            // If it was just hidden, it might appear now. If it's totally gone, we need a record.
-                            const userCheck = await db.ref(`users/${key}`).get();
-                            if (!userCheck.exists()) {
-                                await db.ref(`users/${key}`).set({ email, name: email.split('@')[0], points: 0, joined: 'Revived' });
-                            }
-                            showAdminToast(`✨ تم استرجاع حساب ${email} من قائمة المحذوفات!`, 'success');
-                            loadUsers();
-                        } else {
-                            showAdminToast('❌ لم يتم العثور على أي أثر لهذا الإيميل في السجلات.', 'error');
-                        }
+                        showAdminToast('❌ لم يتم العثور على أي أثر لهذا الإيميل في السجلات.', 'error');
                     }
-                } catch (e) {
-                    console.error('Targeted recovery failed:', e);
-                    showAdminToast('⚠️ فشل في عملية الاسترجاع المستهدفة.', 'error');
                 }
+            } catch (e) {
+                console.error('Targeted recovery failed:', e);
+                showAdminToast('⚠️ فشل في عملية الاسترجاع المستهدفة.', 'error');
             }
         }
 
         async function adminRecoverDeleted() {
             if (!confirm('هل تريد استرجاع جميع المستخدمين الذين تم حذفهم "بالخطأ" من القائمة؟\nسيعودون للظهور في شاشة المستخدمين.')) return;
+
+            // ⏳ Wait for Firebase to be ready
+            if (window.BaqdDB && !BaqdDB.isConnected()) {
+                showAdminToast('⏳ جاري الاتصال بقاعدة البيانات...', 'info');
+                await new Promise(r => BaqdDB.onReady(r));
+            }
+
             if (window.BaqdDB && BaqdDB.recoverDeletedUsers) {
+                showAdminToast('🩹 جاري استعادة الحسابات المحذوفة...', 'info');
                 const ok = await BaqdDB.recoverDeletedUsers();
                 if (ok) {
-                    // Update current list
                     loadUsers();
                 }
             } else {
-                alert('Firebase DB method not available.');
+                alert('⚠️ نظام قاعدة البيانات غير متوفر حالياً. تأكد من اتصال الإنترنت.');
             }
         }
 
