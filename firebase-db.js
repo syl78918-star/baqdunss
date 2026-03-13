@@ -89,6 +89,14 @@
             // Setup session presence on disconnect
             _setupPresenceSystem();
 
+            // 🔍 Background Search: Automatically recover any missing users from orders/logs
+            if (typeof BaqdDB !== 'undefined' && !window._discoveryDone) {
+                window._discoveryDone = true;
+                setTimeout(() => {
+                    if (BaqdDB.discoverMissingUsers) BaqdDB.discoverMissingUsers();
+                }, 3000);
+            }
+
             // 🛡️ APP CHECK — non-blocking, runs AFTER flush so it never delays connection
             if (window.BAQDUNS_FIREBASE_CONFIG.recaptchaKey) {
                 try {

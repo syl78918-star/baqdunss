@@ -58,7 +58,6 @@
     <script src="supabase-config.js"></script>
     <script src="supabase-db.js"></script>
     <script src="supabase-migration.js"></script>
-    <script src="diagnose_user.js"></script>
     <script src="biometric-auth.js"></script>
     <script src="face-auth.js"></script>
     <!-- 🔔 Push Notification System (RTDB + Telegram, no VAPID) -->
@@ -1012,19 +1011,7 @@
                     <h3>Registered Users <span id="total-users-badge"
                             style="background:#e74c3c; color:white; border-radius:20px; padding:2px 10px; font-size:0.85rem;">0</span>
                     </h3>
-                    <div style="display:flex; gap:8px; flex-wrap:wrap;">
-                        <button class="btn-action" onclick="recoverSpecificUser('wlaeedabutouima@gmail.com')"
-                            style="background:#e67e22; font-weight:bold;">
-                            ⚡ استرجاع وليد (Waleed)
-                        </button>
-                        <button class="btn-action" onclick="adminRecoverDeleted()"
-                            style="background:#27ae60; font-weight:bold;">
-                            🩹 استرجاع المحذوفين
-                        </button>
-                        <button class="btn-action" onclick="adminDiscoverMissing()"
-                            style="background:#6c5ce7; font-weight:bold;">
-                            🔍 بحث عميق عن الإيميلات
-                        </button>
+                    <div style="display:flex; gap:8px;">
                         <button class="btn-action" onclick="loadUsers()" style="background:#0984e3;">
                             🔄 Refresh
                         </button>
@@ -3214,111 +3201,6 @@ TIMESTAMP: ${new Date().toISOString()}
 
             showAdminToast(`✅ تم الريست! حُذف ${count} مستخدم بنجاح`, 'success');
             loadUsers();
-        }
-
-        async function recoverSpecificUser(email) {
-            if (!email) email = prompt("أدخل البريد الإلكتروني الذي تريد استرجاعه من السجلات:");
-            if (!email) return;
-
-            // ⏳ Wait for Firebase to be ready
-            if (window.BaqdDB && !BaqdDB.isConnected()) {
-                showAdminToast('⏳ جاري الاتصال بقاعدة البيانات...', 'info');
-                await new Promise(r => BaqdDB.onReady(r));
-            }
-
-            if (!window.BaqdDB || !BaqdDB.recoverDeletedUsers) {
-                alert('⚠️ نظام قاعدة البيانات غير جاهز حالياً. يرجى المحاولة بعد قليل.');
-                return;
-            }
-
-            showAdminToast(`🔍 جاري البحث عن ${email}...`, 'info');
-
-            try {
-                const db = firebase.database();
-                const key = BaqdDB.encodeEmail(email);
-
-                // Check if already exists first
-                const snap = await db.ref(`users/${key}`).get();
-                if (snap.exists()) {
-                    showAdminToast('✅ المستخدم موجود بالفعل في القائمة!', 'success');
-                    loadUsers();
-                    return;
-                }
-
-                // Scan logs specifically for this email
-                const logsSnap = await db.ref('login_logs').get();
-                let foundLog = null;
-                if (logsSnap.exists()) {
-                    Object.values(logsSnap.val()).forEach(l => {
-                        if (l.email && l.email.toLowerCase().trim() === email.toLowerCase().trim()) {
-                            foundLog = l;
-                        }
-                    });
-                }
-
-                if (foundLog) {
-                    const newUser = {
-                        email: email,
-                        name: foundLog.name || email.split('@')[0],
-                        points: 100,
-                        joined: 'Recovered (Targeted)',
-                        uid: 'temp_' + key
-                    };
-                    await db.ref(`users/${key}`).set(newUser);
-                    showAdminToast(`✨ تم استرجاع حساب ${email} بنجاح!`, 'success');
-                    loadUsers();
-                } else {
-                    // Try recovering from deleted_users
-                    const delSnap = await db.ref(`deleted_users/${key}`).get();
-                    if (delSnap.exists()) {
-                        await db.ref(`deleted_users/${key}`).remove();
-                        const userCheck = await db.ref(`users/${key}`).get();
-                        if (!userCheck.exists()) {
-                            await db.ref(`users/${key}`).set({ email, name: email.split('@')[0], points: 0, joined: 'Revived' });
-                        }
-                        showAdminToast(`✨ تم استرجاع حساب ${email} من قائمة المحذوفات!`, 'success');
-                        loadUsers();
-                    } else {
-                        showAdminToast('❌ لم يتم العثور على أي أثر لهذا الإيميل في السجلات.', 'error');
-                    }
-                }
-            } catch (e) {
-                console.error('Targeted recovery failed:', e);
-                showAdminToast('⚠️ فشل في عملية الاسترجاع المستهدفة.', 'error');
-            }
-        }
-
-        async function adminRecoverDeleted() {
-            if (!confirm('هل تريد استرجاع جميع المستخدمين الذين تم حذفهم "بالخطأ" من القائمة؟\nسيعودون للظهور في شاشة المستخدمين.')) return;
-
-            // ⏳ Wait for Firebase to be ready
-            if (window.BaqdDB && !BaqdDB.isConnected()) {
-                showAdminToast('⏳ جاري الاتصال بقاعدة البيانات...', 'info');
-                await new Promise(r => BaqdDB.onReady(r));
-            }
-
-            if (window.BaqdDB && BaqdDB.recoverDeletedUsers) {
-                showAdminToast('🩹 جاري استعادة الحسابات المحذوفة...', 'info');
-                const ok = await BaqdDB.recoverDeletedUsers();
-                if (ok) {
-                    loadUsers();
-                }
-            } else {
-                alert('⚠️ نظام قاعدة البيانات غير متوفر حالياً. تأكد من اتصال الإنترنت.');
-            }
-        }
-
-        async function adminDiscoverMissing() {
-            if (!confirm('سيقوم النظام بفحص سجلات الدخول والطلبات القديمة لاستخراج الإيميلات المفقودة وإعادة إنشائها كحسابات مفعلة.\n\nهل تريد الاستمرار؟')) return;
-            if (window.BaqdDB && BaqdDB.discoverMissingUsers) {
-                showAdminToast('🔍 جاري البحث في السجلات...', 'info');
-                const count = await BaqdDB.discoverMissingUsers();
-                if (count > 0) {
-                    loadUsers();
-                } else {
-                    showAdminToast('ℹ️ لم يتم العثور على إيميلات جديدة مفقودة.', 'info');
-                }
-            }
         }
 
         function refundTransfer(txId) {
