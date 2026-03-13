@@ -865,14 +865,18 @@
         <div class="container">
             <!-- Stats -->
             <div class="stats-grid">
-                <div class="stat-card">
+                <div class="card" onclick="window._cachedOrders=[]; loadOrders();" style="cursor:pointer;"
+                    title="Click to refresh statistics">
+                    <ion-icon name="cash-outline" style="color:#C5A059; font-size:2rem;"></ion-icon>
                     <h3>Total Revenue</h3>
                     <div class="value" id="total-revenue">0 JD</div>
                 </div>
                 <!-- NEW: Profit Card -->
-                <div class="stat-card" style="border-left: 5px solid var(--color-green);">
+                <div class="card" onclick="window._cachedOrders=[]; loadOrders();" style="cursor:pointer;"
+                    title="Click to refresh statistics">
+                    <ion-icon name="trending-up-outline" style="color:#2F855A; font-size:2rem;"></ion-icon>
                     <h3>Net Profit</h3>
-                    <div class="value" id="net-profit" style="color: var(--color-green);">0 JD</div>
+                    <div class="value" id="net-profit">0 JD</div>
                 </div>
                 <div class="stat-card">
                     <h3>Total Orders</h3>
@@ -946,7 +950,7 @@
             <div id="section-orders" class="orders-section">
                 <div class="section-header">
                     <h3>Recent Orders</h3>
-                    <button class="btn-action" onclick="loadOrders()"
+                    <button class="btn-action" onclick="window._cachedOrders=[]; loadOrders()"
                         style="background: white; color: #333; border: 1px solid #ddd;">
                         <ion-icon name="refresh-outline"></ion-icon> Refresh
                     </button>
@@ -3346,7 +3350,7 @@ TIMESTAMP: ${new Date().toISOString()}
 
                     let messageBtn = '';
                     if (order.type === 'Auction Win') {
-                        messageBtn = `<button class="btn-action" style="background:#2ecc71; margin-top:5px; width:100%;" onclick="openAuctionMessaging(${i})">
+                        messageBtn = `<button class="btn-action" style="background:#2ecc71; margin-top:5px; width:100%;" onclick="openAuctionMessaging('${order.id}')">
                                 <ion-icon name="chatbubbles-outline"></ion-icon> Message
                             </button>`;
                     }
@@ -3565,8 +3569,7 @@ TIMESTAMP: ${new Date().toISOString()}
             } catch (e) {
                 orders = safeJSONParse('baqdouns_orders', '[]');
             }
-
-            const index = orders.findIndex(o => o.id === orderId);
+            const index = orders.findIndex(o => o.id == orderId);
             if (index === -1) return;
 
             const order = orders[index];
@@ -3640,7 +3643,7 @@ TIMESTAMP: ${new Date().toISOString()}
                 orders = safeJSONParse('baqdouns_orders', '[]');
             }
 
-            const index = orders.findIndex(o => o.id === orderId);
+            const index = orders.findIndex(o => o.id == orderId);
             if (index === -1) return;
             const order = orders[index];
 
@@ -4921,9 +4924,9 @@ TIMESTAMP: ${new Date().toISOString()}
         }
 
         // ========= AUCTION MESSAGING SYSTEM =========
-        function openAuctionMessaging(orderIndex) {
+        function openAuctionMessaging(orderId) {
             const orders = safeJSONParse('baqdouns_orders', '[]');
-            const order = orders[orderIndex];
+            const order = orders.find(o => o.id == orderId);
 
             if (!order || order.type !== 'Auction Win') {
                 alert('This is not an auction order.');
