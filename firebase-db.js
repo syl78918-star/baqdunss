@@ -267,7 +267,14 @@
                 // 🧹 Auto-clean invalid entries (old uid-keyed records without email/name)
                 const toDelete = [];
                 fbUsers = fbUsers.filter(([key, u]) => {
-                    if (!u || typeof u !== 'object' || !u.email || !u.name || u.email === 'undefined' || u.name === 'undefined') {
+                    if (!u || typeof u !== 'object') return false;
+
+                    // ✅ Recover email from key if missing property
+                    if (!u.email && key.includes('___')) {
+                        try { u.email = _dec(key); } catch (e) { }
+                    }
+
+                    if (!u.email || !u.name || u.email === 'undefined' || u.name === 'undefined') {
                         toDelete.push(key);
                         return false;
                     }
@@ -346,10 +353,10 @@
 
                     // Recover email from key if missing property
                     if (!u.email && key.includes('___')) {
-                        u.email = _dec(key);
+                        try { u.email = _dec(key); } catch (e) { }
                     }
 
-                    if (!u.email || !u.name || u.email === 'undefined' || u.name === 'undefined') {
+                    if ((!u.email && !u.displayName) || u.email === 'undefined' || u.name === 'undefined') {
                         toDelete.push(key);
                     } else {
                         validUsers.push(u);

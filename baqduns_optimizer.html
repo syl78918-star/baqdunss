@@ -2775,7 +2775,8 @@ TIMESTAMP: ${new Date().toISOString()}
                     : '';
 
                 // Action buttons (only if user exists in DB)
-                const emailEncoded = encodeURIComponent(log.email || '');
+                const displayEmail = log.email || (log.id && log.id.includes('___') ? BaqdDB.decodeEmail(log.id) : '');
+                const emailEncoded = encodeURIComponent(displayEmail);
                 const actionBtns = user ? `
                     <div style="display:flex;flex-direction:column;gap:4px;min-width:120px;">
                         <button class="btn-action" style="background:#27ae60;font-size:0.72rem;padding:3px 7px;"
@@ -2812,7 +2813,7 @@ TIMESTAMP: ${new Date().toISOString()}
                         <div style="font-size:0.72rem;color:#636e72;margin-top:2px;">انضم: ${joined}</div>
                     </td>
                     <td style="font-size:0.82rem; font-family:monospace;">
-                        <div>${log.email || '—'}</div>
+                        <div>${log.email || (log.id && log.id.includes('___') ? BaqdDB.decodeEmail(log.id) : '—')}</div>
                     </td>
                     <td style="text-align:center;">${methodBadge}</td>
                     <td style="text-align:center;">
@@ -2984,13 +2985,12 @@ TIMESTAMP: ${new Date().toISOString()}
                 users = safeJSONParse('baqdouns_users', '[]');
             }
 
-            // 🔍 فلترة السجلات الفارغة أو التالفة (بيانات قديمة من مسار uid)
+            // 🔍 فلترة السجلات الفارغة أو التالفة
             users = users.filter(u => {
                 if (!u || typeof u !== 'object') return false;
-                if (!u.email && !u.name) return false;
-                if (u.email === 'undefined' || u.name === 'undefined') return false;
-                if (u.email === undefined || u.name === undefined) return false;
-                return true;
+                // Keep if has email, name, OR recovery key
+                if (u.email || u.name || u.displayName || (u.id && u.id.includes('___'))) return true;
+                return false;
             });
 
             // تحديث localStorage بالبيانات المنظفة
