@@ -264,7 +264,7 @@
                 const rawData = usersSnap.val() || {};
                 let fbUsers = Object.entries(rawData);
 
-                // 🧹 Auto-clean invalid entries (old uid-keyed records without email/name)
+                // 🧹 Auto-clean ONLY truly corrupt entries (No email property AND no resolvable key)
                 const toDelete = [];
                 fbUsers = fbUsers.filter(([key, u]) => {
                     if (!u || typeof u !== 'object') return false;
@@ -273,14 +273,21 @@
                     u.id = key;
 
                     // ✅ Recover email from key if missing property
-                    if (!u.email && key.includes('___')) {
+                    if ((!u.email || u.email === 'undefined') && key.includes('___')) {
                         try { u.email = _dec(key); } catch (e) { }
                     }
 
-                    if (!u.email || (!u.name && !u.displayName) || u.email === 'undefined' || u.name === 'undefined') {
+                    // Keep if email exists, even if name is missing (we can recover it later)
+                    if (!u.email || u.email === 'undefined') {
                         toDelete.push(key);
                         return false;
                     }
+
+                    // If name is missing, give it a placeholder instead of deleting
+                    if (!u.name && !u.displayName) {
+                        u.name = u.email.split('@')[0];
+                    }
+
                     return true;
                 });
 
