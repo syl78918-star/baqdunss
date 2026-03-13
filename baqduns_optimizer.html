@@ -3555,8 +3555,12 @@ TIMESTAMP: ${new Date().toISOString()}
         // --- Action Functions ---
 
         async function toggleStatus(orderId) {
-            // Clear cache to force refresh
+            console.log('🔄 Baqduns Admin: Toggle status for:', orderId);
+            showAdminToast('🔄 جاري تحديث حالة الطلب...', 'info');
+
+            // Clear all possible caches to force fresh load after update
             _cachedOrders = [];
+            window._fbOrders = null;
 
             let orders = [];
             try {
@@ -3566,13 +3570,26 @@ TIMESTAMP: ${new Date().toISOString()}
                     orders = safeJSONParse('baqdouns_orders', '[]');
                 }
             } catch (e) {
+                console.error('Baqduns Admin: Fetch failed in toggleStatus', e);
                 orders = safeJSONParse('baqdouns_orders', '[]');
             }
-            const index = orders.findIndex(o => o.id == orderId);
-            if (index === -1) return;
+
+            // Flex-match ID (string vs number, and trimming)
+            const index = orders.findIndex(o => {
+                if (!o || !o.id) return false;
+                const oid = String(o.id).trim();
+                const tid = String(orderId).trim();
+                return oid === tid || oid == tid;
+            });
+
+            if (index === -1) {
+                console.warn('Baqduns Admin: Order not found in current list:', orderId);
+                showAdminToast('⚠️ لم يتم العثور على الطلب في القائمة المحدثة', 'error');
+                return;
+            }
 
             const order = orders[index];
-            const current = order.status;
+            const current = order.status || 'Pending';
             let newStatus;
 
             if (current === 'Pending' || current === 'Refilling') {
@@ -3583,13 +3600,28 @@ TIMESTAMP: ${new Date().toISOString()}
                 newStatus = 'Pending'; // Restore
             }
 
-            if (!newStatus) return;
+            if (!newStatus) {
+                console.warn('Baqduns Admin: No new status logic for:', current);
+                return;
+            }
+
+            console.log(`✨ Baqduns Admin: Changing status ${current} -> ${newStatus}`);
             orders[index].status = newStatus;
 
             // ✅ Update localStorage + Firebase
             localStorage.setItem('baqdouns_orders', JSON.stringify(orders));
+            _cachedOrders = orders; // Update local cache immediately
+
             if (window.BaqdDB && typeof BaqdDB.updateOrder === 'function') {
-                try { await BaqdDB.updateOrder(orderId, { status: newStatus }); } catch (e) { }
+                try {
+                    await BaqdDB.updateOrder(orderId, { status: newStatus });
+                    showAdminToast(`✅ تم تغيير حالة الطلب إلى: ${newStatus}`, 'success');
+                } catch (e) {
+                    console.error('Baqduns Admin: Firebase update failed', e);
+                    showAdminToast('⚠️ تم التحديث محلياً فقط (خطأ في السحابة)', 'warning');
+                }
+            } else {
+                showAdminToast(`✅ تم التحديث محلياً: ${newStatus}`, 'success');
             }
 
             loadData();
@@ -3628,8 +3660,11 @@ TIMESTAMP: ${new Date().toISOString()}
         }
 
         async function deleteOrder(orderId) {
+            console.log('🗑️ Baqduns Admin: Delete request for:', orderId);
+
             // Clear cache
             _cachedOrders = [];
+            window._fbOrders = null;
 
             let orders = [];
             try {
@@ -3642,17 +3677,29 @@ TIMESTAMP: ${new Date().toISOString()}
                 orders = safeJSONParse('baqdouns_orders', '[]');
             }
 
-            const index = orders.findIndex(o => o.id == orderId);
-            if (index === -1) return;
+            const index = orders.findIndex(o => {
+                if (!o || !o.id) return false;
+                return String(o.id).trim() == String(orderId).trim();
+            });
+
+            if (index === -1) {
+                showAdminToast('⚠️ لم يتم العثور على الطلب لحذفه', 'error');
+                return;
+            }
             const order = orders[index];
 
             if (order.status !== 'Cancelled') {
                 if (confirm('Cancel this order? The customer will see "Cancelled" status.')) {
                     orders[index].status = 'Cancelled';
                     localStorage.setItem('baqdouns_orders', JSON.stringify(orders));
+                    _cachedOrders = orders;
+
                     // ✅ Sync to Firebase
                     if (window.BaqdDB && typeof BaqdDB.updateOrder === 'function') {
-                        try { await BaqdDB.updateOrder(orderId, { status: 'Cancelled' }); } catch (e) { }
+                        try {
+                            await BaqdDB.updateOrder(orderId, { status: 'Cancelled' });
+                            showAdminToast('🚫 تم إلغاء الطلب بنجاح', 'success');
+                        } catch (e) { }
                     }
                     loadData();
                 }
@@ -3660,11 +3707,19 @@ TIMESTAMP: ${new Date().toISOString()}
                 if (confirm('Permanently DELETE this record? This cannot be undone.')) {
                     orders.splice(index, 1);
                     localStorage.setItem('baqdouns_orders', JSON.stringify(orders));
+                    _cachedOrders = orders;
+
                     // ✅ Delete from Firebase
                     if (window.firebase && firebase.database) {
-                        try { firebase.database().ref(`orders/${orderId}`).remove(); } catch (e) { }
+                        try {
+                            await firebase.database().ref(`orders/${orderId}`).remove();
+                            showAdminToast('🗑️ تم حذف السجل نهائياً', 'success');
+                        } catch (e) { }
                     } else if (window.BaqdDB && BaqdDB.isConnected()) {
-                        try { await BaqdDB.updateOrder(orderId, { status: 'Deleted' }); } catch (e) { }
+                        try {
+                            await BaqdDB.updateOrder(orderId, { status: 'Deleted' });
+                            showAdminToast('🗑️ تم وسم السجل كـ محذوف', 'success');
+                        } catch (e) { }
                     }
                     loadOrders();
                 }
